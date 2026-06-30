@@ -8,7 +8,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .user import User
-    from .event import Event
+    from app.events.event import Event
 
 class UserEvent(Base):
     __tablename__ = "user_events"

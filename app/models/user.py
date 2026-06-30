@@ -10,7 +10,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .role import Role
-    from .event import Event
+    from app.events.event import Event
     from .user_event import UserEvent
 
 class User(Base):

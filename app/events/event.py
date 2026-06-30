@@ -5,11 +5,11 @@ from sqlalchemy import ForeignKey, Text, func
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from app.models.base import Base
 
 if TYPE_CHECKING:
-    from .user import User
-    from .user_event import UserEvent
+    from app.models.user import User
+    from app.models.user_event import UserEvent
 
 class Event(Base):
     __tablename__ = "events"
