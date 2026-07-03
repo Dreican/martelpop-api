@@ -6,12 +6,12 @@ from sqlalchemy import String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from app.shared.database.base import Base
 
 if TYPE_CHECKING:
-    from .role import Role
-    from app.events.event import Event
-    from .user_event import UserEvent
+    from app.features.user.role import Role
+    from app.features.events.model import Event
+    from app.features.registrations.models import Registration
 
 class User(Base):
     __tablename__ = "users"
@@ -23,6 +23,9 @@ class User(Base):
     provider: Mapped[Optional[str]]
     provider_id: Mapped[Optional[str]]
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(nullable=True, default=func.now())
+    last_login_at: Mapped[Optional[datetime.datetime]]
+    avatar_file_id: Mapped[Optional[str]]
 
     @hybrid_property
     def fullname(self):
@@ -41,7 +44,7 @@ class User(Base):
         foreign_keys="Event.create_by",
     )
 
-    attendance: Mapped[list["UserEvent"]] = relationship(
+    attendance: Mapped[list["Registration"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )

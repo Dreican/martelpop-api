@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from app.shared.database.base import Base
 
 if TYPE_CHECKING:
-    from .user import User
+    from app.features.user.models import User
 
 class Waitlist(Base):
     __tablename__ = "waitlist"

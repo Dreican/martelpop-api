@@ -1,17 +1,17 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import ForeignKey, String, DateTime, func
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from .base import Base
+from app.shared.database.base import Base
 
 if TYPE_CHECKING:
-    from .user import User
-    from app.events.event import Event
+    from app.features.user.models import User
+    from app.features.events.model import Event
 
-class UserEvent(Base):
-    __tablename__ = "user_events"
+class Registration(Base):
+    __tablename__ = "registrations"
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
@@ -28,9 +28,14 @@ class UserEvent(Base):
         default="going",
     )
 
-    joined_at: Mapped[datetime] = mapped_column(
+    registered_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
+    )
+
+    cancelled_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
     )
 
     checked_in: Mapped[bool] = mapped_column(
