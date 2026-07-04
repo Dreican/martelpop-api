@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 from typing import Optional
-from sqlalchemy import ForeignKey, func, BigInteger, Enum
+from sqlalchemy import ForeignKey, BigInteger, Enum
 from sqlalchemy import String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -10,7 +10,6 @@ from app.features.user.enums import UserStatus
 from app.shared.database.base import Base, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
-    from app.features.user.role import Role
     from app.features.events.model import Event
     from app.features.registrations.models import Registration
     from app.features.storage.models import StoredFile
@@ -74,3 +73,20 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"
 
+class Role(Base):
+    __tablename__ = "roles"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(
+        String(50),
+        unique=True,
+        index=True,
+    )
+    description: Mapped[str | None]
+
+    users: Mapped[list["User"]] = relationship(
+        back_populates="role"
+    )
+
+    def __repr__(self) -> str:
+        return f"Roles(id={self.id!r}, name={self.name!r}, description={self.description!r})"
