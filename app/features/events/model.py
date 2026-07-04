@@ -8,18 +8,17 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.features.events.enums import EventStatus
 from app.features.storage.models import StoredFile
-from app.shared.database.base import Base, TimestampMixin, SoftDeleteMixin
+from app.shared.database.base import Base
+from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
     from app.features.user.models import User
     from app.features.registrations.models import Registration
 
 
-
-
-class Event(Base, TimestampMixin, SoftDeleteMixin):
+class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "events"
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+
     title: Mapped[str] = mapped_column(String(255))
     description: Mapped[Optional[str]] = mapped_column(Text)
     location: Mapped[Optional[str]] = mapped_column(String(255), default="Maison de Village de Martelange")

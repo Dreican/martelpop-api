@@ -3,11 +3,12 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.database.base import Base
+from app.shared.database.mixin import IdMixin, TimestampMixin
 
 if TYPE_CHECKING:
     from app.features.user.models import User
 
-class Waitlist(Base):
+class Waitlist(Base, IdMixin, TimestampMixin):
     __tablename__ = "waitlist"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True)
