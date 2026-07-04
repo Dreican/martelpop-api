@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import ForeignKey, String, DateTime, func
+from sqlalchemy import ForeignKey, String, DateTime, func, UniqueConstraint, Text
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
+from app.features.registrations.enums import RegistrationStatus
 from app.shared.database.base import Base
 
 if TYPE_CHECKING:
@@ -13,40 +14,49 @@ if TYPE_CHECKING:
 class Registration(Base):
     __tablename__ = "registrations"
 
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "event_id",
+            name="uq_registration_user_event"
+        )
+    )
+
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"),
-        primary_key=True,
+        ForeignKey("users.id")
     )
 
     event_id: Mapped[int] = mapped_column(
-        ForeignKey("events.id"),
-        primary_key=True,
+        ForeignKey("events.id")
     )
 
-    status: Mapped[str] = mapped_column(
-        String(20),
-        default="going",
-    )
+    note: Mapped[Optional[str]] = mapped_column(Text)
+
+    status: Mapped[RegistrationStatus]
 
     registered_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        server_default=func.now(),
+        server_default=func.now()
     )
 
     cancelled_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
-        nullable=True,
+        nullable=True
     )
 
     checked_in: Mapped[bool] = mapped_column(
-        default=False,
+        default=False
     )
 
-    # Relationships
+    checked_in_by: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=True
+    )
+
     user: Mapped["User"] = relationship(
-        back_populates="attendance"
+        back_populates="registrations"
     )
 
     event: Mapped["Event"] = relationship(
-        back_populates="attendees"
+        back_populates="registrations"
     )

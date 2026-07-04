@@ -16,5 +16,6 @@ class Role(Base):
     users: Mapped[list["User"]] = relationship(
         back_populates="role"
     )
+
     def __repr__(self) -> str:
         return f"Roles(id={self.id!r}, name={self.name!r})"

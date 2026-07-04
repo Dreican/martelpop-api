@@ -1,36 +1,51 @@
-import datetime
+from datetime import datetime
 from typing import Optional
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Text, func
+from sqlalchemy import ForeignKey, Text, func, BigInteger, Enum
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.shared.database.base import Base
+from app.features.events.enums import EventStatus
+from app.features.storage.models import StoredFile
+from app.shared.database.base import Base, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
     from app.features.user.models import User
     from app.features.registrations.models import Registration
 
 
-class Event(Base):
+
+
+class Event(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "events"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column()
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    title: Mapped[str] = mapped_column(String(255))
     description: Mapped[Optional[str]] = mapped_column(Text)
-    location: Mapped[Optional[str]] = mapped_column(String(120), default="Maison de Village de Martelange")
+    location: Mapped[Optional[str]] = mapped_column(String(255), default="Maison de Village de Martelange")
 
-    start_at: Mapped[Optional[datetime.datetime]] = mapped_column(default=func.now())
-    end_at: Mapped[Optional[datetime.datetime]] = mapped_column(default=func.now())
-    capacity: Mapped[Optional[int]] = mapped_column(nullable=True)
-    status: Mapped[str] = mapped_column(default="upcoming")
-    banner_file_id: Mapped[Optional[str]] = mapped_column(nullable=True)
+    start_at: Mapped[Optional[datetime]] = mapped_column(default=func.now())
+    end_at: Mapped[Optional[datetime]] = mapped_column(default=func.now())
 
-    created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
+    capacity: Mapped[Optional[int]]
+    status: Mapped[EventStatus] = mapped_column(
+        Enum(
+            EventStatus,
+            name="event_status"
+        ),
+        default=EventStatus.DRAFT
+    )
+    banner_file_id: Mapped[int | None] = mapped_column(
+        foreign_keys="stored_files.id",
+        nullable=True,
+        name="fk_events_banner_file"
+    )
+    banner: Mapped[StoredFile | None] = relationship()
 
-    updated_at: Mapped[datetime.datetime] = mapped_column(nullable=True, default=func.now())
-    deleted_at: Mapped[datetime.datetime] = mapped_column(nullable=True, default=func.now())
-    create_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    create_by: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        name="fk_events_created_by"
+    )
 
     creator: Mapped["User"] = relationship(
         back_populates="created_events",
