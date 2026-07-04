@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 from typing import Optional
-from sqlalchemy import ForeignKey, func, BigInteger
+from sqlalchemy import ForeignKey, func, BigInteger, Enum
 from sqlalchemy import String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.features.user.enums import UserStatus
 from app.shared.database.base import Base, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
@@ -40,10 +41,10 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     )
 
     avatar: Mapped[StoredFile | None] = relationship()
-
-    @hybrid_property
-    def fullname(self):
-        return self.firstname + " " + self.lastname
+    status: Mapped[UserStatus] = mapped_column(
+        Enum(UserStatus, name="user_status"),
+        default=UserStatus.ACTIVE
+    )
 
     role_id: Mapped[int] = mapped_column(
         ForeignKey("roles.id"),
@@ -65,6 +66,10 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
         cascade="all, delete-orphan",
         name="fk_registrations_user"
     )
+
+    @hybrid_property
+    def fullname(self):
+        return self.firstname + " " + self.lastname
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"
