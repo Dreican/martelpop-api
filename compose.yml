@@ -1,42 +1,30 @@
+name: martelpop
+
 services:
-
   api:
-    container_name: martelpop-api
-
     build:
       context: .
       dockerfile: Dockerfile
-
     restart: unless-stopped
-
     ports:
       - "8000:8000"
-
     env_file:
       - .env
-
     depends_on:
       db:
         condition: service_healthy
 
   db:
-    container_name: martelpop-db
-
     image: postgres:18
-
     restart: unless-stopped
-
     environment:
       POSTGRES_DB: martelpop
       POSTGRES_USER: martelpop
       POSTGRES_PASSWORD: martelpop
-
     ports:
       - "5432:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql
-
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
@@ -44,24 +32,16 @@ services:
       retries: 5
 
   pgadmin:
-
     image: dpage/pgadmin4
-
-    container_name: martelpop-pgadmin
-
     restart: unless-stopped
-
     depends_on:
       db:
         condition: service_healthy
-
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-
     ports:
       - "5050:80"
-
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 

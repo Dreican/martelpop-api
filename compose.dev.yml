@@ -5,11 +5,3 @@ services:
       - .:/code
     environment:
       UVICORN_RELOAD: "true"
-
-  db:
-    ports:
-      - "5432:5432"
-
-  pgadmin:
-    ports:
-      - "5050:80"
