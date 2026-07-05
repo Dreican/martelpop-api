@@ -1,14 +1,8 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin
-
-if TYPE_CHECKING:
-    pass
-
 
 class StoredFile(Base, IdMixin, TimestampMixin):
     __tablename__ = "stored_files"

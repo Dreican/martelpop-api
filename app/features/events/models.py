@@ -23,7 +23,6 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     description: Mapped[Optional[str]] = mapped_column(Text)
     location: Mapped[Optional[str]] = mapped_column(String(255), default="Maison de Village de Martelange",
                                                     nullable=True)
-
     start_at: Mapped[Optional[datetime]] = mapped_column(default=func.now())
     end_at: Mapped[Optional[datetime]] = mapped_column(default=func.now())
 

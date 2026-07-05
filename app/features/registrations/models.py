@@ -20,8 +20,8 @@ class Registration(Base, IdMixin, TimestampMixin):
         UniqueConstraint(
             "user_id",
             "event_id",
-            name="uq_registration_user_event"
-        )
+            name="uq_registration_user_event",
+        ),
     )
 
     user_id: Mapped[int] = mapped_column(
