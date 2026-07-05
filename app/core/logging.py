@@ -1,13 +1,13 @@
-import logging
 import logging.config
 from pathlib import Path
 
+import logging
 from app.core.config import settings
 
 
 def setup_logging():
     log_dir = Path(settings.LOG_DIR)
-    log_dir.mkdir(exist_ok=True)
+    log_dir.mkdir(parents=True ,exist_ok=True)
 
     logging.config.dictConfig(
         {
@@ -44,11 +44,11 @@ def setup_logging():
                     "encoding": "utf-8",
                     "level": "ERROR"
                 },
+            },
 
-                "root": {
-                    "handlers": ["console", "file", "error_file"],
-                    "level": settings.LOG_LEVEL
-                }
+            "root": {
+                "handlers": ["console", "file", "error_file"],
+                "level": settings.LOG_LEVEL
             }
         }
     )

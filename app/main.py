@@ -1,6 +1,7 @@
+import logging
+
 from fastapi import FastAPI
 
-import logging
 from app.core.logging import setup_logging
 from app.middleware import (
     configure_cors,
@@ -8,7 +9,6 @@ from app.middleware import (
     RequestContextMiddleware,
     RequestLoggingMiddleware,
 )
-
 from app.middleware.error_handling import (
     register_exception_handlers,
 )
@@ -25,12 +25,13 @@ logger.info("CORS configured")
 configure_trusted_hosts(app)
 logger.info("Trusted hosts configured")
 
-app.add_middleware(RequestContextMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(RequestContextMiddleware)
 logger.info("Request logging middleware configured")
 
 register_exception_handlers(app)
 logger.info("Exception handlers registered")
+
 
 @app.get("/")
 async def root():

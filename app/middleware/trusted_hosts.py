@@ -3,7 +3,6 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 
 def configure_trusted_hosts(app: FastAPI):
-
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=[

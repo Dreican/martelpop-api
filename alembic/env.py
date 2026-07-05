@@ -5,12 +5,9 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from app.features.auth.models import *
-from app.features.users.models import *
 from app.features.events.models import *
 from app.features.registrations.enums import *
-from app.features.waitlist.models import *
-from app.features.storage.models import *
-
+from app.features.users.models import *
 
 __all__ = [
     "User",
