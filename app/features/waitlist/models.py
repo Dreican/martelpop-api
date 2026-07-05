@@ -28,7 +28,7 @@ class Waitlist(Base, IdMixin, TimestampMixin):
         nullable=False
     )
     event_id: Mapped[int] = mapped_column(
-        ForeignKey("events.id"), \
+        ForeignKey("events.id"),
         nullable=False
     )
     position: Mapped[int]
@@ -41,6 +41,3 @@ class Waitlist(Base, IdMixin, TimestampMixin):
     event: Mapped["Event"] = relationship(
         back_populates="waitlist"
     )
-
-    def __repr__(self) -> str:
-        return f"Roles(id={self.id!r}, name={self.name!r})"
