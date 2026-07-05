@@ -30,6 +30,7 @@ class SoftDeleteMixin:
         nullable=True
     )
 
+
 class AuditMixin:
     created_by: Mapped[int | None] = mapped_column(
         ForeignKey("users.id"),

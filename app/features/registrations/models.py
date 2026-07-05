@@ -1,17 +1,19 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import ForeignKey, String, DateTime, func, UniqueConstraint, Text
+from sqlalchemy import ForeignKey, DateTime, UniqueConstraint, Text
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from app.features.registrations.enums import RegistrationStatus
 from app.shared.database.base import Base
+from app.shared.database.mixin import IdMixin, TimestampMixin
 
 if TYPE_CHECKING:
-    from app.features.user.models import User
-    from app.features.events.model import Event
+    from app.features.users.models import User
+    from app.features.events.models import Event
 
-class Registration(Base):
+
+class Registration(Base, IdMixin, TimestampMixin):
     __tablename__ = "registrations"
 
     __table_args__ = (
@@ -33,11 +35,6 @@ class Registration(Base):
     note: Mapped[Optional[str]] = mapped_column(Text)
 
     status: Mapped[RegistrationStatus]
-
-    registered_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now()
-    )
 
     cancelled_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),

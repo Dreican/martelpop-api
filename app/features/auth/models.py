@@ -7,12 +7,12 @@ from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin
 
 if TYPE_CHECKING:
-    from app.features.user.models import User
+    from app.features.users.models import User
+
 
 class Role(Base, IdMixin, TimestampMixin):
     __tablename__ = "roles"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(
         String(50),
         unique=True,
@@ -24,15 +24,16 @@ class Role(Base, IdMixin, TimestampMixin):
         back_populates="role"
     )
 
-    permissions: Mapped[list["Permissions"]] = relationship(
-        back_populates="roles",
+    permissions: Mapped[list["RolePermission"]] = relationship(
+        back_populates="role",
         cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
         return f"Roles(id={self.id!r}, name={self.name!r}, description={self.description!r})"
 
-class Permissions(Base, IdMixin, TimestampMixin):
+
+class Permission(Base, IdMixin, TimestampMixin):
     __tablename__ = "permissions"
 
     name: Mapped[str] = mapped_column(
@@ -42,8 +43,8 @@ class Permissions(Base, IdMixin, TimestampMixin):
     )
     description: Mapped[str | None]
 
-    roles: Mapped[list["RolePermissions"]] = relationship(
-        back_populates="permissions",
+    roles: Mapped[list["RolePermission"]] = relationship(
+        back_populates="permission",
         cascade="all, delete-orphan",
     )
 
@@ -51,23 +52,23 @@ class Permissions(Base, IdMixin, TimestampMixin):
         return f"Permissions(id={self.id!r}, name={self.name!r}, description={self.description!r})"
 
 
-class RolePermissions(Base, IdMixin, TimestampMixin):
+class RolePermission(Base, IdMixin, TimestampMixin):
     __tablename__ = "role_permissions"
     __table_args__ = (
         UniqueConstraint(
             "role_id",
             "permission_id",
-            name="uq_role_permission"
-        )
+            name="uq_role_permission",
+        ),
     )
 
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
     permission_id: Mapped[int] = mapped_column(ForeignKey("permissions.id"))
 
-    role: Mapped[Role] = relationship(
+    role: Mapped["Role"] = relationship(
         back_populates="permissions"
     )
 
-    permission: Mapped[Permissions] = relationship(
+    permission: Mapped["Permission"] = relationship(
         back_populates="roles"
     )

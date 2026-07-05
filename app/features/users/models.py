@@ -1,21 +1,23 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
 from typing import Optional
-from sqlalchemy import ForeignKey, BigInteger, Enum
+from typing import TYPE_CHECKING
+
+from sqlalchemy import ForeignKey, Enum
 from sqlalchemy import String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-
-from app.features.user.enums import UserStatus
+from app.features.users.enums import UserStatus
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
     from app.features.auth.models import Role
-    from app.features.events.model import Event
+    from app.features.events.models import Event
     from app.features.registrations.models import Registration
     from app.features.storage.models import StoredFile
+    from app.features.waitlist.models import Waitlist
+
 
 class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "users"
@@ -23,11 +25,12 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     email: Mapped[str] = mapped_column(
         String(255),
         unique=True,
-        Index=True
+        index=True,
+        nullable=False
     )
 
-    firstname: Mapped[str] = mapped_column(String(100))
-    lastname: Mapped[str] = mapped_column(String(100))
+    firstname: Mapped[str] = mapped_column(String(100), nullable=False)
+    lastname: Mapped[str] = mapped_column(String(100), nullable=False)
     password_hash: Mapped[Optional[str]] = mapped_column(String(255))
 
     provider: Mapped[Optional[str]]
@@ -36,9 +39,11 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     last_login_at: Mapped[Optional[datetime]]
 
     avatar_file_id: Mapped[int | None] = mapped_column(
-        ForeignKey("stored_files.id"),
-        nullable=True,
-        name="fk_users_avatar_file"
+        ForeignKey(
+            "stored_files.id",
+            name="fk_users_avatar_file"
+        ),
+        nullable=True
     )
 
     avatar: Mapped[StoredFile | None] = relationship()
@@ -48,24 +53,26 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     role_id: Mapped[int] = mapped_column(
-        ForeignKey("roles.id"),
-        name="fk_users_role"
+        ForeignKey("roles.id")
     )
 
     role: Mapped["Role"] = relationship(
-        back_populates="user"
+        back_populates="users"
     )
 
     created_events: Mapped[list["Event"]] = relationship(
         back_populates="creator",
-        foreign_keys="Event.create_by",
-        name="fk_events_created_by"
+        foreign_keys="Event.created_by"
     )
 
     registrations: Mapped[list["Registration"]] = relationship(
         back_populates="user",
-        cascade="all, delete-orphan",
-        name="fk_registrations_user"
+        cascade="all, delete-orphan"
+    )
+
+    waitlists: Mapped[list["Waitlist"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan"
     )
 
     @hybrid_property
@@ -74,4 +81,3 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"
-
