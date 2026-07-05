@@ -1,0 +1,25 @@
+services:
+
+  api:
+    restart: always
+
+    environment:
+      UVICORN_RELOAD: "false"
+
+    volumes:
+      - ./storage:/code/storage
+      - ./logs:/code/logs
+
+  db:
+    restart: always
+    ports: []
+
+  pgadmin:
+    restart: always
+    profiles:
+      - admin
+    ports: []
+
+volumes:
+  storage:
+  logs:

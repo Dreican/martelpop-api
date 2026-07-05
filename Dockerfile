@@ -1,14 +1,19 @@
-FROM python:3.14
+FROM python:3.14-slim
 LABEL authors="Dreican"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
 
-COPY ./requirements.txt /code/requirements.txt
+COPY ./requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY app ./app
+COPY . .
 
-EXPOSE 8080
+COPY scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+ENTRYPOINT ["/entrypoint.sh"]

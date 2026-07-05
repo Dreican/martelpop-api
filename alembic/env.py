@@ -4,10 +4,14 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
+from app.core.config import settings
 from app.features.auth.models import *
 from app.features.events.models import *
 from app.features.registrations.enums import *
+from app.features.waitlist.models import Waitlist
 from app.features.users.models import *
+
+
 
 __all__ = [
     "User",
@@ -22,11 +26,14 @@ __all__ = [
     "RegistrationStatus",
 ]
 
-from app.features.waitlist.models import Waitlist
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+config.set_main_option(
+    "sqlalchemy.url",
+    settings.DATABASE_URL,
+)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
