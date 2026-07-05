@@ -3,11 +3,12 @@ from argon2.exceptions import VerifyMismatchError
 
 ph = PasswordHasher()
 
-try:
-    hashed_password = ph.hash("my_secret_password")
-    print(hashed_password)
+def hash_password(password: str) -> str:
+    return ph.hash(password)
 
-    ph.verify(hashed_password, "my_secret_password")
-    print("Password is valid")
-except VerifyMismatchError:
-    print("Invalid password")
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    try:
+        return ph.verify(hashed_password, password)
+    except VerifyMismatchError:
+        return False

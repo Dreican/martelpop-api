@@ -8,6 +8,7 @@ class IdMixin:
     id: Mapped[int] = mapped_column(
         BigInteger,
         primary_key=True,
+        autoincrement=True
     )
 
 
@@ -15,12 +16,13 @@ class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
+        nullable=False
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
-        onupdate=func.now(),
+        onupdate=func.now()
     )
 
 
@@ -34,10 +36,10 @@ class SoftDeleteMixin:
 class AuditMixin:
     created_by: Mapped[int | None] = mapped_column(
         ForeignKey("users.id"),
-        nullable=True,
+        nullable=True
     )
 
     updated_by: Mapped[int | None] = mapped_column(
         ForeignKey("users.id"),
-        nullable=True,
+        nullable=True
     )
