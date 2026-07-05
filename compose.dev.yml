@@ -1,0 +1,7 @@
+services:
+
+  api:
+    volumes:
+      - .:/code
+    environment:
+      UVICORN_RELOAD: "true"

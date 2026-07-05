@@ -1,0 +1,73 @@
+# Compose files
+COMPOSE_DEV=podman-compose -f compose.yml -f compose.dev.yml
+COMPOSE_PROD=podman-compose -f compose.yml -f compose.prod.yml
+
+.PHONY: \
+	up down restart logs ps shell \
+	build rebuild \
+	migrate revision downgrade \
+	test lint format \
+	prod-up prod-down
+
+# =========================
+# Development
+# =========================
+
+up:
+	$(COMPOSE_DEV) up --build
+
+down:
+	$(COMPOSE_DEV) down
+
+restart: down up
+
+logs:
+	$(COMPOSE_DEV) logs -f
+
+ps:
+	$(COMPOSE_DEV) ps
+
+shell:
+	$(COMPOSE_DEV) exec api sh
+
+build:
+	$(COMPOSE_DEV) build
+
+rebuild:
+	$(COMPOSE_DEV) build --no-cache
+
+# =========================
+# Database
+# =========================
+
+migrate:
+	$(COMPOSE_DEV) exec api alembic upgrade head
+
+revision:
+	$(COMPOSE_DEV) exec api alembic revision --autogenerate -m "$(m)"
+
+downgrade:
+	$(COMPOSE_DEV) exec api alembic downgrade -1
+
+# =========================
+# Quality
+# =========================
+
+test:
+	$(COMPOSE_DEV) exec api pytest
+
+lint:
+	$(COMPOSE_DEV) exec api ruff check .
+
+format:
+	$(COMPOSE_DEV) exec api ruff format .
+
+# =========================
+# Production
+# =========================
+
+prod-up:
+	$(COMPOSE_PROD) up -d
+
+prod-down:
+	$(COMPOSE_PROD) down
