@@ -7,12 +7,13 @@ from app.core.config import settings
 
 def setup_logging():
     log_dir = Path(settings.LOG_DIR)
-    log_dir.mkdir(parents=True ,exist_ok=True)
+    log_dir.mkdir(parents=True, exist_ok=True)
 
     logging.config.dictConfig(
         {
             "version": 1,
             "disable_existing_loggers": False,
+
             "formatters": {
                 "default": {
                     "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
@@ -43,6 +44,24 @@ def setup_logging():
                     "backupCount": 5,
                     "encoding": "utf-8",
                     "level": "ERROR"
+                },
+            },
+
+            "loggers": {
+                "uvicorn": {
+                    "level": "INFO",
+                    "propagate": False,
+                },
+
+                "uvicorn.error": {
+                    "level": "INFO",
+                    "propagate": False,
+                },
+
+                "http": {
+                    "handlers": ["console", "file"],
+                    "level": "INFO",
+                    "propagate": False,
                 },
             },
 

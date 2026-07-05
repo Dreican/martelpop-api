@@ -1,8 +1,8 @@
 import logging
 
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.core.logging import setup_logging
 from app.middleware import (
@@ -36,9 +36,11 @@ logger.info("Exception handlers registered")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return FileResponse("app/static/favicon.ico")
+
 
 @app.get("/")
 async def root():

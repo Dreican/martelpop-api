@@ -8,10 +8,8 @@ from app.core.config import settings
 from app.features.auth.models import *
 from app.features.events.models import *
 from app.features.registrations.enums import *
-from app.features.waitlist.models import Waitlist
 from app.features.users.models import *
-
-
+from app.features.waitlist.models import Waitlist
 
 __all__ = [
     "User",

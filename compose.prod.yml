@@ -12,13 +12,13 @@ services:
 
   db:
     restart: always
-    ports: []
+    ports: [ ]
 
   pgadmin:
     restart: always
     profiles:
       - admin
-    ports: []
+    ports: [ ]
 
 volumes:
   storage:

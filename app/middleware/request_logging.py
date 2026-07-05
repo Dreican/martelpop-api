@@ -3,7 +3,7 @@ import time
 
 from starlette.middleware.base import BaseHTTPMiddleware
 
-logger = logging.getLogger("http")
+logger = logging.getLogger(__name__)
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):

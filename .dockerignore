@@ -42,6 +42,9 @@ htmlcov/
 Dockerfile
 .dockerignore
 compose.yml
+compose.dev.yml
+compose.prod.yml
+Makefile
 
 # Documentation
 LICENSE
