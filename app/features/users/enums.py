@@ -9,3 +9,8 @@ class UserRole(StrEnum):
 class UserStatus(StrEnum):
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
+
+class AuthProvider(StrEnum):
+    LOCAL = "LOCAL"
+    GOOGLE = "GOOGLE"
+    FACEBOOK = "FACEBOOK"

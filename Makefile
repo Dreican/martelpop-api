@@ -19,6 +19,9 @@ up:
 down:
 	$(COMPOSE_DEV) down
 
+clean:
+	$(COMPOSE_DEV) down -v --remove-orphans
+
 restart: down up
 
 logs:
@@ -35,6 +38,13 @@ build:
 
 rebuild:
 	$(COMPOSE_DEV) build --no-cache
+
+install:
+	pip install -r requirements.txt
+
+reset-db:
+	$(COMPOSE_DEV) down -v
+	$(COMPOSE_DEV) up --build
 
 # =========================
 # Database
@@ -71,3 +81,10 @@ prod-up:
 
 prod-down:
 	$(COMPOSE_PROD) down
+
+# =========================
+# Podman
+# =========================
+
+prune:
+	podman system prune -f

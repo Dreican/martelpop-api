@@ -1,8 +1,8 @@
 """
 
-Revision ID: 06061be53bdd
+Revision ID: 209cc1c3a3fb
 Revises: 
-Create Date: 2026-07-05 21:24:05.218551
+Create Date: 2026-07-06 14:46:46.376110
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '06061be53bdd'
+revision: str = '209cc1c3a3fb'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -82,10 +82,6 @@ def upgrade() -> None:
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('firstname', sa.String(length=100), nullable=False),
     sa.Column('lastname', sa.String(length=100), nullable=False),
-    sa.Column('password_hash', sa.String(length=255), nullable=True),
-    sa.Column('provider', sa.String(), nullable=True),
-    sa.Column('provider_id', sa.String(), nullable=True),
-    sa.Column('last_login_at', sa.DateTime(), nullable=True),
     sa.Column('avatar_file_id', sa.BigInteger(), nullable=True),
     sa.Column('status', sa.Enum('ACTIVE', 'INACTIVE', name='user_status'), nullable=False),
     sa.Column('role_id', sa.BigInteger(), nullable=False),
@@ -98,6 +94,19 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_table('authentication_identities',
+    sa.Column('user_id', sa.BigInteger(), nullable=False),
+    sa.Column('password_hash', sa.String(), nullable=True),
+    sa.Column('provider', sa.Enum('LOCAL', 'GOOGLE', 'FACEBOOK', name='authprovider'), nullable=False),
+    sa.Column('provider_user_id', sa.String(), nullable=True),
+    sa.Column('last_login_at', sa.DateTime(), nullable=True),
+    sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('provider', 'provider_user_id', name='uq_provider_user_id')
+    )
     op.create_table('events',
     sa.Column('title', sa.String(length=255), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
@@ -154,6 +163,7 @@ def downgrade() -> None:
     op.drop_table('waitlist')
     op.drop_table('registrations')
     op.drop_table('events')
+    op.drop_table('authentication_identities')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     op.drop_table('role_permissions')

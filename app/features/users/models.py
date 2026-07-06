@@ -2,12 +2,12 @@ from datetime import datetime
 from typing import Optional
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Enum
+from sqlalchemy import ForeignKey, Enum, UniqueConstraint
 from sqlalchemy import String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.features.users.enums import UserStatus
+from app.features.users.enums import UserStatus, AuthProvider
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
 
@@ -31,12 +31,6 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
 
     firstname: Mapped[str] = mapped_column(String(100), nullable=False)
     lastname: Mapped[str] = mapped_column(String(100), nullable=False)
-    password_hash: Mapped[Optional[str]] = mapped_column(String(255))
-
-    provider: Mapped[Optional[str]]
-    provider_id: Mapped[Optional[str]]
-
-    last_login_at: Mapped[Optional[datetime]]
 
     avatar_file_id: Mapped[int | None] = mapped_column(
         ForeignKey(
@@ -75,9 +69,40 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
         cascade="all, delete-orphan"
     )
 
+    auth_identities: Mapped[list["AuthenticationIdentity"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
     @hybrid_property
     def fullname(self):
         return self.firstname + " " + self.lastname
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"
+
+class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
+    __tablename__ = "authentication_identities"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "provider",
+            "provider_user_id",
+            name="uq_provider_user_id"
+        ),
+    )
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=False
+    )
+
+    password_hash: Mapped[str | None]
+    provider: Mapped[AuthProvider]
+    provider_user_id: Mapped[str | None]
+
+    last_login_at: Mapped[Optional[datetime]]
+
+    user: Mapped["User"] = relationship(
+        back_populates="authentication_identity"
+    )
