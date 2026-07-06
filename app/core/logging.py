@@ -2,7 +2,7 @@ import logging.config
 from pathlib import Path
 
 import logging
-from app.core.config import settings
+from app.core.config.config import settings
 
 
 def setup_logging():

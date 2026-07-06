@@ -20,7 +20,7 @@ fi
 
 echo "Starting FastAPI..."
 if [ "$UVICORN_RELOAD" = "true" ]; then
-  exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --no-access-log
+  exec uvicorn app.main:app --host "${HOST}" --port "${PORT}" --reload --no-access-log
 else
-  exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-access-log
+  exec uvicorn app.main:app --host "${HOST}" --port "${PORT}" --no-access-log
 fi
