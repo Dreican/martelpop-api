@@ -3,11 +3,12 @@ COMPOSE_DEV=podman-compose -f compose.yml -f compose.dev.yml
 COMPOSE_PROD=podman-compose -f compose.yml -f compose.prod.yml
 
 .PHONY: \
-	up down restart logs ps shell \
-	build rebuild \
+	up down clean restart logs ps shell \
+	build rebuild install reset-db \
 	migrate revision downgrade \
 	test lint format \
-	prod-up prod-down
+	prod-up prod-down \
+	prune
 
 # =========================
 # Development
