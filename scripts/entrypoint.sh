@@ -11,8 +11,12 @@ done
 
 echo "PostgreSQL is ready."
 
-echo "Running database migrations..."
-alembic upgrade head
+if [ "$ALEMBIC_AUTO_UPGRADE" = "true" ]; then
+  echo "Running database migrations..."
+  alembic upgrade head
+else
+  echo "Alembic auto upgrade off"
+fi
 
 echo "Starting FastAPI..."
 if [ "$UVICORN_RELOAD" = "true" ]; then
