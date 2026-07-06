@@ -3,7 +3,7 @@ set -e
 
 echo "Waiting for the database"
 
-until pg_isready -h "${POSTGRES_HOST:-db}" -p "${POSTGRES_PORT:-5432}" -U "${POSTGRES_USER}" -d "${POSTGRES_DB}"
+until pg_isready -h "${DB_HOST:-db}" -p "${DB_PORT:-5432}" -U "${DB_USER}" -d "${DB_NAME}"
 do
   echo "PostgreSQL is unavailable - sleeping..."
   sleep 2
