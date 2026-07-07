@@ -1,6 +1,7 @@
 class JwtError(Exception):
     """Base JWT exception."""
 
+
 class InvalidTokenError(JwtError):
     pass
 

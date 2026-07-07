@@ -5,12 +5,11 @@ import jwt
 from jwt import ExpiredSignatureError
 from jwt import InvalidTokenError as PyJwtError
 
+from app.features.auth.enums import TokenType
 from app.features.auth.exceptions import (
     ExpiredTokenError,
     InvalidTokenError,
 )
-
-from app.features.auth.enums import TokenType
 from app.features.auth.security.jwt_config import JwtConfig
 from app.features.auth.security.token_payload import TokenPayload
 from app.features.users.enums import UserRole
@@ -29,7 +28,8 @@ class JwtService:
     def _algorithm(self) -> str:
         return self._config.algorithm
 
-    def _create_token(self, user_id: UUID, token_type: TokenType, expires_delta: timedelta, role: UserRole | None = None) -> str:
+    def _create_token(self, user_id: UUID, token_type: TokenType, expires_delta: timedelta,
+                      role: UserRole | None = None) -> str:
         now = datetime.now(timezone.utc)
         payload = {
             "sub": str(user_id),

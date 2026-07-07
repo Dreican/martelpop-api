@@ -1,15 +1,14 @@
 from pydantic import Field
-from pydantic.v1 import BaseModel
 from pydantic_settings import SettingsConfigDict, BaseSettings
 
-from .app import AppConfig
-from .cors import CORSConfig
-from .database import DatabaseConfig
-from .jwt import JWTConfig
-from .logging import LogConfig
-from .oauth import OAuthConfig
-from .smtp import SMTPConfig
-from .storage import StorageConfig
+from app import AppConfig
+from cors import CORSConfig
+from database import DatabaseConfig
+from jwt import JWTConfig
+from logging import LogConfig
+from oauth import OAuthConfig
+from smtp import SMTPConfig
+from storage import StorageConfig
 
 
 class Settings(BaseSettings):

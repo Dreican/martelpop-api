@@ -81,6 +81,7 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"
 
+
 class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
     __tablename__ = "authentication_identities"
 

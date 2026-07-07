@@ -5,13 +5,13 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from app.core.config.settings import settings
-from app.shared.database.base import Base
 from app.features.auth.models import Role, Permission, RolePermission
 from app.features.events.models import Event, EventStatus
 from app.features.registrations.models import Registration, RegistrationStatus
-from app.features.users.models import User
 from app.features.storage.models import StoredFile
+from app.features.users.models import User
 from app.features.waitlist.models import Waitlist
+from app.shared.database.base import Base
 
 __all__ = [
     "Base",
@@ -26,8 +26,6 @@ __all__ = [
     "EventStatus",
     "RegistrationStatus",
 ]
-
-
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
