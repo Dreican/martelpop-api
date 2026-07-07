@@ -3,7 +3,7 @@ set -e
 
 echo "Waiting for the database"
 
-until pg_isready -h "${DB_HOST:-db}" -p "${DB_PORT:-5432}" -U "${DB_USER}" -d "${DB_NAME}"
+until pg_isready -h "${DB__HOST:-db}" -p "${DB__PORT:-5432}" -U "${DB__USER}" -d "${DB__NAME}"
 do
   echo "PostgreSQL is unavailable - sleeping..."
   sleep 2
@@ -20,7 +20,7 @@ fi
 
 echo "Starting FastAPI..."
 if [ "$UVICORN_RELOAD" = "true" ]; then
-  exec uvicorn app.main:app --host "${HOST}" --port "${PORT}" --reload --no-access-log
+  exec uvicorn app.main:app --host "${APP__HOST}" --port "${APP__PORT}" --reload --no-access-log
 else
-  exec uvicorn app.main:app --host "${HOST}" --port "${PORT}" --no-access-log
+  exec uvicorn app.main:app --host "${APP__HOST}" --port "${APP__PORT}" --no-access-log
 fi

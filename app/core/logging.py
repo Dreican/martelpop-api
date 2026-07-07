@@ -33,7 +33,7 @@ def setup_logging():
                     "maxBytes": 10 * 1024 * 1024,
                     "backupCount": 5,
                     "encoding": "utf-8",
-                    "level": settings.LOG_LEVEL
+                    "level": settings.log.level
                 },
 
                 "error_file": {

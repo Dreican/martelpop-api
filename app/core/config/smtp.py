@@ -1,14 +1,7 @@
-from pydantic_settings import SettingsConfigDict
-
-from app.core.config.base import AppBaseSettings
+from pydantic import BaseModel
 
 
-class SMTPSettings(AppBaseSettings):
-    model_config = SettingsConfigDict(
-        **AppBaseSettings.model_config,
-        env_prefix="SMTP_",
-    )
-
+class SMTPConfig(BaseModel):
     host: str
     port: int = 587
     username: str

@@ -1,14 +1,7 @@
-from pydantic_settings import SettingsConfigDict
-
-from app.core.config.base import AppBaseSettings
+from pydantic import BaseModel
 
 
-class LogSettings(AppBaseSettings):
-    model_config = SettingsConfigDict(
-        **AppBaseSettings.model_config,
-        env_prefix="LOG_",
-    )
-
+class LogConfig(BaseModel):
     level: str = "INFO"
     dir: str = "/code/logs"
     file: str = "application.log"

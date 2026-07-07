@@ -1,14 +1,7 @@
-from pydantic_settings import SettingsConfigDict
-
-from app.core.config.base import AppBaseSettings
+from pydantic import BaseModel
 
 
-class AppSettings(AppBaseSettings):
-    model_config = SettingsConfigDict(
-        **AppBaseSettings.model_config,
-        env_prefix="APP_",
-    )
-
+class AppConfig(BaseModel):
     name: str = "MartelPop API"
     version: str = "0.1.0"
     env: str = "DEV"

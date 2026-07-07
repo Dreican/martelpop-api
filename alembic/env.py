@@ -4,7 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from app.core.config.base import settings
+from app.core.config.settings import settings
 from app.shared.database.base import Base
 from app.features.auth.models import Role, Permission, RolePermission
 from app.features.events.models import Event, EventStatus
@@ -35,7 +35,7 @@ config = context.config
 
 config.set_main_option(
     "sqlalchemy.url",
-    settings.DATABASE_URL,
+    str(settings.db.database_url),
 )
 
 # Interpret the config file for Python logging.

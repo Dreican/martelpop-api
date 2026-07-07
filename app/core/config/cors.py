@@ -1,12 +1,5 @@
-from pydantic_settings import SettingsConfigDict
-
-from app.core.config.base import AppBaseSettings
+from pydantic import BaseModel
 
 
-class CORSSettings(AppBaseSettings):
-    model_config = SettingsConfigDict(
-        **AppBaseSettings.model_config,
-        env_prefix="CORS_",
-    )
-
-    backend_cors_origins: list[str] = []
+class CORSConfig(BaseModel):
+    allowed_origins: list[str] = []
