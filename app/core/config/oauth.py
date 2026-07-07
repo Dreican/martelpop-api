@@ -1,15 +1,7 @@
-from pydantic import SecretStr
-from pydantic_settings import SettingsConfigDict
-
-from app.core.config.base import AppBaseSettings
+from pydantic import SecretStr, BaseModel
 
 
-class OAuthSettings(AppBaseSettings):
-    model_config = SettingsConfigDict(
-        **AppBaseSettings.model_config,
-        env_prefix="OAUTH_",
-    )
-
+class OAuthConfig(BaseModel):
     google_client_id: str
     google_client_secret: SecretStr
 

@@ -1,15 +1,7 @@
-from pydantic import SecretStr
-from pydantic_settings import SettingsConfigDict
-
-from app.core.config.base import AppBaseSettings
+from pydantic import SecretStr, BaseModel
 
 
-class JWTSettings(AppBaseSettings):
-    model_config = SettingsConfigDict(
-        **AppBaseSettings.model_config,
-        env_prefix="JWT_",
-    )
-
+class JWTConfig(BaseModel):
     secret_key: SecretStr
     algorithm: str = "HS256"
     access_token_expiration_minutes: int = 15
