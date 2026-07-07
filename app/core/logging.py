@@ -2,11 +2,11 @@ import logging.config
 from pathlib import Path
 
 import logging
-from app.core.config.config import settings
+from app.core.config.settings import settings
 
 
 def setup_logging():
-    log_dir = Path(settings.LOG_DIR)
+    log_dir = Path(settings.log.dir)
     log_dir.mkdir(parents=True, exist_ok=True)
 
     logging.config.dictConfig(
@@ -23,13 +23,13 @@ def setup_logging():
                 "console": {
                     "class": "logging.StreamHandler",
                     "formatter": "default",
-                    "level": settings.LOG_LEVEL
+                    "level": settings.log.level
                 },
 
                 "file": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "formatter": "default",
-                    "filename": f"{log_dir}/{settings.LOG_FILE}",
+                    "filename": f"{log_dir}/{settings.log.file}",
                     "maxBytes": 10 * 1024 * 1024,
                     "backupCount": 5,
                     "encoding": "utf-8",
@@ -67,7 +67,7 @@ def setup_logging():
 
             "root": {
                 "handlers": ["console", "file", "error_file"],
-                "level": settings.LOG_LEVEL
+                "level": settings.log.level
             }
         }
     )
