@@ -12,5 +12,8 @@ class TokenPayload(BaseModel):
     type: TokenType
     role: UserRole | None = None
 
+    iss: str
+    aud: str
+
     iat: datetime
     exp: datetime
