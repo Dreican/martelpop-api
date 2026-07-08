@@ -9,6 +9,7 @@ from app.shared.database.mixin import IdMixin, TimestampMixin
 if TYPE_CHECKING:
     from app.features.events.models.event import Event
 
+
 class EventStatus(Base, IdMixin, TimestampMixin):
     __tablename__ = "event_statuses"
 

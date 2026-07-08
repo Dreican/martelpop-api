@@ -63,5 +63,3 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
         back_populates="event",
         cascade="all, delete-orphan",
     )
-
-

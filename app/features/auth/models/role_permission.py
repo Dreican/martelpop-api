@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
+
 from sqlalchemy import UniqueConstraint, ForeignKey, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -9,6 +10,7 @@ from app.shared.database.mixin import IdMixin, TimestampMixin
 if TYPE_CHECKING:
     from app.features.auth.models.permission import Permission
     from app.features.auth.models.role import Role
+
 
 class RolePermission(Base, IdMixin, TimestampMixin):
     __tablename__ = "role_permissions"

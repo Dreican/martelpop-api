@@ -9,6 +9,7 @@ from app.shared.database.mixin import IdMixin, TimestampMixin
 if TYPE_CHECKING:
     from app.features.auth.models.role_permission import RolePermission
 
+
 class Permission(Base, IdMixin, TimestampMixin):
     __tablename__ = "permissions"
 

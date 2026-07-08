@@ -1,12 +1,13 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
+
 from sqlalchemy import String, ForeignKey, Enum, Uuid
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.features.users.enums.user_status import UserStatus
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
-from app.features.users.enums.user_status import UserStatus
 
 if TYPE_CHECKING:
     from app.features.auth.models.role import Role

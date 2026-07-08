@@ -1,7 +1,7 @@
+import logging
 import logging.config
 from pathlib import Path
 
-import logging
 from app.core.config.settings import settings
 
 

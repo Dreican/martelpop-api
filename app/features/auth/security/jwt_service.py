@@ -11,7 +11,6 @@ from app.features.auth.exceptions import (
     ExpiredTokenError,
     InvalidTokenError, InvalidTokenTypeError,
 )
-
 from app.features.auth.security.token_payload import TokenPayload
 from app.features.users.enums.user_role import UserRole
 
