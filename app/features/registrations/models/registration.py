@@ -1,16 +1,17 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import UniqueConstraint, ForeignKey, Text, DateTime, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.features.events.models.event import Event
-from app.features.registrations.enums.registration_status import RegistrationStatus
-from app.features.users.models.user import User
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin
+from app.features.registrations.enums.registration_status import RegistrationStatus
 
+if TYPE_CHECKING:
+    from app.features.users.models.user import User
+    from app.features.events.models.event import Event
 
 class Registration(Base, IdMixin, TimestampMixin):
     __tablename__ = "registrations"

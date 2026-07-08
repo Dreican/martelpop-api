@@ -5,18 +5,30 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from app.core.config.settings import settings
+from app.features.auth.models.authentication import AuthenticationIdentity
+from app.features.auth.models.permission import Permission
+from app.features.auth.models.role import Role
+from app.features.auth.models.role_permission import RolePermission
 from app.features.events.models.event import Event
-from app.features.registrations.models.models import RegistrationStatus
+from app.features.events.models.event_status import EventStatus
+from app.features.registrations.models.registration import Registration
 from app.features.storage.models.stored_file import StoredFile
+from app.features.users.models.user import User
 from app.features.waitlist.models.waitlist import Waitlist
 from app.shared.database.base import Base
 
 __all__ = [
     "Base",
     "Event",
+    "EventStatus",
     "Waitlist",
     "StoredFile",
-    "RegistrationStatus",
+    "Registration",
+    "User",
+    "Role",
+    "RolePermission",
+    "AuthenticationIdentity",
+    "Permission"
 ]
 
 # this is the Alembic Config object, which provides

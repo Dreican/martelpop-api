@@ -1,10 +1,14 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.features.auth.models.role_permission import RolePermission
-from app.features.users.models.user import User
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin
+
+if TYPE_CHECKING:
+    from app.features.auth.models.role_permission import RolePermission
+    from app.features.users.models.user import User
 
 
 class Role(Base, IdMixin, TimestampMixin):

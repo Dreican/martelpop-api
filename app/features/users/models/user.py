@@ -1,18 +1,20 @@
+from typing import TYPE_CHECKING
 from uuid import UUID
 from sqlalchemy import String, ForeignKey, Enum, Uuid
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
-from app.features.auth.models.role import Role
-from app.features.events.models.event import Event
-from app.features.registrations.models.registration import Registration
-from app.features.storage.models.stored_file import StoredFile
-from app.features.users.enums.user_status import UserStatus
-from app.features.auth.models.authentication import AuthenticationIdentity
-from app.features.waitlist.models.waitlist import Waitlist
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
+
+if TYPE_CHECKING:
+    from app.features.auth.models.role import Role
+    from app.features.events.models.event import Event
+    from app.features.registrations.models.registration import Registration
+    from app.features.storage.models.stored_file import StoredFile
+    from app.features.users.enums.user_status import UserStatus
+    from app.features.auth.models.authentication import AuthenticationIdentity
+    from app.features.waitlist.models.waitlist import Waitlist
 
 
 class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
