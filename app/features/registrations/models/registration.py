@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import UniqueConstraint, ForeignKey, Text, DateTime
+from sqlalchemy import UniqueConstraint, ForeignKey, Text, DateTime, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.features.events.models.event import Event
@@ -24,10 +24,12 @@ class Registration(Base, IdMixin, TimestampMixin):
     )
 
     user_id: Mapped[UUID] = mapped_column(
+        Uuid,
         ForeignKey("users.id")
     )
 
     event_id: Mapped[UUID] = mapped_column(
+        Uuid,
         ForeignKey("events.id")
     )
 

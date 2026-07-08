@@ -1,7 +1,8 @@
 from uuid import UUID
-from sqlalchemy import String, ForeignKey, Enum
+from sqlalchemy import String, ForeignKey, Enum, Uuid
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from app.features.auth.models.role import Role
 from app.features.events.models.event import Event
@@ -28,6 +29,7 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     lastname: Mapped[str] = mapped_column(String(100), nullable=False)
 
     avatar_file_id: Mapped[UUID | None] = mapped_column(
+        Uuid,
         ForeignKey(
             "stored_files.id",
             name="fk_users_avatar_file"
@@ -42,6 +44,7 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     role_id: Mapped[UUID] = mapped_column(
+        Uuid,
         ForeignKey("roles.id")
     )
 

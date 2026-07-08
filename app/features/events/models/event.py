@@ -3,7 +3,7 @@ from typing import Optional
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Text, func
+from sqlalchemy import ForeignKey, Text, func, Uuid
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -31,12 +31,14 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     capacity: Mapped[Optional[int]]
 
     banner_file_id: Mapped[UUID | None] = mapped_column(
+        Uuid,
         ForeignKey("stored_files.id"),
         nullable=True,
     )
     banner: Mapped[StoredFile | None] = relationship()
 
     created_by: Mapped[UUID] = mapped_column(
+        Uuid,
         ForeignKey(
             "users.id",
             name="fk_events_created_by"

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.database.base import Base
@@ -25,10 +25,12 @@ class Waitlist(Base, IdMixin, TimestampMixin):
     )
 
     user_id: Mapped[UUID] = mapped_column(
+        Uuid,
         ForeignKey("users.id"),
         nullable=False
     )
     event_id: Mapped[UUID] = mapped_column(
+        Uuid,
         ForeignKey("events.id"),
         nullable=False
     )

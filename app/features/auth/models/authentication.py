@@ -2,8 +2,9 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import UniqueConstraint, ForeignKey
+from sqlalchemy import UniqueConstraint, ForeignKey, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from app.features.auth.enums.auth_provider import AuthProvider
 from app.features.users.models.user import User
@@ -23,6 +24,7 @@ class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
     )
 
     user_id: Mapped[UUID] = mapped_column(
+        Uuid,
         ForeignKey("users.id"),
         nullable=False
     )

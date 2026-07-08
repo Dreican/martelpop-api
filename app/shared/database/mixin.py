@@ -2,13 +2,13 @@ from datetime import datetime
 from uuid import uuid4
 
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy import DateTime, func, ForeignKey, UUID
+from sqlalchemy import DateTime, func, ForeignKey, UUID, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 
 class IdMixin:
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
     )

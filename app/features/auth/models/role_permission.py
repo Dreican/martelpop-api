@@ -1,5 +1,5 @@
 from uuid import UUID
-from sqlalchemy import UniqueConstraint, ForeignKey
+from sqlalchemy import UniqueConstraint, ForeignKey, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.features.auth.models.permission import Permission
@@ -18,8 +18,15 @@ class RolePermission(Base, IdMixin, TimestampMixin):
         ),
     )
 
-    role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id"))
-    permission_id: Mapped[UUID] = mapped_column(ForeignKey("permissions.id"))
+    role_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        ForeignKey("roles.id")
+    )
+
+    permission_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        ForeignKey("permissions.id")
+    )
 
     role: Mapped["Role"] = relationship(
         back_populates="permissions"
