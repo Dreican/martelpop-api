@@ -9,6 +9,7 @@ from app.features.auth.models.authentication import AuthenticationIdentity
 from app.features.auth.models.permission import Permission
 from app.features.auth.models.role import Role
 from app.features.auth.models.role_permission import RolePermission
+from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
 from app.features.events.models.event_status import EventStatus
 from app.features.registrations.models.registration import Registration
@@ -20,6 +21,7 @@ from app.shared.database.base import Base
 __all__ = [
     "Base",
     "Event",
+    "ActivityType",
     "EventStatus",
     "Waitlist",
     "StoredFile",

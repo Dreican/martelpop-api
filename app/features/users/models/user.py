@@ -34,13 +34,14 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
         Uuid,
         ForeignKey(
             "stored_files.id",
-            name="fk_users_avatar_file"
+            name="fk_users_avatar_file",
+            use_alter=True,
         ),
     )
-
     avatar: Mapped[StoredFile | None] = relationship(
         foreign_keys=[avatar_file_id],
     )
+
     status: Mapped[UserStatus] = mapped_column(
         Enum(UserStatus, name="user_status"),
         default=UserStatus.ACTIVE
