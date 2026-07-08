@@ -35,22 +35,18 @@ class Registration(Base, IdMixin, TimestampMixin):
         ForeignKey("events.id")
     )
 
-    note: Mapped[Optional[str]] = mapped_column(Text)
+    note: Mapped[str | None]
 
-    status: Mapped[RegistrationStatus]
+    status: Mapped[RegistrationStatus] = mapped_column(default=RegistrationStatus.REGISTERED)
 
-    cancelled_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True),
-        nullable=True
-    )
+    cancelled_at: Mapped[datetime | None]
 
     checked_in: Mapped[bool] = mapped_column(
         default=False
     )
 
     checked_in_by: Mapped[Optional[UUID]] = mapped_column(
-        ForeignKey("users.id"),
-        nullable=True
+        ForeignKey("users.id")
     )
 
     user: Mapped["User"] = relationship(

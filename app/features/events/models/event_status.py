@@ -18,12 +18,13 @@ class EventStatus(Base, IdMixin, TimestampMixin):
     # CANCELLED = "CANCELLED"
     # COMPLETED = "COMPLETED"
 
-    name: Mapped[str] = mapped_column(String(50), unique=True, index=True)
+    code: Mapped[str] = mapped_column(String(50), unique=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
     description: Mapped[str | None]
-    sort_order: Mapped[int] = mapped_column(default=0, nullable=False)
-    is_public: Mapped[bool] = mapped_column(default=True, nullable=False)
-    is_bookable: Mapped[bool] = mapped_column(default=True, nullable=False)
-    allow_edit: Mapped[bool] = mapped_column(default=True, nullable=False)
+    sort_order: Mapped[int] = mapped_column(default=0)
+    is_public: Mapped[bool] = mapped_column(default=True)
+    is_bookable: Mapped[bool] = mapped_column(default=True)
+    allow_edit: Mapped[bool] = mapped_column(default=True)
 
     events: Mapped[list["Event"]] = relationship(
         back_populates="status"

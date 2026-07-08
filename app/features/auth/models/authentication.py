@@ -26,15 +26,14 @@ class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
 
     user_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey("users.id"),
-        nullable=False
+        ForeignKey("users.id")
     )
 
     password_hash: Mapped[str | None]
     provider: Mapped[AuthProvider]
     provider_user_id: Mapped[str | None]
 
-    last_login_at: Mapped[Optional[datetime]]
+    last_login_at: Mapped[datetime | None]
 
     user: Mapped["User"] = relationship(
         back_populates="authentication_identity"

@@ -24,12 +24,11 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     email: Mapped[str] = mapped_column(
         String(255),
         unique=True,
-        index=True,
-        nullable=False
+        index=True
     )
 
-    firstname: Mapped[str] = mapped_column(String(100), nullable=False)
-    lastname: Mapped[str] = mapped_column(String(100), nullable=False)
+    firstname: Mapped[str] = mapped_column(String(100))
+    lastname: Mapped[str] = mapped_column(String(100))
 
     avatar_file_id: Mapped[UUID | None] = mapped_column(
         Uuid,
@@ -37,10 +36,11 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
             "stored_files.id",
             name="fk_users_avatar_file"
         ),
-        nullable=True
     )
 
-    avatar: Mapped[StoredFile | None] = relationship()
+    avatar: Mapped[StoredFile | None] = relationship(
+        foreign_keys=[avatar_file_id],
+    )
     status: Mapped[UserStatus] = mapped_column(
         Enum(UserStatus, name="user_status"),
         default=UserStatus.ACTIVE

@@ -1,6 +1,9 @@
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from uuid import UUID
 
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.features.users.models.user import User
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin
 
@@ -10,25 +13,24 @@ class StoredFile(Base, IdMixin, TimestampMixin):
 
     filename: Mapped[str] = mapped_column(
         String(255),
-        unique=True,
-        nullable=False
+        unique=True
     )
-    original_filename: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False
-    )
-    mime_type: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False
-    )
+    original_filename: Mapped[str] = mapped_column(String(255))
+    mime_type: Mapped[str] = mapped_column(String(100))
     storage_path: Mapped[str] = mapped_column(
         String(500),
         unique=True,
-        nullable=False
     )
-    size: Mapped[int] = mapped_column(nullable=False)
+
+    size: Mapped[int]
     checksum: Mapped[str] = mapped_column(
         String(64),
         unique=True,
-        nullable=False
+    )
+    uploaded_by_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id")
+    )
+
+    uploaded_by: Mapped["User"] = relationship(
+        foreign_keys=[uploaded_by_id]
     )
