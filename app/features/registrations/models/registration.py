@@ -1,16 +1,15 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
+from uuid import UUID
 
-from sqlalchemy import ForeignKey, DateTime, UniqueConstraint, Text
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy import UniqueConstraint, ForeignKey, Text, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.features.registrations.enums import RegistrationStatus
+from app.features.events.models.event import Event
+from app.features.registrations.enums.registration_status import RegistrationStatus
+from app.features.users.models.user import User
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin
-
-if TYPE_CHECKING:
-    from app.features.users.models import User
-    from app.features.events.models import Event
 
 
 class Registration(Base, IdMixin, TimestampMixin):
@@ -24,11 +23,11 @@ class Registration(Base, IdMixin, TimestampMixin):
         ),
     )
 
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id")
     )
 
-    event_id: Mapped[int] = mapped_column(
+    event_id: Mapped[UUID] = mapped_column(
         ForeignKey("events.id")
     )
 
@@ -45,7 +44,7 @@ class Registration(Base, IdMixin, TimestampMixin):
         default=False
     )
 
-    checked_in_by: Mapped[Optional[int]] = mapped_column(
+    checked_in_by: Mapped[Optional[UUID]] = mapped_column(
         ForeignKey("users.id"),
         nullable=True
     )

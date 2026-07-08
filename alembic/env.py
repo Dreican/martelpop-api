@@ -5,25 +5,17 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from app.core.config.settings import settings
-from app.features.auth.models import Role, Permission, RolePermission
-from app.features.events.models import Event, EventStatus
-from app.features.registrations.models import Registration, RegistrationStatus
-from app.features.storage.models import StoredFile
-from app.features.users.models import User
-from app.features.waitlist.models import Waitlist
+from app.features.events.models.event import Event
+from app.features.registrations.models.models import RegistrationStatus
+from app.features.storage.models.stored_file import StoredFile
+from app.features.waitlist.models.waitlist import Waitlist
 from app.shared.database.base import Base
 
 __all__ = [
     "Base",
-    "User",
-    "Role",
-    "Permission",
-    "RolePermission",
     "Event",
-    "Registration",
     "Waitlist",
     "StoredFile",
-    "EventStatus",
     "RegistrationStatus",
 ]
 

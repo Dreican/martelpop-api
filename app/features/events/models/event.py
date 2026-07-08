@@ -1,19 +1,21 @@
 from datetime import datetime
 from typing import Optional
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import ForeignKey, Text, func
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.features.events.models.event_status import EventStatus
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
-    from app.features.users.models import User
-    from app.features.registrations.models import Registration
-    from app.features.storage.models import StoredFile
-    from app.features.waitlist.models import Waitlist
+    from app.features.users.models.user import User
+    from app.features.registrations.models.registration import Registration
+    from app.features.storage.models.stored_file import StoredFile
+    from app.features.waitlist.models.waitlist import Waitlist
 
 
 class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
@@ -28,13 +30,13 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
 
     capacity: Mapped[Optional[int]]
 
-    banner_file_id: Mapped[int | None] = mapped_column(
+    banner_file_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("stored_files.id"),
         nullable=True,
     )
     banner: Mapped[StoredFile | None] = relationship()
 
-    created_by: Mapped[int] = mapped_column(
+    created_by: Mapped[UUID] = mapped_column(
         ForeignKey(
             "users.id",
             name="fk_events_created_by"
@@ -61,21 +63,3 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     )
 
 
-class EventStatus(Base, IdMixin, TimestampMixin):
-    __tablename__ = "event_statuses"
-
-    # DRAFT = "DRAFT"
-    # PUBLISHED = "PUBLISHED"
-    # CANCELLED = "CANCELLED"
-    # COMPLETED = "COMPLETED"
-
-    name: Mapped[str] = mapped_column(String(50), unique=True, index=True)
-    description: Mapped[str | None]
-    sort_order: Mapped[int] = mapped_column(default=0, nullable=False)
-    is_public: Mapped[bool] = mapped_column(default=True, nullable=False)
-    is_bookable: Mapped[bool] = mapped_column(default=True, nullable=False)
-    allow_edit: Mapped[bool] = mapped_column(default=True, nullable=False)
-
-    events: Mapped[list["Event"]] = relationship(
-        back_populates="status"
-    )

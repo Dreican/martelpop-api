@@ -1,14 +1,16 @@
 from datetime import datetime
+from uuid import uuid4
 
-from sqlalchemy import BigInteger, DateTime, func, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy import DateTime, func, ForeignKey, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 
 class IdMixin:
-    id: Mapped[int] = mapped_column(
-        BigInteger,
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         primary_key=True,
-        autoincrement=True
+        default=uuid4,
     )
 
 

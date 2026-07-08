@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -8,8 +9,8 @@ from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin
 
 if TYPE_CHECKING:
-    from app.features.users.models import User
-    from app.features.events.models import Event
+    from app.features.users.models.user import User
+    from app.features.events.models.event import Event
 
 
 class Waitlist(Base, IdMixin, TimestampMixin):
@@ -23,11 +24,11 @@ class Waitlist(Base, IdMixin, TimestampMixin):
         ),
     )
 
-    user_id: Mapped[int] = mapped_column(
+    user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id"),
         nullable=False
     )
-    event_id: Mapped[int] = mapped_column(
+    event_id: Mapped[UUID] = mapped_column(
         ForeignKey("events.id"),
         nullable=False
     )

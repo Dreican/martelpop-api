@@ -3,8 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.features.auth.enums import TokenType
-from app.features.users.enums import UserRole
+from app.features.auth.enums.token_type import TokenType
+from app.features.users.enums.user_role import UserRole
 
 
 class TokenPayload(BaseModel):

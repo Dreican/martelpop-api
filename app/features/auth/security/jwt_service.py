@@ -6,14 +6,14 @@ from jwt import ExpiredSignatureError
 from jwt import InvalidTokenError as PyJwtError
 
 from app.core.config.jwt import JWTConfig
-from app.features.auth.enums import TokenType
+from app.features.auth.enums.token_type import TokenType
 from app.features.auth.exceptions import (
     ExpiredTokenError,
     InvalidTokenError, InvalidTokenTypeError,
 )
 
 from app.features.auth.security.token_payload import TokenPayload
-from app.features.users.enums import UserRole
+from app.features.users.enums.user_role import UserRole
 
 
 class JwtService:
