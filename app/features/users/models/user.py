@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from app.features.events.models.event import Event
     from app.features.registrations.models.registration import Registration
     from app.features.storage.models.stored_file import StoredFile
-    from app.features.auth.models.authentication import AuthenticationIdentity
+    from app.features.auth.models.authentication_identity import AuthenticationIdentity
     from app.features.waitlist.models.waitlist import Waitlist
 
 

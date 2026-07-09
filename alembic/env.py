@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from app.core.config.settings import settings
-from app.features.auth.models.authentication import AuthenticationIdentity
+from app.features.auth.models.authentication_identity import AuthenticationIdentity
 from app.features.auth.models.permission import Permission
 from app.features.auth.models.role import Role
 from app.features.auth.models.role_permission import RolePermission
