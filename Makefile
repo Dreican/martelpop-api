@@ -4,7 +4,7 @@ COMPOSE_PROD=podman-compose -f compose.yml -f compose.prod.yml
 
 .PHONY: \
 	up down clean restart logs ps shell \
-	build rebuild install reset-db \
+	build rebuild install freeze reset-db \
 	migrate revision downgrade \
 	test lint format \
 	prod-up prod-down \
@@ -42,6 +42,9 @@ rebuild:
 
 install:
 	pip install -r requirements.txt
+
+freeze:
+	pip freeze > .\requirements.txt
 
 reset-db:
 	$(COMPOSE_DEV) down -v
