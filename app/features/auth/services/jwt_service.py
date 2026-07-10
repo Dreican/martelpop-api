@@ -24,7 +24,9 @@ class JwtService:
     def _signing_key(self) -> str:
         return self._config.secret_key.get_secret_value()
 
-    def _create_token(self, *, user_id: UUID, token_type: TokenType, expires_delta: timedelta,
+    def _create_token(self, *, user_id: UUID,
+                      token_type: TokenType,
+                      expires_delta: timedelta,
                       role: UserRole | None = None) -> str:
         now = datetime.now(UTC)
         payload = {
