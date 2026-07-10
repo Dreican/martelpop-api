@@ -25,12 +25,10 @@ class Waitlist(Base, IdMixin, TimestampMixin):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        Uuid,
         ForeignKey("users.id"),
         nullable=False
     )
     event_id: Mapped[UUID] = mapped_column(
-        Uuid,
         ForeignKey("events.id"),
         nullable=False
     )

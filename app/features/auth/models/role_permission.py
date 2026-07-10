@@ -23,12 +23,10 @@ class RolePermission(Base, IdMixin, TimestampMixin):
     )
 
     role_id: Mapped[UUID] = mapped_column(
-        Uuid,
         ForeignKey("roles.id")
     )
 
     permission_id: Mapped[UUID] = mapped_column(
-        Uuid,
         ForeignKey("permissions.id")
     )
 

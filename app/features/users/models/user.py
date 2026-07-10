@@ -31,7 +31,6 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     lastname: Mapped[str] = mapped_column(String(100))
 
     avatar_file_id: Mapped[UUID | None] = mapped_column(
-        Uuid,
         ForeignKey(
             "stored_files.id",
             name="fk_users_avatar_file",
@@ -44,11 +43,11 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
 
     status: Mapped[UserStatus] = mapped_column(
         Enum(UserStatus, name="user_status"),
-        default=UserStatus.ACTIVE
+        default=UserStatus.ACTIVE,
+        server_default=UserStatus.ACTIVE.value
     )
 
     role_id: Mapped[UUID] = mapped_column(
-        Uuid,
         ForeignKey("roles.id")
     )
 
@@ -71,14 +70,22 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
         cascade="all, delete-orphan"
     )
 
-    auth_identities: Mapped[list["AuthenticationIdentity"]] = relationship(
+    authentication_identities: Mapped[list["AuthenticationIdentity"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan"
     )
 
     @hybrid_property
-    def fullname(self):
-        return self.firstname + " " + self.lastname
+    def fullname(self) -> str:
+        return f"{self.firstname} {self.lastname}"
+
+    @property
+    def is_active(self) -> bool:
+        return self.status == UserStatus.ACTIVE
+
+    @property
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"

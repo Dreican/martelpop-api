@@ -23,7 +23,6 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "events"
 
     activity_type_id: Mapped[UUID] = mapped_column(
-        Uuid,
         ForeignKey("activity_types.id"),
         nullable=False,
     )
@@ -46,7 +45,6 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     capacity: Mapped[int | None]
 
     banner_file_id: Mapped[UUID | None] = mapped_column(
-        Uuid,
         ForeignKey("stored_files.id"),
     )
     banner: Mapped[StoredFile | None] = relationship(
@@ -54,7 +52,6 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     created_by: Mapped[UUID] = mapped_column(
-        Uuid,
         ForeignKey(
             "users.id",
             name="fk_events_created_by"

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import UniqueConstraint, ForeignKey, Uuid
@@ -25,16 +25,16 @@ class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        Uuid,
-        ForeignKey("users.id")
+        ForeignKey("users.id"),
+        index=True
     )
 
     password_hash: Mapped[str | None]
-    provider: Mapped[AuthProvider]
-    provider_user_id: Mapped[str | None]
+    provider: Mapped[AuthProvider] = mapped_column(index=True)
+    provider_user_id: Mapped[str]
 
     last_login_at: Mapped[datetime | None]
 
     user: Mapped["User"] = relationship(
-        back_populates="authentication_identity"
+        back_populates="authentication_identities"
     )

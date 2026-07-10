@@ -19,8 +19,8 @@ class ActivityType(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     description: Mapped[str | None] = mapped_column(Text)
+
     banner_file_id: Mapped[UUID | None] = mapped_column(
-        Uuid,
         ForeignKey("stored_files.id")
     )
     banner: Mapped[StoredFile | None] = relationship(
@@ -28,7 +28,6 @@ class ActivityType(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     icon_file_id: Mapped[UUID | None] = mapped_column(
-        Uuid,
         ForeignKey("stored_files.id"),
     )
     icon: Mapped[StoredFile | None] = relationship(
