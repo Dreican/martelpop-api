@@ -1,7 +1,7 @@
-from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.features.auth.enums.auth_provider import AuthProvider
@@ -12,7 +12,7 @@ from app.shared.database.repositories.base_repository import BaseRepository
 
 class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
 
-    def __init__(self, session: Any):
+    def __init__(self, session: AsyncSession):
         super().__init__(session)
 
     async def get_by_id(self, identity_id: UUID) -> AuthenticationIdentity | None:

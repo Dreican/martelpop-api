@@ -40,6 +40,7 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     )
     avatar: Mapped[StoredFile | None] = relationship(
         foreign_keys=[avatar_file_id],
+        post_update=True,
     )
 
     status: Mapped[UserStatus] = mapped_column(
