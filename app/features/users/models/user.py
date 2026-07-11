@@ -5,6 +5,7 @@ from sqlalchemy import String, ForeignKey, Enum, Uuid
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.features.auth.models.refresh_token import RefreshToken
 from app.features.users.enums.user_status import UserStatus
 from app.shared.database.base import Base
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
@@ -71,6 +72,11 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     authentication_identities: Mapped[list["AuthenticationIdentity"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan"
     )
