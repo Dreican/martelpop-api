@@ -37,15 +37,15 @@ class AuthenticationService:
         self._jwt = jwt_service
 
     async def register(self, request: RegisterRequest) -> TokenResponse:
-        await self._email_is_available(request.email)
+        await self._is_email_available(request.email)
 
-        password_hash = self._password.hash_password(request.password)
+        password_hash = await self._password.hash_password(request.password)
         user = await self._create_user(request)
         identity = self._create_local_identity(user=user, password_hash=password_hash)
 
-        await self._users.add(user)
-        await self._identities.add(identity)
-        await self._session.commit()
+        async with self._session.begin():
+            await self._users.add(user)
+            await self._identities.add(identity)
 
         return await self._create_token_response(user)
 
@@ -81,17 +81,10 @@ class AuthenticationService:
         return await self._create_token_response(user)
 
 
-    async def _email_is_available(self, email: str) -> None:
+    async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)
         if existing is not None:
             raise EmailAlreadyExistsError()
-
-    def _create_local_identity(self, *, user: User, password_hash: str) -> AuthenticationIdentity:
-        return AuthenticationIdentity(
-            user=user,
-            provider=AuthProvider.LOCAL,
-            password_hash=password_hash
-        )
 
 
     async def _create_user(self, request: RegisterRequest) -> User:
@@ -115,3 +108,11 @@ class AuthenticationService:
 
         refresh_token = self._jwt.create_refresh_token(user_id=user.id)
         return TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="Bearer")
+
+    @staticmethod
+    def _create_local_identity(user: User, password_hash: str) -> AuthenticationIdentity:
+        return AuthenticationIdentity(
+            user=user,
+            provider=AuthProvider.LOCAL,
+            password_hash=password_hash
+        )
