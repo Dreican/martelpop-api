@@ -12,3 +12,15 @@ class ExpiredTokenError(JwtError):
 
 class InvalidTokenTypeError(JwtError):
     pass
+
+class EmailAlreadyExistsError(Exception):
+    pass
+
+class InvalidCredentialsError(Exception):
+    pass
+
+class UserNotFoundError(Exception):
+    pass
+
+class DefaultRoleNotFoundError(Exception):
+    pass

@@ -21,6 +21,8 @@ class Role(Base, IdMixin, TimestampMixin):
     )
     description: Mapped[str | None]
 
+    is_default: Mapped[bool] = mapped_column(default=False)
+
     users: Mapped[list["User"]] = relationship(
         back_populates="role"
     )

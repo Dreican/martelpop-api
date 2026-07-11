@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, UTC
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import jwt
 from jwt import ExpiredSignatureError
@@ -11,9 +11,8 @@ from app.features.auth.exceptions import (
     ExpiredTokenError,
     InvalidTokenError, InvalidTokenTypeError,
 )
+from app.features.auth.models.role import Role
 from app.features.auth.security.token_payload import TokenPayload
-from app.features.users.enums.user_role import UserRole
-
 
 class JwtService:
 
@@ -27,7 +26,7 @@ class JwtService:
     def _create_token(self, *, user_id: UUID,
                       token_type: TokenType,
                       expires_delta: timedelta,
-                      role: UserRole | None = None) -> str:
+                      role: Role | None = None) -> str:
         now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
@@ -36,10 +35,12 @@ class JwtService:
             "exp": now + expires_delta,
             "iss": self._config.issuer,
             "aud": self._config.audience,
+            "jti": str(uuid4()),
+            "nbf": now,
         }
 
         if role is not None:
-            payload["role"] = role.value
+            payload["role"] = role.name
 
         return jwt.encode(payload, self._signing_key, algorithm=self._config.algorithm)
 
@@ -65,7 +66,7 @@ class JwtService:
         except PyJwtError as ex:
             raise InvalidTokenError(str(ex)) from ex
 
-    def create_access_token(self, user_id: UUID, role: UserRole) -> str:
+    def create_access_token(self, user_id: UUID, role: Role) -> str:
         return self._create_token(
             user_id=user_id,
             token_type=TokenType.ACCESS,

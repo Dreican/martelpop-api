@@ -24,13 +24,13 @@ class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_by_provider(self, provider: AuthProvider, provider_user_id: str) -> AuthenticationIdentity | None:
+    async def get_by_provider(self, provider: AuthProvider, provider_subject: str) -> AuthenticationIdentity | None:
         stmt = (
             select(AuthenticationIdentity)
             .options(selectinload(AuthenticationIdentity.user))
             .where(
                 AuthenticationIdentity.provider == provider,
-                AuthenticationIdentity.provider_user_id == provider_user_id)
+                AuthenticationIdentity.provider_subject == provider_subject)
         )
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()

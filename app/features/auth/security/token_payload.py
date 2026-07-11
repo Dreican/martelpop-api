@@ -17,3 +17,5 @@ class TokenPayload(BaseModel):
 
     iat: datetime
     exp: datetime
+    jti: UUID
+    nbf: datetime

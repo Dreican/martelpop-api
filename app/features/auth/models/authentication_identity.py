@@ -31,7 +31,7 @@ class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
 
     password_hash: Mapped[str | None]
     provider: Mapped[AuthProvider] = mapped_column(index=True)
-    provider_user_id: Mapped[str]
+    provider_subject: Mapped[str]
 
     last_login_at: Mapped[datetime | None]
 
