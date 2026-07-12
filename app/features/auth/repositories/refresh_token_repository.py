@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from uuid import UUID
 
-from sqlalchemy import select, update, delete, cast, CursorResult
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.auth.models.refresh_token import RefreshToken
@@ -20,12 +20,13 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
         return await self._session.scalar(stmt)
 
     async def get_active_by_jti(self, jti: UUID) -> RefreshToken | None:
+        now = datetime.now(UTC)
         stmt = (
             select(RefreshToken)
             .where(
                 RefreshToken.jti == jti,
                 RefreshToken.revoked_at.is_(None),
-                RefreshToken.expires_at > datetime.now(UTC)
+                RefreshToken.expires_at > now
             )
         )
 
@@ -46,19 +47,17 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
         return list(await self._session.scalars(stmt))
 
     async def get_active_by_user(self, user_id: UUID) -> list[RefreshToken]:
+        now = datetime.now(UTC)
         stmt = (
             select(RefreshToken)
             .where(
                 RefreshToken.user_id == user_id,
                 RefreshToken.revoked_at.is_(None),
-                RefreshToken.expires_at > datetime.now(UTC),
+                RefreshToken.expires_at > now
             )
         )
 
         return list(await self._session.scalars(stmt))
-
-    async def revoke(self, refresh_token: RefreshToken) -> None:
-        refresh_token.revoke()
 
     async def revoke_all_for_user(self, user_id: UUID) -> int:
         now = datetime.now(UTC)
@@ -68,11 +67,14 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
                 RefreshToken.user_id == user_id,
                 RefreshToken.revoked_at.is_(None),
             )
-            .values(revoked_at=now, last_used_at=now)
+            .values(
+                revoked_at=now,
+                last_used_at=now
+            )
             .returning(RefreshToken.id)
         )
 
-        result = list(await self._session.execute(stmt))
+        result = list(await self._session.scalars(stmt))
         return len(result)
 
     async def replace(self, current: RefreshToken, replacement: RefreshToken) -> None:
@@ -88,5 +90,5 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
             .returning(RefreshToken.id)
         )
 
-        result = list(await self._session.execute(stmt))
+        result = list(await self._session.scalars(stmt))
         return len(result)

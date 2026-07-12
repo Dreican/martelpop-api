@@ -26,6 +26,7 @@ class JwtService:
     def _create_token(self, *, user_id: UUID,
                       token_type: TokenType,
                       expires_delta: timedelta,
+                      jti: UUID | None = None,
                       role: Role | None = None) -> str:
         now = datetime.now(UTC)
         payload = {
@@ -35,9 +36,11 @@ class JwtService:
             "exp": now + expires_delta,
             "iss": self._config.issuer,
             "aud": self._config.audience,
-            "jti": str(uuid4()),
             "nbf": now,
         }
+
+        if jti is not None:
+            payload["jti"] = str(jti)
 
         if role is not None:
             payload["role"] = role.name
@@ -67,18 +70,20 @@ class JwtService:
             raise InvalidTokenError(str(ex)) from ex
 
     def create_access_token(self, user_id: UUID, role: Role) -> str:
+
         return self._create_token(
             user_id=user_id,
             token_type=TokenType.ACCESS,
-            expires_delta=self._config.access_token_lifetime,
+            expires_delta=self._config.access_token_lifetime,\
             role=role,
         )
 
-    def create_refresh_token(self, user_id: UUID) -> str:
+    def create_refresh_token(self, user_id: UUID, jit: UUID) -> str:
         return self._create_token(
             user_id=user_id,
             token_type=TokenType.REFRESH,
             expires_delta=self._config.refresh_token_lifetime,
+            jti=jit,
         )
 
     def decode_access_token(self, token: str) -> TokenPayload:

@@ -1,4 +1,5 @@
 from datetime import datetime, UTC
+from uuid import uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,7 +10,9 @@ from app.features.auth.enums.auth_provider import AuthProvider
 from app.features.auth.exceptions import EmailAlreadyExistsError, InvalidCredentialsError, UserNotFoundError, \
     DefaultRoleNotFoundError
 from app.features.auth.models.authentication_identity import AuthenticationIdentity
+from app.features.auth.models.refresh_token import RefreshToken
 from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
+from app.features.auth.repositories.refresh_token_repository import RefreshTokenRepository
 from app.features.auth.repositories.role_repository import RoleRepository
 from app.features.users.enums.user_status import UserStatus
 from app.features.users.models.user import User
@@ -28,6 +31,7 @@ class AuthenticationService:
             authentication_identity_repository: AuthenticationIdentityRepository,
             password_service: PasswordService,
             jwt_service: JwtService,
+            refresh_token_repository: RefreshTokenRepository,
     ) -> None:
         self._session = session
         self._users = user_repository
@@ -35,6 +39,7 @@ class AuthenticationService:
         self._identities = authentication_identity_repository
         self._password = password_service
         self._jwt = jwt_service
+        self._refresh_token_repository = refresh_token_repository
 
     async def register(self, request: RegisterRequest) -> TokenResponse:
         await self._is_email_available(request.email)
@@ -46,8 +51,9 @@ class AuthenticationService:
         async with self._session.begin():
             await self._users.add(user)
             await self._identities.add(identity)
+            tokens = await self._create_token_response(user)
 
-        return await self._create_token_response(user)
+        return tokens
 
     async def login(self, request: LoginRequest) -> TokenResponse:
         identity = await self._identities.get_by_user_email(request.email)
@@ -62,10 +68,10 @@ class AuthenticationService:
             raise InvalidCredentialsError()
 
         identity.last_login_at = datetime.now(UTC)
-
+        tokens = await self._create_token_response(identity.user)
         await self._session.commit()
 
-        return await self._create_token_response(identity.user)
+        return tokens
 
     async def refresh(self, refresh_token: str) -> TokenResponse:
         payload = self._jwt.decode_refresh_token(refresh_token)
@@ -104,9 +110,22 @@ class AuthenticationService:
 
     async def _create_token_response(self, user: User) -> TokenResponse:
         await self._session.refresh(user)
+
         access_token = self._jwt.create_access_token(user_id=user.id, role=user.role)
 
-        refresh_token = self._jwt.create_refresh_token(user_id=user.id)
+        jit = uuid4()
+
+        refresh_token = self._jwt.create_refresh_token(user_id=user.id, jit=jit)
+
+        refresh = RefreshToken(
+            user=user,
+            jit=jit,
+            token_hash=await self._password.hash_password(refresh_token),
+            expires_at=datetime.now(UTC) + self._config.refresh_token_lifetime
+        )
+
+        await self._refresh_token_repository.add(refresh)
+
         return TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="Bearer")
 
     @staticmethod
