@@ -46,7 +46,7 @@ class AuthenticationService:
         self._jwt = jwt_service
         self._refresh_tokens = refresh_token_repository
 
-    async def register(self, request: RegisterRequest) -> TokenResponse:
+    async def register(self, request: RegisterRequest, session: SessionInfo) -> TokenResponse:
         await self._is_email_available(request.email)
 
         password_hash = await self._password.hash_password(request.password)
@@ -56,12 +56,12 @@ class AuthenticationService:
         async with self._session.begin():
             await self._users.add(user)
             await self._identities.add(identity)
-            issued_tokens = await self._issue_tokens(user)
+            issued_tokens = await self._issue_tokens(user, session)
             await self._refresh_tokens.add(issued_tokens.refresh_token)
 
         return issued_tokens.response
 
-    async def login(self, request: LoginRequest) -> TokenResponse:
+    async def login(self, request: LoginRequest, session: SessionInfo) -> TokenResponse:
         identity = await self._identities.get_by_user_email(request.email)
 
         if identity is None:
@@ -78,12 +78,12 @@ class AuthenticationService:
 
         async with self._session.begin():
             identity.last_login_at = datetime.now(UTC)
-            issued_tokens = await self._issue_tokens(identity.user)
+            issued_tokens = await self._issue_tokens(identity.user, session)
             await self._refresh_tokens.add(issued_tokens.refresh_token)
 
         return issued_tokens.response
 
-    async def refresh(self, refresh_token: str) -> TokenResponse:
+    async def refresh(self, refresh_token: str, session: SessionInfo) -> TokenResponse:
         payload = self._jwt.decode_refresh_token(refresh_token)
         stored = await self._refresh_tokens.get_by_jti(payload.jti)
 
@@ -109,7 +109,7 @@ class AuthenticationService:
 
         async with self._session.begin():
             stored.mark_used()
-            issued_tokens = await self._issue_tokens(user)
+            issued_tokens = await self._issue_tokens(user, session)
             await self._refresh_tokens.replace(current=stored, replacement=issued_tokens.refresh_token)
 
 
@@ -136,7 +136,7 @@ class AuthenticationService:
             role=default_role
         )
 
-    async def _issue_tokens(self, user: User, session: SessionInfo | None) -> IssuedTokens:
+    async def _issue_tokens(self, user: User, session: SessionInfo) -> IssuedTokens:
         now = datetime.now(UTC)
         access_expires_at = (now + self._jwt_config.access_token_lifetime)
         refresh_expires_at = (now + self._jwt_config.refresh_token_lifetime)
