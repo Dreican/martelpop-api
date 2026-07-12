@@ -24,3 +24,6 @@ class UserNotFoundError(Exception):
 
 class DefaultRoleNotFoundError(Exception):
     pass
+
+class RefreshTokenReuseDetected(Exception):
+    pass

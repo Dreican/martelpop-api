@@ -25,22 +25,21 @@ class JwtService:
 
     def _create_token(self, *, user_id: UUID,
                       token_type: TokenType,
-                      expires_delta: timedelta,
-                      jti: UUID | None = None,
+                      issued_at: datetime,
+                      expires_at: datetime,
+                      jti: UUID,
                       role: Role | None = None) -> str:
         now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
             "type": token_type.value,
-            "iat": now,
-            "exp": now + expires_delta,
+            "iat": issued_at,
+            "exp": expires_at,
             "iss": self._config.issuer,
             "aud": self._config.audience,
-            "nbf": now,
+            "nbf": issued_at,
+            "jti": jti,
         }
-
-        if jti is not None:
-            payload["jti"] = str(jti)
 
         if role is not None:
             payload["role"] = role.name
@@ -69,21 +68,24 @@ class JwtService:
         except PyJwtError as ex:
             raise InvalidTokenError(str(ex)) from ex
 
-    def create_access_token(self, user_id: UUID, role: Role) -> str:
+    def create_access_token(self, user_id: UUID, role: Role, jti: UUID, issued_at: datetime, expires_at: datetime) -> str:
 
         return self._create_token(
             user_id=user_id,
             token_type=TokenType.ACCESS,
-            expires_delta=self._config.access_token_lifetime,\
+            issued_at=issued_at,
+            expires_at=expires_at,
             role=role,
+            jti=jti,
         )
 
-    def create_refresh_token(self, user_id: UUID, jit: UUID) -> str:
+    def create_refresh_token(self, user_id: UUID, jti: UUID, issued_at: datetime, expires_at: datetime) -> str:
         return self._create_token(
             user_id=user_id,
             token_type=TokenType.REFRESH,
-            expires_delta=self._config.refresh_token_lifetime,
-            jti=jit,
+            issued_at=issued_at,
+            expires_at=expires_at,
+            jti=jti,
         )
 
     def decode_access_token(self, token: str) -> TokenPayload:

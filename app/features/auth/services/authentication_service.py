@@ -3,12 +3,15 @@ from uuid import uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config.jwt import JWTConfig
 from app.features.auth.dto.login_request import LoginRequest
 from app.features.auth.dto.register_request import RegisterRequest
+from app.features.auth.dto.session_info import SessionInfo
 from app.features.auth.dto.token_response import TokenResponse
+from app.features.auth.dto.ìssued_tokens import IssuedTokens
 from app.features.auth.enums.auth_provider import AuthProvider
-from app.features.auth.exceptions import EmailAlreadyExistsError, InvalidCredentialsError, UserNotFoundError, \
-    DefaultRoleNotFoundError
+from app.features.auth.exceptions import EmailAlreadyExistsError, InvalidCredentialsError, \
+    DefaultRoleNotFoundError, RefreshTokenReuseDetected
 from app.features.auth.models.authentication_identity import AuthenticationIdentity
 from app.features.auth.models.refresh_token import RefreshToken
 from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
@@ -31,15 +34,17 @@ class AuthenticationService:
             authentication_identity_repository: AuthenticationIdentityRepository,
             password_service: PasswordService,
             jwt_service: JwtService,
+            jwt_config: JWTConfig,
             refresh_token_repository: RefreshTokenRepository,
     ) -> None:
+        self._jwt_config = jwt_config
         self._session = session
         self._users = user_repository
         self._roles = role_repository
         self._identities = authentication_identity_repository
         self._password = password_service
         self._jwt = jwt_service
-        self._refresh_token_repository = refresh_token_repository
+        self._refresh_tokens = refresh_token_repository
 
     async def register(self, request: RegisterRequest) -> TokenResponse:
         await self._is_email_available(request.email)
@@ -51,9 +56,10 @@ class AuthenticationService:
         async with self._session.begin():
             await self._users.add(user)
             await self._identities.add(identity)
-            tokens = await self._create_token_response(user)
+            issued_tokens = await self._issue_tokens(user)
+            await self._refresh_tokens.add(issued_tokens.refresh_token)
 
-        return tokens
+        return issued_tokens.response
 
     async def login(self, request: LoginRequest) -> TokenResponse:
         identity = await self._identities.get_by_user_email(request.email)
@@ -64,27 +70,50 @@ class AuthenticationService:
         if identity.password_hash is None:
             raise InvalidCredentialsError()
 
+        if not identity.user.is_active:
+            raise InvalidCredentialsError()
+
         if not self._password.verify_password(request.password, identity.password_hash):
             raise InvalidCredentialsError()
 
-        identity.last_login_at = datetime.now(UTC)
-        tokens = await self._create_token_response(identity.user)
-        await self._session.commit()
+        async with self._session.begin():
+            identity.last_login_at = datetime.now(UTC)
+            issued_tokens = await self._issue_tokens(identity.user)
+            await self._refresh_tokens.add(issued_tokens.refresh_token)
 
-        return tokens
+        return issued_tokens.response
 
     async def refresh(self, refresh_token: str) -> TokenResponse:
         payload = self._jwt.decode_refresh_token(refresh_token)
+        stored = await self._refresh_tokens.get_by_jti(payload.jti)
 
-        user = await self._users.get_by_id(payload.sub)
+        if stored is None:
+            raise InvalidCredentialsError()
 
-        if user is None:
-            raise UserNotFoundError()
+        if stored.is_revoked:
+            async with self._session.begin():
+                await self._refresh_tokens.revoke_all_for_user(stored.user_id)
+
+            raise RefreshTokenReuseDetected()
+
+        if stored.is_expired:
+            raise InvalidCredentialsError()
+
+        if not self._password.verify_password(refresh_token, stored.token_hash):
+            raise InvalidCredentialsError()
+
+        user = stored.user
 
         if not user.is_active:
             raise InvalidCredentialsError()
 
-        return await self._create_token_response(user)
+        async with self._session.begin():
+            stored.mark_used()
+            issued_tokens = await self._issue_tokens(user)
+            await self._refresh_tokens.replace(current=stored, replacement=issued_tokens.refresh_token)
+
+
+        return issued_tokens.response
 
 
     async def _is_email_available(self, email: str) -> None:
@@ -99,7 +128,6 @@ class AuthenticationService:
         if default_role is None:
             raise DefaultRoleNotFoundError()
 
-
         return User(
             email=request.email,
             firstname=request.firstname,
@@ -108,25 +136,32 @@ class AuthenticationService:
             role=default_role
         )
 
-    async def _create_token_response(self, user: User) -> TokenResponse:
-        await self._session.refresh(user)
+    async def _issue_tokens(self, user: User, session: SessionInfo | None) -> IssuedTokens:
+        now = datetime.now(UTC)
+        access_expires_at = (now + self._jwt_config.access_token_lifetime)
+        refresh_expires_at = (now + self._jwt_config.refresh_token_lifetime)
+        access_jti = uuid4()
+        refresh_jti = uuid4()
 
-        access_token = self._jwt.create_access_token(user_id=user.id, role=user.role)
+        access_token = self._jwt.create_access_token(user_id=user.id, role=user.role, jti=access_jti, issued_at=now, expires_at=access_expires_at)
+        refresh_token = self._jwt.create_refresh_token(user_id=user.id, jti=refresh_jti, issued_at=now, expires_at=refresh_expires_at)
 
-        jit = uuid4()
-
-        refresh_token = self._jwt.create_refresh_token(user_id=user.id, jit=jit)
+        token_hash = await self._password.hash_password(refresh_token)
 
         refresh = RefreshToken(
             user=user,
-            jit=jit,
-            token_hash=await self._password.hash_password(refresh_token),
-            expires_at=datetime.now(UTC) + self._config.refresh_token_lifetime
+            jti=refresh_jti,
+            token_hash=token_hash,
+            expires_at=refresh_expires_at,
+            user_agent=session.user_agent,
+            ip_address=session.ip_address,
+            device_name=session.device_name,
         )
 
-        await self._refresh_token_repository.add(refresh)
-
-        return TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="Bearer")
+        return IssuedTokens(
+            response=TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="Bearer"),
+            refresh_token=refresh
+        )
 
     @staticmethod
     def _create_local_identity(user: User, password_hash: str) -> AuthenticationIdentity:
