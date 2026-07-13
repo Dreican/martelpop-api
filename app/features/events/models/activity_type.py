@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import String, Text, Uuid, ForeignKey
+from sqlalchemy import String, Text, Uuid, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.database.base import Base
+from app.shared.database.constraints import ACTIVITY_TYPES_NAME_UNIQUE, ACTIVITY_TYPES_SLUG_UNIQUE
 from app.shared.database.mixin import SoftDeleteMixin, IdMixin, TimestampMixin
 
 if TYPE_CHECKING:
@@ -13,10 +14,16 @@ if TYPE_CHECKING:
 
 class ActivityType(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "activity_types"
+    __table_args__ = (
+        UniqueConstraint("name", name=ACTIVITY_TYPES_NAME_UNIQUE),
+        UniqueConstraint("slug", name=ACTIVITY_TYPES_SLUG_UNIQUE),
+    )
+
     name: Mapped[str] = mapped_column(
         String(255),
         unique=True
     )
+    slug: Mapped[str] = mapped_column(String(255), unique=True)
 
     description: Mapped[str | None] = mapped_column(Text)
 

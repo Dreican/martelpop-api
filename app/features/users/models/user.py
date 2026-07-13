@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.features.auth.models.refresh_token import RefreshToken
 from app.features.users.enums.user_status import UserStatus
 from app.shared.database.base import Base
+from app.shared.database.constraints import USERS_EMAIL_UNIQUE, USERS_SLUG_UNIQUE
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
@@ -22,7 +23,8 @@ if TYPE_CHECKING:
 class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "users"
     __table_args__ = (
-        UniqueConstraint("email", name="uq_users_email"),
+        UniqueConstraint("email", name=USERS_EMAIL_UNIQUE),
+        UniqueConstraint("slug", name=USERS_SLUG_UNIQUE),
     )
 
     email: Mapped[str] = mapped_column(
@@ -33,6 +35,8 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
 
     firstname: Mapped[str] = mapped_column(String(100))
     lastname: Mapped[str] = mapped_column(String(100))
+
+    slug: Mapped[str] = mapped_column(String(255), unique=True)
 
     avatar_file_id: Mapped[UUID | None] = mapped_column(
         ForeignKey(

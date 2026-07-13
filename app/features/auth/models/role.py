@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.database.base import Base
+from app.shared.database.constraints import ROLES_NAME_UNIQUE
 from app.shared.database.mixin import IdMixin, TimestampMixin
 
 if TYPE_CHECKING:
@@ -13,6 +14,9 @@ if TYPE_CHECKING:
 
 class Role(Base, IdMixin, TimestampMixin):
     __tablename__ = "roles"
+    __table_args__ = (
+        UniqueConstraint("name", name=ROLES_NAME_UNIQUE),
+    )
 
     name: Mapped[str] = mapped_column(
         String(50),

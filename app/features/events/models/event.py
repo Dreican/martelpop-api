@@ -3,11 +3,12 @@ from typing import Optional
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Text, func, Uuid
+from sqlalchemy import ForeignKey, Text, func, Uuid, UniqueConstraint
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.database.base import Base
+from app.shared.database.constraints import EVENTS_SLUG_UNIQUE
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
@@ -21,17 +22,23 @@ if TYPE_CHECKING:
 
 class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "events"
+    __table_args__ = (
+        UniqueConstraint("slug", name=EVENTS_SLUG_UNIQUE),
+    )
+
 
     activity_type_id: Mapped[UUID] = mapped_column(
         ForeignKey("activity_types.id"),
         nullable=False,
     )
+
     activity_type: Mapped["ActivityType"] = relationship(
         back_populates="events",
         foreign_keys=[activity_type_id]
     )
 
     title: Mapped[str] = mapped_column(String(255))
+    slug: Mapped[str] = mapped_column(String(255), unique=True)
 
     description: Mapped[str | None]
 

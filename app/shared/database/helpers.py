@@ -1,5 +1,8 @@
 from sqlalchemy.exc import IntegrityError
 
+from app.shared.database.constraints import USERS_EMAIL_UNIQUE
+
+
 class Helper:
 
     @staticmethod
@@ -16,4 +19,4 @@ class Helper:
 
     @staticmethod
     def is_email_unique_violation(error: IntegrityError) -> bool:
-        return Helper.is_constraint_violation(error, "uq_users_email")
+        return Helper.is_constraint_violation(error, USERS_EMAIL_UNIQUE)
