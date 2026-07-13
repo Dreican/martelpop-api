@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import String, ForeignKey, Enum, Uuid
+from sqlalchemy import String, ForeignKey, Enum, Uuid, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -21,6 +21,9 @@ if TYPE_CHECKING:
 
 class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "users"
+    __table_args__ = (
+        UniqueConstraint("email", name="uq_users_email"),
+    )
 
     email: Mapped[str] = mapped_column(
         String(255),

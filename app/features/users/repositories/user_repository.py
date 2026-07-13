@@ -1,13 +1,25 @@
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
+from app.features.auth.exceptions import EmailAlreadyExistsError
 from app.features.users.models.user import User
+from app.shared.database.helpers import Helper
 from app.shared.database.repositories.base_repository import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):
+
+    async def add(self, user: User) -> None:
+        try:
+            await super().add(user)
+            await self._session.flush()
+        except IntegrityError as ex:
+            if Helper.is_email_unique_violation(ex):
+                raise EmailAlreadyExistsError() from ex
+            raise
 
     async def get_by_id(self, user_id: UUID) -> User | None:
         stmt = (

@@ -1,6 +1,7 @@
 from datetime import datetime, UTC
 from uuid import uuid4
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config.jwt import JWTConfig
@@ -52,7 +53,6 @@ class AuthenticationService:
         password_hash = await self._password.hash_password(request.password)
         user = await self._create_user(request)
         identity = self._create_local_identity(user=user, password_hash=password_hash)
-
         async with self._session.begin():
             await self._users.add(user)
             await self._identities.add(identity)
