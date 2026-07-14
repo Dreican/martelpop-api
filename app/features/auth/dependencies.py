@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
@@ -22,9 +23,11 @@ def get_authentication_identity_repository(session: Session) -> AuthenticationId
 def get_refresh_token_repository(session: Session) -> RefreshTokenRepository:
     return RefreshTokenRepository(session)
 
+@lru_cache
 def get_password_service() -> PasswordService:
     return PasswordService()
 
+@lru_cache
 def get_jwt_service(config: JwtConfig) -> JwtService:
     return JwtService(config)
 
