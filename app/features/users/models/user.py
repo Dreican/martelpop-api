@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import String, ForeignKey, Enum, Uuid, UniqueConstraint
+from sqlalchemy import String, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

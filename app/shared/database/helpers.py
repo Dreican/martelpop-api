@@ -7,8 +7,8 @@ class Helper:
 
     @staticmethod
     def is_constraint_violation(
-        error: IntegrityError,
-        constraint_name: str,
+            error: IntegrityError,
+            constraint_name: str,
     ) -> bool:
         diag = getattr(error.orig, "diag", None)
 

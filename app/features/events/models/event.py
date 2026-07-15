@@ -1,9 +1,8 @@
 from datetime import datetime
-from typing import Optional
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Text, func, Uuid, UniqueConstraint
+from sqlalchemy import ForeignKey, func, UniqueConstraint
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -25,7 +24,6 @@ class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __table_args__ = (
         UniqueConstraint("slug", name=EVENTS_SLUG_UNIQUE),
     )
-
 
     activity_type_id: Mapped[UUID] = mapped_column(
         ForeignKey("activity_types.id"),

@@ -1,4 +1,3 @@
-
 USERS_EMAIL_UNIQUE = "uq_users_email"
 USERS_SLUG_UNIQUE = "uq_users_slug"
 ROLES_NAME_UNIQUE = "uq_roles_name"

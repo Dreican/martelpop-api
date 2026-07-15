@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import String, Text, Uuid, ForeignKey, UniqueConstraint
+from sqlalchemy import String, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.database.base import Base
@@ -11,6 +11,7 @@ from app.shared.database.mixin import SoftDeleteMixin, IdMixin, TimestampMixin
 if TYPE_CHECKING:
     from app.features.events.models.event import Event
     from app.features.storage.models.stored_file import StoredFile
+
 
 class ActivityType(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "activity_types"

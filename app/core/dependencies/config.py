@@ -10,6 +10,7 @@ from app.core.config.settings import Settings
 def get_settings() -> Settings:
     return Settings()
 
+
 def get_jwt_config(config: Config):
     return config.jwt
 

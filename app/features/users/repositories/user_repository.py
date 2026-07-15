@@ -52,4 +52,3 @@ class UserRepository(BaseRepository[User]):
 
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none() is not None
-

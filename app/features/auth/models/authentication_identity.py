@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import UniqueConstraint, ForeignKey, Uuid
+from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.features.auth.enums.auth_provider import AuthProvider

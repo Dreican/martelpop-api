@@ -11,6 +11,7 @@ from app.shared.database.mixin import TimestampMixin, IdMixin
 if TYPE_CHECKING:
     from app.features.users.models.user import User
 
+
 class RefreshToken(Base, IdMixin, TimestampMixin):
     __tablename__ = "refresh_tokens"
 

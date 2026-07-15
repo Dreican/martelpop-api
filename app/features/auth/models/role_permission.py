@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import UniqueConstraint, ForeignKey, Uuid
+from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.shared.database.base import Base

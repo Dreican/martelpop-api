@@ -1,9 +1,9 @@
 import asyncio
 from dataclasses import dataclass
-from typing import NamedTuple
 
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
+
 
 @dataclass(frozen=True, slots=True)
 class PasswordVerificationResult:
@@ -19,7 +19,6 @@ class PasswordService:
 
     async def hash_password(self, password: str) -> str:
         return await asyncio.to_thread(self._password_hash.hash, password)
-
 
     def verify_password(self, password: str, password_hash: str) -> bool:
         return self._password_hash.verify(password, password_hash)

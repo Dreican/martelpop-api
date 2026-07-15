@@ -17,29 +17,34 @@ from app.features.users.dependencies import UserRepositoryDep
 def get_role_repository(session: Session) -> RoleRepository:
     return RoleRepository(session)
 
+
 def get_authentication_identity_repository(session: Session) -> AuthenticationIdentityRepository:
     return AuthenticationIdentityRepository(session)
 
+
 def get_refresh_token_repository(session: Session) -> RefreshTokenRepository:
     return RefreshTokenRepository(session)
+
 
 @lru_cache
 def get_password_service() -> PasswordService:
     return PasswordService()
 
+
 @lru_cache
 def get_jwt_service(config: JwtConfig) -> JwtService:
     return JwtService(config)
 
+
 def get_authentication_service(
-    session: Session,
-    user: UserRepositoryDep,
-    role: RoleRepositoryDep,
-    authentication_identity: AuthenticationIdentityRepositoryDep,
-    refresh_token: RefreshTokenRepositoryDep,
-    password_service: PasswordService,
-    jwt_service: JwtServiceDep,
-    jwt_config: JwtConfig
+        session: Session,
+        user: UserRepositoryDep,
+        role: RoleRepositoryDep,
+        authentication_identity: AuthenticationIdentityRepositoryDep,
+        refresh_token: RefreshTokenRepositoryDep,
+        password_service: PasswordService,
+        jwt_service: JwtServiceDep,
+        jwt_config: JwtConfig
 ) -> AuthenticationService:
     return AuthenticationService(
         session=session,
@@ -54,7 +59,8 @@ def get_authentication_service(
 
 
 RoleRepositoryDep = Annotated[RoleRepository, Depends(get_role_repository)]
-AuthenticationIdentityRepositoryDep = Annotated[AuthenticationIdentityRepository, Depends(get_authentication_identity_repository)]
+AuthenticationIdentityRepositoryDep = Annotated[
+    AuthenticationIdentityRepository, Depends(get_authentication_identity_repository)]
 RefreshTokenRepositoryDep = Annotated[RefreshTokenRepository, Depends(get_refresh_token_repository)]
 
 PasswordServiceDep = Annotated[PasswordService, Depends(get_password_service)]
