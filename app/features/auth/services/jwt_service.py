@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 from uuid import UUID, uuid4
 
 import jwt
@@ -6,6 +6,7 @@ from jwt import ExpiredSignatureError
 from jwt import InvalidTokenError as PyJwtError
 
 from app.core.config.jwt import JWTConfig
+from app.features.auth.dto.token_pair import TokenPair
 from app.features.auth.enums.token_type import TokenType
 from app.features.auth.exceptions import (
     ExpiredTokenError,
@@ -13,6 +14,8 @@ from app.features.auth.exceptions import (
 )
 from app.features.auth.models.role import Role
 from app.features.auth.security.token_payload import TokenPayload
+from app.features.users.models.user import User
+
 
 class JwtService:
 
@@ -68,25 +71,35 @@ class JwtService:
         except PyJwtError as ex:
             raise InvalidTokenError(str(ex)) from ex
 
-    def create_access_token(self, user_id: UUID, role: Role, jti: UUID, issued_at: datetime, expires_at: datetime) -> str:
+    def issued_token(self, user: User) -> TokenPair:
+        now = datetime.now(UTC)
 
-        return self._create_token(
-            user_id=user_id,
+        access_jti = uuid4()
+        refresh_jti = uuid4()
+
+        access_expires_at = now + self._config.access_token_lifetime
+        refresh_expires_at = now + self._config.refresh_token_lifetime
+
+        access_token = self._create_token(
+            user_id=user.id,
             token_type=TokenType.ACCESS,
-            issued_at=issued_at,
-            expires_at=expires_at,
-            role=role,
-            jti=jti,
+            issued_at=now,
+            expires_at=access_expires_at,
+            role=user.role,
+            jti=access_jti,
         )
 
-    def create_refresh_token(self, user_id: UUID, jti: UUID, issued_at: datetime, expires_at: datetime) -> str:
-        return self._create_token(
-            user_id=user_id,
+        refresh_token = self._create_token(
+            user_id=user.id,
             token_type=TokenType.REFRESH,
-            issued_at=issued_at,
-            expires_at=expires_at,
-            jti=jti,
+            issued_at=now,
+            expires_at=refresh_expires_at,
+            role=user.role,
+            jti=refresh_jti,
         )
+
+        return TokenPair(access_token=access_token, refresh_token=refresh_token, refresh_jti=refresh_jti,
+                         refresh_expires_at=refresh_expires_at)
 
     def decode_access_token(self, token: str) -> TokenPayload:
         return self._decode(token, TokenType.ACCESS)

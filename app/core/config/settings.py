@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic import Field
 from pydantic_settings import SettingsConfigDict, BaseSettings
 
@@ -30,8 +32,6 @@ class Settings(BaseSettings):
     storage: StorageConfig = Field(default_factory=StorageConfig)
 
 
+@lru_cache
 def get_settings() -> Settings:
     return Settings()
-
-
-settings = get_settings()

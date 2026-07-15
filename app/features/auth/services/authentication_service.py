@@ -1,10 +1,7 @@
 from datetime import datetime, UTC
-from uuid import uuid4
 
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config.jwt import JWTConfig
 from app.features.auth.dto.login_request import LoginRequest
 from app.features.auth.dto.register_request import RegisterRequest
 from app.features.auth.dto.session_info import SessionInfo
@@ -18,10 +15,10 @@ from app.features.auth.models.refresh_token import RefreshToken
 from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
 from app.features.auth.repositories.refresh_token_repository import RefreshTokenRepository
 from app.features.auth.repositories.role_repository import RoleRepository
+from app.features.auth.services.jwt_service import JwtService
+from app.features.auth.services.password_service import PasswordService
 from app.features.users.enums.user_status import UserStatus
 from app.features.users.models.user import User
-from app.features.auth.services.password_service import PasswordService
-from app.features.auth.services.jwt_service import JwtService
 from app.features.users.repositories.user_repository import UserRepository
 
 
@@ -35,10 +32,8 @@ class AuthenticationService:
             authentication_identity_repository: AuthenticationIdentityRepository,
             password_service: PasswordService,
             jwt_service: JwtService,
-            jwt_config: JWTConfig,
             refresh_token_repository: RefreshTokenRepository,
     ) -> None:
-        self._jwt_config = jwt_config
         self._session = session
         self._users = user_repository
         self._roles = role_repository
@@ -112,15 +107,12 @@ class AuthenticationService:
             issued_tokens = await self._issue_tokens(user, session)
             await self._refresh_tokens.replace(current=stored, replacement=issued_tokens.refresh_token)
 
-
         return issued_tokens.response
-
 
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)
         if existing is not None:
             raise EmailAlreadyExistsError()
-
 
     async def _create_user(self, request: RegisterRequest) -> User:
         default_role = await self._roles.get_default_role()
@@ -137,29 +129,23 @@ class AuthenticationService:
         )
 
     async def _issue_tokens(self, user: User, session: SessionInfo) -> IssuedTokens:
-        now = datetime.now(UTC)
-        access_expires_at = (now + self._jwt_config.access_token_lifetime)
-        refresh_expires_at = (now + self._jwt_config.refresh_token_lifetime)
-        access_jti = uuid4()
-        refresh_jti = uuid4()
+        token_pair = self._jwt.issued_token(user=user)
 
-        access_token = self._jwt.create_access_token(user_id=user.id, role=user.role, jti=access_jti, issued_at=now, expires_at=access_expires_at)
-        refresh_token = self._jwt.create_refresh_token(user_id=user.id, jti=refresh_jti, issued_at=now, expires_at=refresh_expires_at)
-
-        token_hash = await self._password.hash_password(refresh_token)
+        token_hash = await self._password.hash_password(token_pair.refresh_token)
 
         refresh = RefreshToken(
             user=user,
-            jti=refresh_jti,
+            jti=token_pair.refresh_jti,
             token_hash=token_hash,
-            expires_at=refresh_expires_at,
+            expires_at=token_pair.refresh_expires_at,
             user_agent=session.user_agent,
             ip_address=session.ip_address,
             device_name=session.device_name,
         )
 
         return IssuedTokens(
-            response=TokenResponse(access_token=access_token, refresh_token=refresh_token, token_type="Bearer"),
+            response=TokenResponse(access_token=token_pair.access_token, refresh_token=token_pair.refresh_token,
+                                   token_type="Bearer"),
             refresh_token=refresh
         )
 
