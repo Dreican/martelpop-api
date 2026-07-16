@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, UTC
 from uuid import UUID, uuid4
 
@@ -16,6 +17,7 @@ from app.features.auth.models.role import Role
 from app.features.auth.security.token_payload import TokenPayload
 from app.features.users.models.user import User
 
+logger = logging.getLogger(__name__)
 
 class JwtService:
 
@@ -32,7 +34,6 @@ class JwtService:
                       expires_at: datetime,
                       jti: UUID,
                       role: Role | None = None) -> str:
-        now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
             "type": token_type.value,
@@ -47,6 +48,7 @@ class JwtService:
         if role is not None:
             payload["role"] = role.name
 
+        logger.debug("Token created")
         return jwt.encode(payload, self._signing_key, algorithm=self._config.algorithm)
 
     def _decode(self, token: str, expected_type: TokenType) -> TokenPayload:
@@ -62,13 +64,17 @@ class JwtService:
             payload = TokenPayload.model_validate(decoded)
 
             if payload.type != expected_type:
+                logger.debug(f"Invalid token type expected {expected_type.value}")
                 raise InvalidTokenTypeError(f"Expected a {expected_type.value} token")
 
+            logger.debug("Token decoded")
             return payload
 
         except ExpiredSignatureError as ex:
+            logger.debug("Token expired")
             raise ExpiredTokenError() from ex
         except PyJwtError as ex:
+            logger.debug("Invalid token")
             raise InvalidTokenError(str(ex)) from ex
 
     def issue_tokens(self, user: User) -> IssuedTokens:
@@ -98,6 +104,8 @@ class JwtService:
             jti=refresh_jti,
         )
 
+        logger.debug("Tokens issued", extra={"user_id": user.id, "email": user.email})
+
         return IssuedTokens(
             access_token=access_token,
             refresh_token=refresh_token,
@@ -106,7 +114,9 @@ class JwtService:
         )
 
     def decode_access_token(self, token: str) -> TokenPayload:
+        logger.debug("Decoding access token")
         return self._decode(token, TokenType.ACCESS)
 
     def decode_refresh_token(self, token: str) -> TokenPayload:
+        logger.debug("Decoding refresh token")
         return self._decode(token, TokenType.REFRESH)

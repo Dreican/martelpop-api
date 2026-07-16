@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, UTC
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,6 +22,7 @@ from app.features.users.enums.user_status import UserStatus
 from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
 
+logger = logging.getLogger(__name__)
 
 class AuthenticationService:
 
@@ -55,27 +57,35 @@ class AuthenticationService:
             tokens = await self._issue_tokens(user, session)
             await self._refresh_tokens.add(tokens.refresh_token)
 
+        logger.info("User registered", extra={"user_id": user.id, "email": request.email})
+
         return tokens.response
 
     async def login(self, request: LoginRequest, session: SessionInfo) -> TokenResponse:
         identity = await self._identities.get_by_user_email(request.email)
 
         if identity is None:
+            logger.error("User doesn't exist", extra={"email": request.email})
             raise InvalidCredentialsError()
 
         if identity.password_hash is None:
+            logger.error("User has no password", extra={"user_id": identity.user.id, "email": request.email})
             raise InvalidCredentialsError()
 
         if not identity.user.is_active:
+            logger.error("User is inactive", extra={"user_id": identity.user.id, "email": request.email})
             raise InvalidCredentialsError()
 
         if not self._password.verify_password(request.password, identity.password_hash):
+            logger.error("Invalid credentials", extra={"email": request.email})
             raise InvalidCredentialsError()
 
         async with self._session.begin():
             identity.last_login_at = datetime.now(UTC)
             tokens = await self._issue_tokens(identity.user, session)
             await self._refresh_tokens.add(tokens.refresh_token)
+
+        logger.info("User logged in", extra={"user_id": identity.user.id, "email": identity.user.email})
 
         return tokens.response
 
@@ -108,18 +118,37 @@ class AuthenticationService:
             tokens = await self._issue_tokens(user, session)
             await self._refresh_tokens.replace(current=stored, replacement=tokens.refresh_token)
 
+        logger.info("Token refreshed", extra={"user_id": user.id, "email": stored.user.email})
+
         return tokens.response
+
+    async def logout(self, refresh_token: str) -> None:
+        payload = self._jwt.decode_refresh_token(refresh_token)
+
+        revoked = await self._refresh_tokens.revoke(user_id=payload.sub, refresh_jti=payload.jti)
+        await self._session.commit()
+
+        if not revoked:
+            logger.warning(
+                "Attempted logout with unknown refresh token",
+                extra={"user_id": payload.sub, "jti": payload.jti},
+            )
+
 
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)
         if existing is not None:
+            logger.error("Email already exists", extra={"email": email})
             raise EmailAlreadyExistsError()
 
     async def _create_user(self, request: RegisterRequest) -> User:
         default_role = await self._roles.get_default_role()
 
         if default_role is None:
+            logger.error("Default role not found")
             raise DefaultRoleNotFoundError()
+
+        logger.info("User created", extra={"email": request.email, "role": default_role.name})
 
         return User(
             email=request.email,
@@ -142,6 +171,8 @@ class AuthenticationService:
             ip_address=session.ip_address,
             device_name=session.device_name,
         )
+
+        logger.info("Tokens issued", extra={"user_id": user.id, "email": user.email})
 
         return AuthenticationTokens(
             response=tokens.to_response(),

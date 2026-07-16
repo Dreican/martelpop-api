@@ -4,7 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from app.core.config.settings import settings
+from app.core.config.settings import get_settings
 from app.features.auth.models.authentication_identity import AuthenticationIdentity
 from app.features.auth.models.permission import Permission
 from app.features.auth.models.role import Role
@@ -39,7 +39,7 @@ config = context.config
 
 config.set_main_option(
     "sqlalchemy.url",
-    str(settings.db.database_url),
+    str(get_settings().db.database_url),
 )
 
 # Interpret the config file for Python logging.
@@ -65,7 +65,7 @@ def run_migrations_offline() -> None:
 
     This configures the context with just a URL
     and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
+    here as well.  By skipping the Engine creation,
     we don't even need a DBAPI to be available.
 
     Calls to context.execute() here emit the given string to the

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import UniqueConstraint, ForeignKey
+from sqlalchemy import UniqueConstraint, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.features.auth.enums.auth_provider import AuthProvider
@@ -20,7 +20,7 @@ class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
         UniqueConstraint(
             "provider",
             "provider_user_id",
-            name="uq_provider_user_id"
+            name="uq_auth_identity_provider_provider_user_id"
         ),
     )
 
@@ -30,6 +30,8 @@ class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
     )
 
     password_hash: Mapped[str | None]
+
+    provider_user_id: Mapped[str | None] = mapped_column(String(255))
     provider: Mapped[AuthProvider] = mapped_column(index=True)
     provider_subject: Mapped[str]
 

@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from sqlalchemy import select
@@ -9,6 +10,7 @@ from app.features.users.models.user import User
 from app.shared.database.helpers import Helper
 from app.shared.database.repositories.base_repository import BaseRepository
 
+logger = logging.getLogger(__name__)
 
 class UserRepository(BaseRepository[User]):
 
@@ -18,6 +20,7 @@ class UserRepository(BaseRepository[User]):
             await self._session.flush()
         except IntegrityError as ex:
             if Helper.is_email_unique_violation(ex):
+                logger.debug("Email already exists, unique constraint violation")
                 raise EmailAlreadyExistsError() from ex
             raise
 

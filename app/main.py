@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.core.logging_config import setup_logging
+from app.core.logging.config import setup_logging
 from app.middleware import (
     configure_cors,
     configure_trusted_hosts,

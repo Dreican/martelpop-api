@@ -59,6 +59,23 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
 
         return list(await self._session.scalars(stmt))
 
+    async def revoke(self, user_id: UUID, refresh_jti: UUID) -> bool:
+        now = datetime.now(UTC)
+        stmt = (
+            update(RefreshToken)
+            .where(
+                RefreshToken.user_id == user_id,
+                RefreshToken.jti == refresh_jti,
+                RefreshToken.revoked_at.is_(None),
+            )
+            .values(
+                revoked_at=now,
+                last_used_at=now
+            )
+            .returning(RefreshToken.id)
+        )
+        return await self._session.scalar(stmt) is not None
+
     async def revoke_all_for_user(self, user_id: UUID) -> int:
         now = datetime.now(UTC)
         stmt = (
