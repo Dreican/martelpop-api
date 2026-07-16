@@ -1,11 +1,11 @@
 import logging.config
 from pathlib import Path
 
-import logging
-from app.core.config.settings import settings
+from app.core.config.settings import get_settings
 
 
 def setup_logging():
+    settings = get_settings()
     log_dir = Path(settings.log.dir)
     log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -16,7 +16,7 @@ def setup_logging():
 
             "formatters": {
                 "default": {
-                    "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+                    "format": settings.log.format
                 }
             },
             "handlers": {
@@ -29,7 +29,7 @@ def setup_logging():
                 "file": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "formatter": "default",
-                    "filename": f"{log_dir}/{settings.log.file}",
+                    "filename": str(log_dir/settings.log.file),
                     "maxBytes": 10 * 1024 * 1024,
                     "backupCount": 5,
                     "encoding": "utf-8",
@@ -39,7 +39,7 @@ def setup_logging():
                 "error_file": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "formatter": "default",
-                    "filename": f"{log_dir}/error.log",
+                    "filename": str(log_dir / settings.log.error_file),
                     "maxBytes": 10 * 1024 * 1024,
                     "backupCount": 5,
                     "encoding": "utf-8",
@@ -49,11 +49,19 @@ def setup_logging():
 
             "loggers": {
                 "uvicorn": {
+                    "handlers": ["console", "file"],
                     "level": "INFO",
                     "propagate": False,
                 },
 
                 "uvicorn.error": {
+                    "handlers": ["console", "file"],
+                    "level": "INFO",
+                    "propagate": False,
+                },
+
+                "uvicorn.access": {
+                    "handlers": ["console", "file"],
                     "level": "INFO",
                     "propagate": False,
                 },

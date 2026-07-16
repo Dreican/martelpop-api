@@ -53,7 +53,7 @@ class AuthenticationService:
             await self._users.add(user)
             await self._identities.add(identity)
             tokens = await self._issue_tokens(user, session)
-            await self._refresh_tokens.add(tokens.refresh)
+            await self._refresh_tokens.add(tokens.refresh_token)
 
         return tokens.response
 
@@ -75,7 +75,7 @@ class AuthenticationService:
         async with self._session.begin():
             identity.last_login_at = datetime.now(UTC)
             tokens = await self._issue_tokens(identity.user, session)
-            await self._refresh_tokens.add(tokens.refresh)
+            await self._refresh_tokens.add(tokens.refresh_token)
 
         return tokens.response
 
@@ -106,7 +106,7 @@ class AuthenticationService:
         async with self._session.begin():
             stored.mark_used()
             tokens = await self._issue_tokens(user, session)
-            await self._refresh_tokens.replace(current=stored, replacement=tokens.refresh)
+            await self._refresh_tokens.replace(current=stored, replacement=tokens.refresh_token)
 
         return tokens.response
 
@@ -130,22 +130,22 @@ class AuthenticationService:
         )
 
     async def _issue_tokens(self, user: User, session: SessionInfo) -> AuthenticationTokens:
-        issued_token = self._jwt.issued_token(user=user)
-        token_hash = await self._password.hash_password(issued_token.refresh_token)
+        tokens = self._jwt.issue_tokens(user=user)
+        token_hash = await self._password.hash_password(tokens.refresh_token)
 
         refresh = RefreshToken(
             user=user,
-            jti=issued_token.refresh_jti,
+            jti=tokens.refresh_jti,
             token_hash=token_hash,
-            expires_at=issued_token.refresh_expires_at,
+            expires_at=tokens.refresh_expires_at,
             user_agent=session.user_agent,
             ip_address=session.ip_address,
             device_name=session.device_name,
         )
 
         return AuthenticationTokens(
-            response=issued_token.to_response(),
-            refresh=refresh
+            response=tokens.to_response(),
+            refresh_token=refresh
         )
 
     @staticmethod

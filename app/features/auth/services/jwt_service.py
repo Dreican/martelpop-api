@@ -71,7 +71,7 @@ class JwtService:
         except PyJwtError as ex:
             raise InvalidTokenError(str(ex)) from ex
 
-    def issued_token(self, user: User) -> IssuedTokens:
+    def issue_tokens(self, user: User) -> IssuedTokens:
         now = datetime.now(UTC)
 
         access_jti = uuid4()

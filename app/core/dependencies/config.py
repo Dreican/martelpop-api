@@ -11,9 +11,4 @@ def get_settings() -> Settings:
     return Settings()
 
 
-def get_jwt_config(config: Config):
-    return config.jwt
-
-
-Config = Annotated[Settings, Depends(get_settings)]
-JwtConfig = Annotated[Settings.jwt, Depends(get_jwt_config)]
+SettingsDep = Annotated[Settings, Depends(get_settings)]
