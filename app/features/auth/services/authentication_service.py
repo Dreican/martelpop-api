@@ -2,11 +2,11 @@ from datetime import datetime, UTC
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.login_request import LoginRequest
 from app.features.auth.dto.register_request import RegisterRequest
 from app.features.auth.dto.session_info import SessionInfo
 from app.features.auth.dto.token_response import TokenResponse
-from app.features.auth.dto.ìssued_tokens import IssuedTokens
 from app.features.auth.enums.auth_provider import AuthProvider
 from app.features.auth.exceptions import EmailAlreadyExistsError, InvalidCredentialsError, \
     DefaultRoleNotFoundError, RefreshTokenReuseDetected
@@ -48,13 +48,14 @@ class AuthenticationService:
         password_hash = await self._password.hash_password(request.password)
         user = await self._create_user(request)
         identity = self._create_local_identity(user=user, password_hash=password_hash)
+
         async with self._session.begin():
             await self._users.add(user)
             await self._identities.add(identity)
-            issued_tokens = await self._issue_tokens(user, session)
-            await self._refresh_tokens.add(issued_tokens.refresh_token)
+            tokens = await self._issue_tokens(user, session)
+            await self._refresh_tokens.add(tokens.refresh)
 
-        return issued_tokens.response
+        return tokens.response
 
     async def login(self, request: LoginRequest, session: SessionInfo) -> TokenResponse:
         identity = await self._identities.get_by_user_email(request.email)
@@ -73,10 +74,10 @@ class AuthenticationService:
 
         async with self._session.begin():
             identity.last_login_at = datetime.now(UTC)
-            issued_tokens = await self._issue_tokens(identity.user, session)
-            await self._refresh_tokens.add(issued_tokens.refresh_token)
+            tokens = await self._issue_tokens(identity.user, session)
+            await self._refresh_tokens.add(tokens.refresh)
 
-        return issued_tokens.response
+        return tokens.response
 
     async def refresh(self, refresh_token: str, session: SessionInfo) -> TokenResponse:
         payload = self._jwt.decode_refresh_token(refresh_token)
@@ -104,10 +105,10 @@ class AuthenticationService:
 
         async with self._session.begin():
             stored.mark_used()
-            issued_tokens = await self._issue_tokens(user, session)
-            await self._refresh_tokens.replace(current=stored, replacement=issued_tokens.refresh_token)
+            tokens = await self._issue_tokens(user, session)
+            await self._refresh_tokens.replace(current=stored, replacement=tokens.refresh)
 
-        return issued_tokens.response
+        return tokens.response
 
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)
@@ -128,25 +129,23 @@ class AuthenticationService:
             role=default_role
         )
 
-    async def _issue_tokens(self, user: User, session: SessionInfo) -> IssuedTokens:
-        token_pair = self._jwt.issued_token(user=user)
-
-        token_hash = await self._password.hash_password(token_pair.refresh_token)
+    async def _issue_tokens(self, user: User, session: SessionInfo) -> AuthenticationTokens:
+        issued_token = self._jwt.issued_token(user=user)
+        token_hash = await self._password.hash_password(issued_token.refresh_token)
 
         refresh = RefreshToken(
             user=user,
-            jti=token_pair.refresh_jti,
+            jti=issued_token.refresh_jti,
             token_hash=token_hash,
-            expires_at=token_pair.refresh_expires_at,
+            expires_at=issued_token.refresh_expires_at,
             user_agent=session.user_agent,
             ip_address=session.ip_address,
             device_name=session.device_name,
         )
 
-        return IssuedTokens(
-            response=TokenResponse(access_token=token_pair.access_token, refresh_token=token_pair.refresh_token,
-                                   token_type="Bearer"),
-            refresh_token=refresh
+        return AuthenticationTokens(
+            response=issued_token.to_response(),
+            refresh=refresh
         )
 
     @staticmethod

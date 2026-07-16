@@ -6,7 +6,7 @@ from jwt import ExpiredSignatureError
 from jwt import InvalidTokenError as PyJwtError
 
 from app.core.config.jwt import JWTConfig
-from app.features.auth.dto.token_pair import TokenPair
+from app.features.auth.dto.issued_tokens import IssuedTokens
 from app.features.auth.enums.token_type import TokenType
 from app.features.auth.exceptions import (
     ExpiredTokenError,
@@ -71,7 +71,7 @@ class JwtService:
         except PyJwtError as ex:
             raise InvalidTokenError(str(ex)) from ex
 
-    def issued_token(self, user: User) -> TokenPair:
+    def issued_token(self, user: User) -> IssuedTokens:
         now = datetime.now(UTC)
 
         access_jti = uuid4()
@@ -98,8 +98,12 @@ class JwtService:
             jti=refresh_jti,
         )
 
-        return TokenPair(access_token=access_token, refresh_token=refresh_token, refresh_jti=refresh_jti,
-                         refresh_expires_at=refresh_expires_at)
+        return IssuedTokens(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            refresh_jti=refresh_jti,
+            refresh_expires_at=refresh_expires_at
+        )
 
     def decode_access_token(self, token: str) -> TokenPayload:
         return self._decode(token, TokenType.ACCESS)
