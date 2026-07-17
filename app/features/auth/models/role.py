@@ -18,6 +18,11 @@ class Role(Base, IdMixin, TimestampMixin):
         UniqueConstraint("name", name=ROLES_NAME_UNIQUE),
     )
 
+    code: Mapped[str] = mapped_column(
+        String(50),
+        unique=True,
+        index=True,
+    )
     name: Mapped[str] = mapped_column(
         String(50),
         unique=True,

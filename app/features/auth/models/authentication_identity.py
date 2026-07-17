@@ -33,7 +33,6 @@ class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
 
     provider_user_id: Mapped[str | None] = mapped_column(String(255))
     provider: Mapped[AuthProvider] = mapped_column(index=True)
-    provider_subject: Mapped[str]
 
     last_login_at: Mapped[datetime | None]
 

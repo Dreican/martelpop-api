@@ -46,7 +46,7 @@ class JwtService:
         }
 
         if role is not None:
-            payload["role"] = role.name
+            payload["role"] = role.code
 
         logger.debug("Token created")
         return jwt.encode(payload, self._signing_key, algorithm=self._config.algorithm)

@@ -1,3 +1,6 @@
+from app.core.exceptions.base import ApplicationError
+
+
 class JwtError(Exception):
     """Base JWT exception."""
 
@@ -14,21 +17,31 @@ class InvalidTokenTypeError(JwtError):
     pass
 
 
-class EmailAlreadyExistsError(Exception):
-    pass
+class EmailAlreadyExistsError(ApplicationError):
+    status_code = 409
+    code = "email_already_exists"
+    detail = "Email already exists"
 
 
-class InvalidCredentialsError(Exception):
-    pass
+class InvalidCredentialsError(ApplicationError):
+    status_code = 401
+    code = "invalid_credentials"
+    detail = "Invalid credentials"
 
 
-class UserNotFoundError(Exception):
-    pass
+class UserNotFoundError(ApplicationError):
+    status_code = 404
+    code = "user_not_found"
+    detail = "User not found"
 
 
-class DefaultRoleNotFoundError(Exception):
-    pass
+class DefaultRoleNotFoundError(ApplicationError):
+    status_code = 500
+    code = "default_role_not_found"
+    detail = "Default role not found"
 
 
-class RefreshTokenReuseDetected(Exception):
-    pass
+class RefreshTokenReuseDetected(ApplicationError):
+    status_code = 400
+    code = "refresh_token_reuse_detected"
+    detail = "Refresh token reuse detected"
