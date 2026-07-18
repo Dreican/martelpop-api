@@ -4,10 +4,9 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.dependencies.config import SettingsDep
-from app.core.dependencies.database import Session
+from app.core.dependencies.database import SessionDep
 from app.features.auth.dependencies.repositories import RoleRepositoryDep, AuthenticationIdentityRepositoryDep, \
     RefreshTokenRepositoryDep
-
 from app.features.auth.services.authentication_service import AuthenticationService
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
@@ -25,7 +24,7 @@ def get_jwt_service(settings: SettingsDep) -> JwtService:
 
 
 def get_authentication_service(
-        session: Session,
+        session: SessionDep,
         user: UserRepositoryDep,
         role: RoleRepositoryDep,
         authentication_identity: AuthenticationIdentityRepositoryDep,

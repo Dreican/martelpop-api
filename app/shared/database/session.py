@@ -15,6 +15,7 @@ def get_engine() -> AsyncEngine:
         pool_pre_ping=True
     )
 
+
 @lru_cache
 def get_session_maker() -> async_sessionmaker[AsyncSession]:
     return async_sessionmaker(

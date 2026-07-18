@@ -1,5 +1,3 @@
-
-
 class RolesCode:
     ADMIN = "admin"
     ORGANIZER = "organizer"

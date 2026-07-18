@@ -1,4 +1,3 @@
-
 class EventStatus:
     DRAFT = "DRAFT"
     PUBLISHED = "PUBLISHED"

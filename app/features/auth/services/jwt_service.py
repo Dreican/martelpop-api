@@ -19,6 +19,7 @@ from app.features.users.models.user import User
 
 logger = logging.getLogger(__name__)
 
+
 class JwtService:
 
     def __init__(self, config: JWTConfig):

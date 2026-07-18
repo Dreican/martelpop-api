@@ -1,6 +1,8 @@
+from starlette.status import HTTP_400_BAD_REQUEST
+
 
 class ApplicationError(Exception):
-    status_code: int = 400
+    status_code: int = HTTP_400_BAD_REQUEST
     code: str = "application_error"
     detail: str = "Application error"
 

@@ -29,7 +29,7 @@ def setup_logging():
                 "file": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "formatter": "default",
-                    "filename": str(log_dir/settings.log.file),
+                    "filename": str(log_dir / settings.log.file),
                     "maxBytes": 10 * 1024 * 1024,
                     "backupCount": 5,
                     "encoding": "utf-8",

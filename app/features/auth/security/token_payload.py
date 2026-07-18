@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from app.features.auth.constants import RolesCode
 from app.features.auth.enums.token_type import TokenType
 
+
 class TokenPayload(BaseModel):
     sub: UUID
     type: TokenType

@@ -9,8 +9,12 @@ from app.features.auth.dto.register_request import RegisterRequest
 from app.features.auth.dto.session_info import SessionInfo
 from app.features.auth.dto.token_response import TokenResponse
 from app.features.auth.enums.auth_provider import AuthProvider
-from app.features.auth.exceptions import EmailAlreadyExistsError, InvalidCredentialsError, \
-    DefaultRoleNotFoundError, RefreshTokenReuseDetected
+from app.features.auth.exceptions import (
+    EmailAlreadyExistsError,
+    InvalidCredentialsError,
+    DefaultRoleNotFoundError,
+    RefreshTokenReuseDetected
+)
 from app.features.auth.models.authentication_identity import AuthenticationIdentity
 from app.features.auth.models.refresh_token import RefreshToken
 from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
@@ -23,6 +27,7 @@ from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
 
 logger = logging.getLogger(__name__)
+
 
 class AuthenticationService:
 
@@ -65,7 +70,7 @@ class AuthenticationService:
         identity = await self._identities.get_by_user_email(request.email)
 
         if identity is None:
-            logger.error("User doesn't exist", extra={"email": request.email})
+            logger.warning("User doesn't exist", extra={"email": request.email})
             raise InvalidCredentialsError()
 
         if identity.password_hash is None:
@@ -73,11 +78,11 @@ class AuthenticationService:
             raise InvalidCredentialsError()
 
         if not identity.user.is_active:
-            logger.error("User is inactive", extra={"user_id": identity.user.id, "email": request.email})
+            logger.warning("User is inactive", extra={"user_id": identity.user.id, "email": request.email})
             raise InvalidCredentialsError()
 
         if not self._password.verify_password(request.password, identity.password_hash):
-            logger.error("Invalid credentials", extra={"email": request.email})
+            logger.warning("Invalid credentials", extra={"email": request.email})
             raise InvalidCredentialsError()
 
         async with self._session.begin():
@@ -94,23 +99,28 @@ class AuthenticationService:
         stored = await self._refresh_tokens.get_by_jti(payload.jti)
 
         if stored is None:
+            logger.warning("Refresh token not found", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
             raise InvalidCredentialsError()
 
         if stored.is_revoked:
+            logger.warning("Refresh token is revoked", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
             async with self._session.begin():
                 await self._refresh_tokens.revoke_all_for_user(stored.user_id)
 
             raise RefreshTokenReuseDetected()
 
         if stored.is_expired:
+            logger.warning("Refresh token is expired", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
             raise InvalidCredentialsError()
 
         if not self._password.verify_password(refresh_token, stored.token_hash):
+            logger.warning("Invalid refresh token", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
             raise InvalidCredentialsError()
 
         user = stored.user
 
         if not user.is_active:
+            logger.warning("User is inactive", extra={"user_id": user.id, "email": stored.user.email})
             raise InvalidCredentialsError()
 
         async with self._session.begin():
@@ -133,7 +143,6 @@ class AuthenticationService:
                 "Attempted logout with unknown refresh token",
                 extra={"user_id": payload.sub, "jti": payload.jti},
             )
-
 
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)

@@ -3,15 +3,14 @@ from datetime import datetime, UTC
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import selectinload
 
 from app.features.events.constants import EventStatus
-from app.features.events.models.event import Event
 from app.features.events.models.activity_type import ActivityType
+from app.features.events.models.event import Event
 from app.shared.database.repositories.base_repository import BaseRepository
 
 logger = logging.getLogger(__name__)
+
 
 class EventRepository(BaseRepository[Event]):
 

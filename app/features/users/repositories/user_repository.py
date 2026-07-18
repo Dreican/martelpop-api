@@ -12,6 +12,7 @@ from app.shared.database.repositories.base_repository import BaseRepository
 
 logger = logging.getLogger(__name__)
 
+
 class UserRepository(BaseRepository[User]):
 
     async def add(self, user: User) -> None:
