@@ -30,7 +30,7 @@ class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
             .options(selectinload(AuthenticationIdentity.user))
             .where(
                 AuthenticationIdentity.provider == provider,
-                AuthenticationIdentity.provider_subject == provider_subject)
+                AuthenticationIdentity.provider_user_id == provider_subject)
         )
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()

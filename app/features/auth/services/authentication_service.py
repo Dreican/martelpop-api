@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime, UTC
+from uuid import UUID
 
+from slugify import slugify
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
@@ -25,6 +27,7 @@ from app.features.auth.services.password_service import PasswordService
 from app.features.users.enums.user_status import UserStatus
 from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
+from app.shared.utils.slug import generate_slug
 
 logger = logging.getLogger(__name__)
 
@@ -50,17 +53,24 @@ class AuthenticationService:
         self._refresh_tokens = refresh_token_repository
 
     async def register(self, request: RegisterRequest, session: SessionInfo) -> TokenResponse:
-        await self._is_email_available(request.email)
+        try:
+            await self._is_email_available(request.email)
 
-        password_hash = await self._password.hash_password(request.password)
-        user = await self._create_user(request)
-        identity = self._create_local_identity(user=user, password_hash=password_hash)
+            password_hash = await self._password.hash_password(request.password)
+            user = await self._create_user(request)
+            identity = self._create_local_identity(user=user, password_hash=password_hash)
 
-        async with self._session.begin():
+
             await self._users.add(user)
             await self._identities.add(identity)
             tokens = await self._issue_tokens(user, session)
             await self._refresh_tokens.add(tokens.refresh_token)
+
+            await self._session.commit()
+
+        except Exception:
+            await self._session.rollback()
+            raise
 
         logger.info("User registered", extra={"user_id": user.id, "email": request.email})
 
@@ -144,6 +154,16 @@ class AuthenticationService:
                 extra={"user_id": payload.sub, "jti": payload.jti},
             )
 
+    async def logout_all(self, user_id: UUID) -> None:
+        async with self._session.begin():
+            count = await self._refresh_tokens.revoke_all_for_user(user_id=user_id)
+
+        logger.info(
+            "%s sessions revoked",
+            count,
+            extra={"user_id": user_id},
+        )
+
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)
         if existing is not None:
@@ -157,12 +177,15 @@ class AuthenticationService:
             logger.error("Default role not found")
             raise DefaultRoleNotFoundError()
 
+        slug = generate_slug(f"{request.firstname}-{request.lastname}")
+
         logger.info("User created", extra={"email": request.email, "role": default_role.name})
 
         return User(
             email=request.email,
             firstname=request.firstname,
             lastname=request.lastname,
+            slug=slug,
             status=UserStatus.ACTIVE,
             role=default_role
         )

@@ -5,13 +5,13 @@ from sqlalchemy import String, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.features.auth.models.refresh_token import RefreshToken
 from app.features.users.enums.user_status import UserStatus
 from app.shared.database.base import Base
 from app.shared.database.constraints import USERS_EMAIL_UNIQUE, USERS_SLUG_UNIQUE
 from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
+    from app.features.auth.models.refresh_token import RefreshToken
     from app.features.auth.models.role import Role
     from app.features.events.models.event import Event
     from app.features.registrations.models.registration import Registration
@@ -45,7 +45,8 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
             use_alter=True,
         ),
     )
-    avatar: Mapped[StoredFile | None] = relationship(
+    avatar: Mapped["StoredFile | None"] = relationship(
+        "StoredFile",
         foreign_keys=[avatar_file_id],
         post_update=True,
     )
@@ -71,7 +72,14 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
 
     registrations: Mapped[list["Registration"]] = relationship(
         back_populates="user",
+        foreign_keys="Registration.user_id",
         cascade="all, delete-orphan"
+    )
+
+    checked_in_registrations: Mapped[list["Registration"]] = relationship(
+        "Registration",
+        back_populates="checked_in_user",
+        foreign_keys="Registration.checked_in_by"
     )
 
     waitlists: Mapped[list["Waitlist"]] = relationship(
@@ -87,6 +95,12 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan"
+    )
+
+    uploaded_files: Mapped[list["StoredFile"]] = relationship(
+        "StoredFile",
+        foreign_keys="StoredFile.uploaded_by_id",
+        back_populates="uploaded_by",
     )
 
     @hybrid_property

@@ -43,7 +43,7 @@ class JwtService:
             "iss": self._config.issuer,
             "aud": self._config.audience,
             "nbf": issued_at,
-            "jti": jti,
+            "jti": str(jti),
         }
 
         if role is not None:

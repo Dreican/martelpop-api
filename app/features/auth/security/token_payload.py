@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.features.auth.constants import RolesCode
+from app.features.auth.enums.role_code import RolesCode
 from app.features.auth.enums.token_type import TokenType
 
 

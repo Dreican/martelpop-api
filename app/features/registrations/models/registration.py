@@ -47,8 +47,15 @@ class Registration(Base, IdMixin, TimestampMixin):
         ForeignKey("users.id")
     )
 
+    checked_in_user: Mapped["User | None"] = relationship(
+        "User",
+        back_populates="checked_in_registrations",
+        foreign_keys=[checked_in_by]
+    )
+
     user: Mapped["User"] = relationship(
-        back_populates="registrations"
+        back_populates="registrations",
+        foreign_keys=[user_id]
     )
 
     event: Mapped["Event"] = relationship(

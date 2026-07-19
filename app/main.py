@@ -1,9 +1,12 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.v1.router import api_router
+from app.core.config.settings import get_settings
 from app.core.logging.config import setup_logging
 from app.middleware import (
     configure_cors,
@@ -15,11 +18,28 @@ from app.middleware.error_handling import (
     register_exception_handlers,
 )
 
-setup_logging()
-app = FastAPI()
+import app.shared.database.models
+from app.shared.database.seeders.runnner import seed_database
 
+setup_logging()
 logger = logging.getLogger(__name__)
-logger.info("Starting the application")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting application")
+
+    await seed_database()
+
+    yield
+
+    logger.info("Stopping application")
+
+app = FastAPI(
+    lifespan=lifespan
+)
+app.include_router(api_router)
+
+
 
 configure_cors(app)
 logger.info("CORS configured")
@@ -35,6 +55,8 @@ register_exception_handlers(app)
 logger.info("Exception handlers registered")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+logger.info(f"Application started : http://{get_settings().app.host}:{get_settings().app.port}")
 
 
 @app.get("/favicon.ico", include_in_schema=False)

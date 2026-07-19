@@ -3,35 +3,11 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
+from sqlalchemy.orm import configure_mappers
 
 from app.core.config.settings import get_settings
-from app.features.auth.models.authentication_identity import AuthenticationIdentity
-from app.features.auth.models.permission import Permission
-from app.features.auth.models.role import Role
-from app.features.auth.models.role_permission import RolePermission
-from app.features.events.models.activity_type import ActivityType
-from app.features.events.models.event import Event
-from app.features.events.models.event_status import EventStatus
-from app.features.registrations.models.registration import Registration
-from app.features.storage.models.stored_file import StoredFile
-from app.features.users.models.user import User
-from app.features.waitlist.models.waitlist import Waitlist
 from app.shared.database.base import Base
-
-__all__ = [
-    "Base",
-    "Event",
-    "ActivityType",
-    "EventStatus",
-    "Waitlist",
-    "StoredFile",
-    "Registration",
-    "User",
-    "Role",
-    "RolePermission",
-    "AuthenticationIdentity",
-    "Permission"
-]
+import app.shared.database.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
