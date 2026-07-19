@@ -2,9 +2,9 @@ import logging
 from datetime import datetime, UTC
 from uuid import UUID
 
-from slugify import slugify
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.services.slug_service import SlugService
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.login_request import LoginRequest
 from app.features.auth.dto.register_request import RegisterRequest
@@ -27,7 +27,6 @@ from app.features.auth.services.password_service import PasswordService
 from app.features.users.enums.user_status import UserStatus
 from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
-from app.shared.utils.slug import generate_slug
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +58,6 @@ class AuthenticationService:
             password_hash = await self._password.hash_password(request.password)
             user = await self._create_user(request)
             identity = self._create_local_identity(user=user, password_hash=password_hash)
-
 
             await self._users.add(user)
             await self._identities.add(identity)
@@ -177,7 +175,7 @@ class AuthenticationService:
             logger.error("Default role not found")
             raise DefaultRoleNotFoundError()
 
-        slug = generate_slug(f"{request.firstname}-{request.lastname}")
+        slug = await SlugService.create_unique(request.firstname, request.lastname, exists=self._users.exists_by_slug)
 
         logger.info("User created", extra={"email": request.email, "role": default_role.name})
 

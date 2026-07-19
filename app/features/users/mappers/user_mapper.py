@@ -24,5 +24,3 @@ class UserMapper:
     @staticmethod
     def to_response_list(users: list[User]) -> list[UserResponse]:
         return [UserMapper.to_response(user) for user in users]
-
-

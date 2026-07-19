@@ -5,8 +5,10 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+import app.core.database.models
 from app.api.v1.router import api_router
 from app.core.config.settings import get_settings
+from app.core.database.seeders.runnner import seed_database
 from app.core.logging.config import setup_logging
 from app.middleware import (
     configure_cors,
@@ -18,11 +20,9 @@ from app.middleware.error_handling import (
     register_exception_handlers,
 )
 
-import app.shared.database.models
-from app.shared.database.seeders.runnner import seed_database
-
 setup_logging()
 logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,12 +34,11 @@ async def lifespan(app: FastAPI):
 
     logger.info("Stopping application")
 
+
 app = FastAPI(
     lifespan=lifespan
 )
 app.include_router(api_router)
-
-
 
 configure_cors(app)
 logger.info("CORS configured")

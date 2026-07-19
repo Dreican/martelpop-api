@@ -4,8 +4,8 @@ from uuid import UUID
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database.repositories.base_repository import BaseRepository
 from app.features.auth.models.refresh_token import RefreshToken
-from app.shared.database.repositories.base_repository import BaseRepository
 
 
 class RefreshTokenRepository(BaseRepository[RefreshToken]):
@@ -91,7 +91,7 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
             .returning(RefreshToken.id)
         )
 
-        result = list(await self._session.scalars(stmt))
+        result = (await self._session.scalars(stmt)).all()
         return len(result)
 
     async def replace(self, current: RefreshToken, replacement: RefreshToken) -> None:
@@ -107,5 +107,5 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
             .returning(RefreshToken.id)
         )
 
-        result = list(await self._session.scalars(stmt))
+        result = (await self._session.scalars(stmt)).all()
         return len(result)

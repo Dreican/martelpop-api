@@ -4,15 +4,15 @@ from uuid import UUID
 
 from sqlalchemy import select
 
+from app.core.database.repositories.sluggable_repository import SluggableRepository
 from app.features.events.constants import EventStatus
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
-from app.shared.database.repositories.base_repository import BaseRepository
 
 logger = logging.getLogger(__name__)
 
 
-class EventRepository(BaseRepository[Event]):
+class EventRepository(SluggableRepository[Event]):
 
     async def get_by_id(self, event_id: UUID) -> Event | None:
         stmt = (
@@ -20,20 +20,6 @@ class EventRepository(BaseRepository[Event]):
         )
 
         return await self._session.scalar(stmt)
-
-    async def get_by_slug(self, slug: str) -> Event | None:
-        stmt = (
-            select(Event).where(Event.slug == slug)
-        )
-
-        return await self._session.scalar(stmt)
-
-    async def slug_exist(self, slug: str) -> bool:
-        stmt = (
-            select(Event).where(Event.slug == slug)
-        )
-
-        return await self._session.scalar(stmt) is not None
 
     async def get_by_activity_type(self, activity_type: ActivityType) -> Event | None:
         stmt = (

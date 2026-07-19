@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from app.shared.database.constraints import USERS_EMAIL_UNIQUE
+from app.core.database.constraints import USERS_EMAIL_UNIQUE
 
 
 class Helper:

@@ -6,9 +6,12 @@ from sqlalchemy import ForeignKey, func, UniqueConstraint
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.shared.database.base import Base
-from app.shared.database.constraints import EVENTS_SLUG_UNIQUE
-from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
+from app.core.database.base import Base
+from app.core.database.constraints import EVENTS_SLUG_UNIQUE
+from app.core.database.mixin.id import IdMixin
+from app.core.database.mixin.slug import SlugMixin
+from app.core.database.mixin.soft_delete import SoftDeleteMixin
+from app.core.database.mixin.timestamp import TimestampMixin
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User
@@ -19,7 +22,7 @@ if TYPE_CHECKING:
     from app.features.events.models.event_status import EventStatus
 
 
-class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
+class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin, SlugMixin):
     __tablename__ = "events"
     __table_args__ = (
         UniqueConstraint("slug", name=EVENTS_SLUG_UNIQUE),

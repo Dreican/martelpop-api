@@ -4,10 +4,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.database.repositories.base_repository import BaseRepository
 from app.features.auth.enums.auth_provider import AuthProvider
 from app.features.auth.models.authentication_identity import AuthenticationIdentity
 from app.features.users.models.user import User
-from app.shared.database.repositories.base_repository import BaseRepository
 
 
 class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):

@@ -4,16 +4,19 @@ from uuid import UUID
 from sqlalchemy import String, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.shared.database.base import Base
-from app.shared.database.constraints import ACTIVITY_TYPES_NAME_UNIQUE, ACTIVITY_TYPES_SLUG_UNIQUE
-from app.shared.database.mixin import SoftDeleteMixin, IdMixin, TimestampMixin
+from app.core.database.base import Base
+from app.core.database.constraints import ACTIVITY_TYPES_NAME_UNIQUE, ACTIVITY_TYPES_SLUG_UNIQUE
+from app.core.database.mixin.id import IdMixin
+from app.core.database.mixin.slug import SlugMixin
+from app.core.database.mixin.soft_delete import SoftDeleteMixin
+from app.core.database.mixin.timestamp import TimestampMixin
 
 if TYPE_CHECKING:
     from app.features.events.models.event import Event
     from app.features.storage.models.stored_file import StoredFile
 
 
-class ActivityType(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
+class ActivityType(Base, IdMixin, TimestampMixin, SoftDeleteMixin, SlugMixin):
     __tablename__ = "activity_types"
     __table_args__ = (
         UniqueConstraint("name", name=ACTIVITY_TYPES_NAME_UNIQUE),
@@ -24,7 +27,6 @@ class ActivityType(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
         String(255),
         unique=True
     )
-    slug: Mapped[str] = mapped_column(String(255), unique=True)
 
     description: Mapped[str | None] = mapped_column(Text)
 

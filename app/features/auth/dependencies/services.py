@@ -4,7 +4,6 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.config.settings import get_settings
-from app.core.dependencies.config import SettingsDep
 from app.core.dependencies.database import SessionDep
 from app.features.auth.dependencies.repositories import RoleRepositoryDep, AuthenticationIdentityRepositoryDep, \
     RefreshTokenRepositoryDep

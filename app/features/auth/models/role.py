@@ -1,11 +1,13 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, UniqueConstraint
+from sqlalchemy import String, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.shared.database.base import Base
-from app.shared.database.constraints import ROLES_NAME_UNIQUE
-from app.shared.database.mixin import IdMixin, TimestampMixin
+from app.core.database.base import Base
+from app.core.database.constraints import ROLES_NAME_UNIQUE
+from app.core.database.mixin.id import IdMixin
+from app.core.database.mixin.timestamp import TimestampMixin
+from app.features.auth.enums.role_code import RolesCode
 
 if TYPE_CHECKING:
     from app.features.auth.models.role_permission import RolePermission
@@ -18,10 +20,15 @@ class Role(Base, IdMixin, TimestampMixin):
         UniqueConstraint("name", name=ROLES_NAME_UNIQUE),
     )
 
-    code: Mapped[str] = mapped_column(
-        String(50),
+    code: Mapped[RolesCode] = mapped_column(
+        Enum(
+            RolesCode,
+            values_callable=lambda e: [item.value for item in e],
+            native_enum=False,
+            name="role_code",
+        ),
         unique=True,
-        index=True,
+        nullable=False,
     )
     name: Mapped[str] = mapped_column(
         String(50),

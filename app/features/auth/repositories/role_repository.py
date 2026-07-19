@@ -3,8 +3,8 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database.repositories.base_repository import BaseRepository
 from app.features.auth.models.role import Role
-from app.shared.database.repositories.base_repository import BaseRepository
 
 
 class RoleRepository(BaseRepository[Role]):

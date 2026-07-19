@@ -35,22 +35,23 @@ class JwtService:
                       expires_at: datetime,
                       jti: UUID,
                       role: Role | None = None) -> str:
-        payload = {
-            "sub": str(user_id),
-            "type": token_type.value,
-            "iat": issued_at,
-            "exp": expires_at,
-            "iss": self._config.issuer,
-            "aud": self._config.audience,
-            "nbf": issued_at,
-            "jti": str(jti),
-        }
+
+        payload = TokenPayload(
+            sub=user_id,
+            type=token_type,
+            iss=self._config.issuer,
+            aud=self._config.audience,
+            iat=issued_at,
+            exp=expires_at,
+            jti=jti,
+            nbf=issued_at,
+        )
 
         if role is not None:
-            payload["role"] = role.code
+            payload.role = role.code
 
         logger.debug("Token created")
-        return jwt.encode(payload, self._signing_key, algorithm=self._config.algorithm)
+        return jwt.encode(payload.model_dump(mode="json"), self._signing_key, algorithm=self._config.algorithm)
 
     def _decode(self, token: str, expected_type: TokenType) -> TokenPayload:
         try:

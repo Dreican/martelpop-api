@@ -5,10 +5,13 @@ from sqlalchemy import String, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.database.base import Base
+from app.core.database.constraints import USERS_EMAIL_UNIQUE, USERS_SLUG_UNIQUE
+from app.core.database.mixin.id import IdMixin
+from app.core.database.mixin.slug import SlugMixin
+from app.core.database.mixin.soft_delete import SoftDeleteMixin
+from app.core.database.mixin.timestamp import TimestampMixin
 from app.features.users.enums.user_status import UserStatus
-from app.shared.database.base import Base
-from app.shared.database.constraints import USERS_EMAIL_UNIQUE, USERS_SLUG_UNIQUE
-from app.shared.database.mixin import IdMixin, TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
     from app.features.auth.models.refresh_token import RefreshToken
@@ -20,7 +23,7 @@ if TYPE_CHECKING:
     from app.features.waitlist.models.waitlist import Waitlist
 
 
-class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
+class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin, SlugMixin):
     __tablename__ = "users"
     __table_args__ = (
         UniqueConstraint("email", name=USERS_EMAIL_UNIQUE),
@@ -35,8 +38,6 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
 
     firstname: Mapped[str] = mapped_column(String(100))
     lastname: Mapped[str] = mapped_column(String(100))
-
-    slug: Mapped[str] = mapped_column(String(255), unique=True)
 
     avatar_file_id: Mapped[UUID | None] = mapped_column(
         ForeignKey(

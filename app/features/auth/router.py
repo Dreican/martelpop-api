@@ -48,10 +48,12 @@ async def logout(request: LogoutRequest, auth: AuthenticationServiceDep) -> Resp
     await auth.logout(request.refresh_token)
     return Response()
 
+
 @router.post("/logout-all", status_code=status.HTTP_204_NO_CONTENT)
 async def logout_all(current_user: CurrentUser, auth: AuthenticationServiceDep) -> Response:
     await auth.logout_all(current_user.id)
     return Response()
+
 
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: CurrentUser) -> UserResponse:

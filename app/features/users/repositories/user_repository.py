@@ -5,15 +5,16 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
+from app.core.database.helpers import Helper
+from app.core.database.repositories.sluggable_repository import SluggableRepository
 from app.features.auth.exceptions import EmailAlreadyExistsError
 from app.features.users.models.user import User
-from app.shared.database.helpers import Helper
-from app.shared.database.repositories.base_repository import BaseRepository
 
 logger = logging.getLogger(__name__)
 
 
-class UserRepository(BaseRepository[User]):
+class UserRepository(SluggableRepository[User]):
+    model = User
 
     async def add(self, user: User) -> None:
         try:
@@ -30,24 +31,35 @@ class UserRepository(BaseRepository[User]):
             select(User).where(User.id == user_id)
         )
 
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
 
     async def get_by_email(self, email: str) -> User | None:
         stmt = (
             select(User).where(User.email == email)
         )
 
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
+
+    async def get_by_slug(self, slug: str) -> User | None:
+        stmt = (
+            select(User).where(User.slug == slug)
+        )
+
+        return await self._session.scalar(stmt)
+
+    async def exists_by_slug(self, slug: str) -> bool:
+        stmt = (
+            select(User).where(User.slug == slug)
+        )
+
+        return await self._session.scalar(stmt) is not None
 
     async def get_by_email_with_identities(self, email: str) -> User | None:
         stmt = (
             select(User).options(selectinload(User.authentication_identities)).where(User.email == email)
         )
 
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
 
     async def exists_by_email(self, email: str) -> bool:
         stmt = (

@@ -5,9 +5,10 @@ from uuid import UUID
 from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.database.base import Base
+from app.core.database.mixin.id import IdMixin
+from app.core.database.mixin.timestamp import TimestampMixin
 from app.features.registrations.enums.registration_status import RegistrationStatus
-from app.shared.database.base import Base
-from app.shared.database.mixin import IdMixin, TimestampMixin
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User

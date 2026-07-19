@@ -4,8 +4,9 @@ from uuid import UUID
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.shared.database.base import Base
-from app.shared.database.mixin import IdMixin, TimestampMixin
+from app.core.database.base import Base
+from app.core.database.mixin.id import IdMixin
+from app.core.database.mixin.timestamp import TimestampMixin
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User

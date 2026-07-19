@@ -1,9 +1,16 @@
+from typing import TypeVar
+
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.database.base import Base
+
+T = TypeVar("T", bound=Base)
 
 
 class BaseRepository[T]:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession, model: type[T]):
         self._session = session
+        self._model = model
 
     async def add(self, entity: T) -> None:
         self._session.add(entity)
