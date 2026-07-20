@@ -4,3 +4,5 @@ ROLES_NAME_UNIQUE = "uq_roles_name"
 EVENTS_SLUG_UNIQUE = "uq_events_slug"
 ACTIVITY_TYPES_NAME_UNIQUE = "uq_activity_types_name"
 ACTIVITY_TYPES_SLUG_UNIQUE = "uq_activity_types_slug"
+ROLE_PERMISSION_UNIQUE = "uq_role_permission"
+

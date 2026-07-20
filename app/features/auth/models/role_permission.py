@@ -5,6 +5,7 @@ from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
+from app.core.database.constraints import ROLE_PERMISSION_UNIQUE
 
 if TYPE_CHECKING:
     from app.features.auth.models.permission import Permission
@@ -17,22 +18,24 @@ class RolePermission(Base):
         UniqueConstraint(
             "role_id",
             "permission_id",
-            name="uq_role_permission",
+            name=ROLE_PERMISSION_UNIQUE,
         ),
     )
 
     role_id: Mapped[UUID] = mapped_column(
-        ForeignKey("roles.id")
+        ForeignKey("roles.id"),
+        primary_key=True
     )
 
     permission_id: Mapped[UUID] = mapped_column(
-        ForeignKey("permissions.id")
+        ForeignKey("permissions.id"),
+        primary_key=True
     )
 
     role: Mapped["Role"] = relationship(
-        back_populates="permissions"
+        back_populates="role_permissions"
     )
 
     permission: Mapped["Permission"] = relationship(
-        back_populates="roles"
+        back_populates="role_permissions"
     )

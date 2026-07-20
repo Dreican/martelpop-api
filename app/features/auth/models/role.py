@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import String, UniqueConstraint, Enum
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
@@ -41,9 +42,14 @@ class Role(Base):
         back_populates="role"
     )
 
-    permissions: Mapped[list["RolePermission"]] = relationship(
+    role_permissions: Mapped[list["RolePermission"]] = relationship(
         back_populates="role",
         cascade="all, delete-orphan",
+    )
+
+    permissions = association_proxy(
+        "role_permissions",
+        "permission"
     )
 
     def __repr__(self) -> str:

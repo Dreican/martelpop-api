@@ -9,7 +9,7 @@ from app.features.auth.models.role import Role
 
 class RoleRepository(BaseRepository[Role]):
     def __init__(self, session: AsyncSession):
-        super().__init__(session)
+        super().__init__(session, model=Role)
 
     async def get_by_id(self, role_id: UUID) -> Role | None:
         stmt = (select(Role).where(Role.id == role_id))
