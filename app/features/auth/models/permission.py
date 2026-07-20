@@ -20,7 +20,6 @@ class Permission(Base):
             values_callable=lambda e: [i.value for i in e],
             native_enum=False,
         ),
-        String(50),
         unique=True,
         index=True,
     )
