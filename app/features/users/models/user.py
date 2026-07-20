@@ -7,10 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.constraints import USERS_EMAIL_UNIQUE, USERS_SLUG_UNIQUE
-from app.core.database.mixin.id import IdMixin
 from app.core.database.mixin.slug import SlugMixin
 from app.core.database.mixin.soft_delete import SoftDeleteMixin
-from app.core.database.mixin.timestamp import TimestampMixin
 from app.features.users.enums.user_status import UserStatus
 
 if TYPE_CHECKING:

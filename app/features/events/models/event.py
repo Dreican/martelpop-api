@@ -8,10 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.constraints import EVENTS_SLUG_UNIQUE
-from app.core.database.mixin.id import IdMixin
 from app.core.database.mixin.slug import SlugMixin
 from app.core.database.mixin.soft_delete import SoftDeleteMixin
-from app.core.database.mixin.timestamp import TimestampMixin
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User

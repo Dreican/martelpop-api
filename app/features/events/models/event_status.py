@@ -4,8 +4,6 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
-from app.core.database.mixin.id import IdMixin
-from app.core.database.mixin.timestamp import TimestampMixin
 
 if TYPE_CHECKING:
     from app.features.events.models.event import Event

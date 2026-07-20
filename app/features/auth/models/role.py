@@ -5,8 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.constraints import ROLES_NAME_UNIQUE
-from app.core.database.mixin.id import IdMixin
-from app.core.database.mixin.timestamp import TimestampMixin
 from app.features.auth.enums.role_code import RolesCode
 
 if TYPE_CHECKING:

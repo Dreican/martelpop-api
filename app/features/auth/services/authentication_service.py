@@ -177,7 +177,8 @@ class AuthenticationService:
             logger.error("Default role not found")
             raise DefaultRoleNotFoundError()
 
-        slug = await self._slug.create_unique(request.firstname, request.lastname, slug_exists=self._users.exists_by_slug)
+        slug = await self._slug.create_unique(request.firstname, request.lastname,
+                                              slug_exists=self._users.exists_by_slug)
 
         logger.info("User created", extra={"email": request.email, "role": default_role.name})
 

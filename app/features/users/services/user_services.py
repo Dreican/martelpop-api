@@ -1,5 +1,3 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.dependencies.database import SessionDep
 from app.core.dependencies.slug import SlugServiceDep
 from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
@@ -24,5 +22,3 @@ class UserService:
         self._passwords = password_service
         self._authentication_identity = authentication_identity_repository
         self._slug = slug_service
-
-        

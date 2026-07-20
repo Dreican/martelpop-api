@@ -8,7 +8,7 @@ from app.core.database.mixin.id import IdMixin
 from app.core.database.mixin.timestamp import TimestampMixin
 
 
-class Base(IdMixin, TimestampMixin,DeclarativeBase):
+class Base(IdMixin, TimestampMixin, DeclarativeBase):
     type_annotation_map = {
         UUID: Uuid,
         datetime: TIMESTAMP(timezone=True),
