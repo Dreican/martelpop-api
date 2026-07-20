@@ -23,14 +23,9 @@ async def seed_permissions(session: AsyncSession) -> None:
             "description": "Can delete users",
         },
         {
-            "code": PermissionCode.USER_MANAGE,
-            "name": "Manage user",
-            "description": "Can manage users",
-        },
-        {
-            "code": PermissionCode.ROLE_CREATE,
-            "name": "Create role",
-            "description": "Can create roles",
+            "code": PermissionCode.USER_IMPERSONATE,
+            "name": "Impersonate user",
+            "description": "Can impersonate users",
         },
         {
             "code": PermissionCode.ROLE_READ,
@@ -40,7 +35,12 @@ async def seed_permissions(session: AsyncSession) -> None:
         {
             "code": PermissionCode.ROLE_UPDATE,
             "name": "Update role",
-            "description": "Can update roles",
+            "description": "Can update roles and their permissions",
+        },
+        {
+            "code": PermissionCode.PERMISSION_READ,
+            "name": "Read permissions",
+            "description": "Can read permissions",
         },
         {
             "code": PermissionCode.EVENT_CREATE,
@@ -58,14 +58,34 @@ async def seed_permissions(session: AsyncSession) -> None:
             "description": "Can delete events",
         },
         {
-            "code": PermissionCode.EVENT_MANAGE,
-            "name": "Manage event",
-            "description": "Can manage events",
+            "code": PermissionCode.EVENT_PUBLISH,
+            "name": "Publish event",
+            "description": "Can update events status (draft/published/cancelled/completed)",
         },
         {
             "code": PermissionCode.EVENT_READ,
             "name": "Read event",
             "description": "Can read events",
+        },
+        {
+            "code": PermissionCode.REGISTRATION_CREATE,
+            "name": "Create registration",
+            "description": "Can create registrations",
+        },
+        {
+            "code": PermissionCode.REGISTRATION_CANCEL,
+            "name": "Cancel registration",
+            "description": "Can cancel registrations",
+        },
+        {
+            "code": PermissionCode.REGISTRATION_MANAGE,
+            "name": "Manage registration",
+            "description": "Can manage registrations",
+        },
+        {
+            "code": PermissionCode.WAITLIST_MANAGE,
+            "name": "Manage waitlist",
+            "description": "Can manage waitlist",
         },
     )
 
