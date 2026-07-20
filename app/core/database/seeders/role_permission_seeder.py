@@ -23,7 +23,8 @@ async def seed_role_permissions(session: AsyncSession) -> None:
             PermissionCode.EVENT_READ,
             PermissionCode.EVENT_CREATE,
             PermissionCode.EVENT_UPDATE,
-            PermissionCode.REGISTRATION_MANAGE,
+            PermissionCode.EVENT_DELETE,
+            PermissionCode.EVENT_PUBLISH,
         },
         RolesCode.VIP: {
             PermissionCode.EVENT_READ,
@@ -40,12 +41,18 @@ async def seed_role_permissions(session: AsyncSession) -> None:
         ).all()
     }
 
+
+
     permissions = {
         permission.code: permission
         for permission in (
             await session.scalars(select(Permission))
         ).all()
     }
+    print(type(next(iter(permissions.keys()))))
+    print(next(iter(permissions.keys())))
+    print(type(PermissionCode.EVENT_CREATE))
+    print(PermissionCode.EVENT_CREATE)
 
     for role_code, permission_codes in ROLE_PERMISSIONS.items():
         role = roles[role_code]

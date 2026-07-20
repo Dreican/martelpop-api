@@ -1,8 +1,8 @@
 """
 
-Revision ID: dbb4ea7c617e
+Revision ID: 9217cf316b8a
 Revises: 
-Create Date: 2026-07-18 23:55:55.820297
+Create Date: 2026-07-20 21:27:45.434179
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'dbb4ea7c617e'
+revision: str = '9217cf316b8a'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,6 +25,7 @@ def upgrade() -> None:
     sa.Column('code', sa.String(length=50), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
+    sa.Column('is_default', sa.Boolean(), nullable=False),
     sa.Column('sort_order', sa.Integer(), nullable=False),
     sa.Column('is_public', sa.Boolean(), nullable=False),
     sa.Column('is_bookable', sa.Boolean(), nullable=False),
@@ -37,6 +38,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('name')
     )
     op.create_table('permissions',
+    sa.Column('code', sa.Enum('user.read', 'user.update', 'user.delete', 'user.impersonate', 'role.read', 'role.update', 'permission.read', 'role.permissions.manage', 'event.create', 'event.read', 'event.update', 'event.delete', 'event.publish', 'registration.create', 'registration.cancel', 'registration.manage', 'waitlist.manage', name='permissioncode', native_enum=False), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('id', sa.Uuid(), nullable=False),
@@ -44,9 +46,10 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_permissions_code'), 'permissions', ['code'], unique=True)
     op.create_index(op.f('ix_permissions_name'), 'permissions', ['name'], unique=True)
     op.create_table('roles',
-    sa.Column('code', sa.String(length=50), nullable=False),
+    sa.Column('code', sa.Enum('admin', 'organizer', 'vip', 'user', name='role_code', native_enum=False), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('is_default', sa.Boolean(), nullable=False),
@@ -54,9 +57,9 @@ def upgrade() -> None:
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('code'),
     sa.UniqueConstraint('name', name='uq_roles_name')
     )
-    op.create_index(op.f('ix_roles_code'), 'roles', ['code'], unique=True)
     op.create_index(op.f('ix_roles_name'), 'roles', ['name'], unique=True)
     op.create_table('role_permissions',
     sa.Column('role_id', sa.Uuid(), nullable=False),
@@ -66,14 +69,13 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['permission_id'], ['permissions.id'], ),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
-    sa.PrimaryKeyConstraint('id'),
+    sa.PrimaryKeyConstraint('role_id', 'permission_id', 'id'),
     sa.UniqueConstraint('role_id', 'permission_id', name='uq_role_permission')
     )
     op.create_table('users',
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('firstname', sa.String(length=100), nullable=False),
     sa.Column('lastname', sa.String(length=100), nullable=False),
-    sa.Column('slug', sa.String(length=255), nullable=False),
     sa.Column('avatar_file_id', sa.Uuid(), nullable=True),
     sa.Column('status', sa.Enum('ACTIVE', 'INACTIVE', 'PENDING_EMAIL_VERIFICATION', name='user_status'), server_default='ACTIVE', nullable=False),
     sa.Column('role_id', sa.Uuid(), nullable=False),
@@ -81,14 +83,15 @@ def upgrade() -> None:
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('slug', sa.String(length=255), nullable=False),
     sa.ForeignKeyConstraint(['avatar_file_id'], ['stored_files.id'], name='fk_users_avatar_file', use_alter=True),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email', name='uq_users_email'),
-    sa.UniqueConstraint('slug'),
     sa.UniqueConstraint('slug', name='uq_users_slug')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_index(op.f('ix_users_slug'), 'users', ['slug'], unique=True)
     op.create_table('authentication_identities',
     sa.Column('user_id', sa.Uuid(), nullable=False),
     sa.Column('password_hash', sa.String(), nullable=True),
@@ -146,7 +149,6 @@ def upgrade() -> None:
     )
     op.create_table('activity_types',
     sa.Column('name', sa.String(length=255), nullable=False),
-    sa.Column('slug', sa.String(length=255), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('banner_file_id', sa.Uuid(), nullable=True),
     sa.Column('icon_file_id', sa.Uuid(), nullable=True),
@@ -158,14 +160,15 @@ def upgrade() -> None:
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('slug', sa.String(length=255), nullable=False),
     sa.ForeignKeyConstraint(['banner_file_id'], ['stored_files.id'], ),
     sa.ForeignKeyConstraint(['icon_file_id'], ['stored_files.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name'),
     sa.UniqueConstraint('name', name='uq_activity_types_name'),
-    sa.UniqueConstraint('slug'),
     sa.UniqueConstraint('slug', name='uq_activity_types_slug')
     )
+    op.create_index(op.f('ix_activity_types_slug'), 'activity_types', ['slug'], unique=True)
     op.create_table('events',
     sa.Column('activity_type_id', sa.Uuid(), nullable=False),
     sa.Column('title', sa.String(length=255), nullable=False),
@@ -229,6 +232,7 @@ def downgrade() -> None:
     op.drop_table('waitlist')
     op.drop_table('registrations')
     op.drop_table('events')
+    op.drop_index(op.f('ix_activity_types_slug'), table_name='activity_types')
     op.drop_table('activity_types')
     op.drop_table('stored_files')
     op.drop_index(op.f('ix_refresh_tokens_user_id'), table_name='refresh_tokens')
@@ -240,13 +244,14 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_authentication_identities_user_id'), table_name='authentication_identities')
     op.drop_index(op.f('ix_authentication_identities_provider'), table_name='authentication_identities')
     op.drop_table('authentication_identities')
+    op.drop_index(op.f('ix_users_slug'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     op.drop_table('role_permissions')
     op.drop_index(op.f('ix_roles_name'), table_name='roles')
-    op.drop_index(op.f('ix_roles_code'), table_name='roles')
     op.drop_table('roles')
     op.drop_index(op.f('ix_permissions_name'), table_name='permissions')
+    op.drop_index(op.f('ix_permissions_code'), table_name='permissions')
     op.drop_table('permissions')
     op.drop_table('event_statuses')
     # ### end Alembic commands ###
