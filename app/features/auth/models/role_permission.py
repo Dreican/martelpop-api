@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from app.features.auth.models.role import Role
 
 
-class RolePermission(Base, IdMixin, TimestampMixin):
+class RolePermission(Base):
     __tablename__ = "role_permissions"
     __table_args__ = (
         UniqueConstraint(

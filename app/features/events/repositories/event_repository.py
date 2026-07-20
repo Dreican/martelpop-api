@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy import select
 
 from app.core.database.repositories.sluggable_repository import SluggableRepository
-from app.features.events.constants import EventStatus
+from app.features.events.enums.event_status import EventStatus
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
 

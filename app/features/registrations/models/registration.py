@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from app.features.events.models.event import Event
 
 
-class Registration(Base, IdMixin, TimestampMixin):
+class Registration(Base):
     __tablename__ = "registrations"
 
     __table_args__ = (

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from app.features.storage.models.stored_file import StoredFile
 
 
-class ActivityType(Base, IdMixin, TimestampMixin, SoftDeleteMixin, SlugMixin):
+class ActivityType(Base, SoftDeleteMixin, SlugMixin):
     __tablename__ = "activity_types"
     __table_args__ = (
         UniqueConstraint("name", name=ACTIVITY_TYPES_NAME_UNIQUE),

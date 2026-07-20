@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from app.features.users.models.user import User
 
 
-class AuthenticationIdentity(Base, IdMixin, TimestampMixin):
+class AuthenticationIdentity(Base):
     __tablename__ = "authentication_identities"
 
     __table_args__ = (

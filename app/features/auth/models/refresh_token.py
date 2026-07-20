@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from app.features.users.models.user import User
 
 
-class RefreshToken(Base, IdMixin, TimestampMixin):
+class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
     __table_args__ = (

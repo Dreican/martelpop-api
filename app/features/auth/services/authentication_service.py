@@ -4,7 +4,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.services.slug_service import SlugService
+from app.core.dependencies.slug import SlugServiceDep
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.login_request import LoginRequest
 from app.features.auth.dto.register_request import RegisterRequest
@@ -42,6 +42,7 @@ class AuthenticationService:
             password_service: PasswordService,
             jwt_service: JwtService,
             refresh_token_repository: RefreshTokenRepository,
+            slug_service: SlugServiceDep
     ) -> None:
         self._session = session
         self._users = user_repository
@@ -50,6 +51,7 @@ class AuthenticationService:
         self._password = password_service
         self._jwt = jwt_service
         self._refresh_tokens = refresh_token_repository
+        self._slug = slug_service
 
     async def register(self, request: RegisterRequest, session: SessionInfo) -> TokenResponse:
         try:
@@ -175,8 +177,7 @@ class AuthenticationService:
             logger.error("Default role not found")
             raise DefaultRoleNotFoundError()
 
-        # inject the SlugService ?
-        slug = await SlugService.create_unique(request.firstname, request.lastname, exists=self._users.exists_by_slug)
+        slug = await self._slug.create_unique(request.firstname, request.lastname, slug_exists=self._users.exists_by_slug)
 
         logger.info("User created", extra={"email": request.email, "role": default_role.name})
 

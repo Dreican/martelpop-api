@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from app.features.events.models.event_status import EventStatus
 
 
-class Event(Base, IdMixin, TimestampMixin, SoftDeleteMixin, SlugMixin):
+class Event(Base, SoftDeleteMixin, SlugMixin):
     __tablename__ = "events"
     __table_args__ = (
         UniqueConstraint("slug", name=EVENTS_SLUG_UNIQUE),

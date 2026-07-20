@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.features.events.constants import EventStatus
+from app.features.events.enums.event_status import EventStatus
 
 
 class CreateEventRequest(BaseModel):

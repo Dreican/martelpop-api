@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from app.features.waitlist.models.waitlist import Waitlist
 
 
-class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin, SlugMixin):
+class User(Base, SoftDeleteMixin, SlugMixin):
     __tablename__ = "users"
     __table_args__ = (
         UniqueConstraint("email", name=USERS_EMAIL_UNIQUE),

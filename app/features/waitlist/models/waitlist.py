@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from app.features.events.models.event import Event
 
 
-class Waitlist(Base, IdMixin, TimestampMixin):
+class Waitlist(Base):
     __tablename__ = "waitlist"
 
     __table_args__ = (

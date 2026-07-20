@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from app.features.users.models.user import User
 
 
-class Role(Base, IdMixin, TimestampMixin):
+class Role(Base):
     __tablename__ = "roles"
     __table_args__ = (
         UniqueConstraint("name", name=ROLES_NAME_UNIQUE),

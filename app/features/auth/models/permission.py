@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from app.features.auth.models.role_permission import RolePermission
 
 
-class Permission(Base, IdMixin, TimestampMixin):
+class Permission(Base):
     __tablename__ = "permissions"
 
     name: Mapped[str] = mapped_column(
