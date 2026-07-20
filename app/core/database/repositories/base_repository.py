@@ -26,6 +26,6 @@ class BaseRepository[T]:
     async def refresh(self, entity: T) -> None:
         await self._session.refresh(entity)
 
-    async def get_by_id(self, id: UUID) -> T | None:
-        stmt = select(self.model).where(self.model.id == id)
+    async def get_by_id(self, entity_id: UUID) -> T | None:
+        stmt = select(self.model).where(self.model.id == entity_id)
         return await self._session.scalar(stmt)
