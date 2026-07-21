@@ -100,3 +100,5 @@ async def seed_permissions(session: AsyncSession) -> None:
             exists.name = data["name"]
             exists.description = data["description"]
 
+    print(session.new)
+    await session.flush()

@@ -4,14 +4,14 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies.slug import SlugServiceDep
+from app.core.services.slug_service import SlugService
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.login_request import LoginRequest
 from app.features.auth.dto.register_request import RegisterRequest
 from app.features.auth.dto.session_info import SessionInfo
 from app.features.auth.dto.token_response import TokenResponse
 from app.features.auth.enums.auth_provider import AuthProvider
-from app.features.auth.exceptions import (
+from app.features.auth.exceptions.authentication_exceptions import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
     DefaultRoleNotFoundError,
@@ -42,7 +42,7 @@ class AuthenticationService:
             password_service: PasswordService,
             jwt_service: JwtService,
             refresh_token_repository: RefreshTokenRepository,
-            slug_service: SlugServiceDep
+            slug_service: SlugService
     ) -> None:
         self._session = session
         self._users = user_repository

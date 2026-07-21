@@ -9,7 +9,7 @@ from app.features.auth.models.role_permission import RolePermission
 
 
 async def seed_role_permissions(session: AsyncSession) -> None:
-    ROLE_PERMISSIONS = {
+    role_permissions_seed = {
         RolesCode.ADMIN: {
             PermissionCode.EVENT_READ,
             PermissionCode.EVENT_CREATE,
@@ -41,33 +41,27 @@ async def seed_role_permissions(session: AsyncSession) -> None:
         ).all()
     }
 
-
-
     permissions = {
         permission.code: permission
         for permission in (
             await session.scalars(select(Permission))
         ).all()
     }
-    print(type(next(iter(permissions.keys()))))
-    print(next(iter(permissions.keys())))
-    print(type(PermissionCode.EVENT_CREATE))
-    print(PermissionCode.EVENT_CREATE)
 
-    for role_code, permission_codes in ROLE_PERMISSIONS.items():
+    existing = {
+        (rp.role_id, rp.permission_id)
+        for rp in (
+            await session.scalars(select(RolePermission))
+        ).all()
+    }
+
+    for role_code, permission_codes in role_permissions_seed.items():
         role = roles[role_code]
 
         for permission_code in permission_codes:
             permission = permissions[permission_code]
 
-            exists = any(
-                rp.permission_id == permission.id
-                for rp in role.role_permissions
-            )
+            if (role.id, permission.id) not in existing:
+                session.add(RolePermission(role=role, permission=permission))
 
-            if not exists:
-                role.role_permissions.append(
-                    RolePermission(
-                        permission=permission,
-                    )
-                )
+                existing.add((role.id, permission.id))

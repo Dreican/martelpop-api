@@ -13,15 +13,18 @@ class RoleRepository(BaseRepository[Role]):
 
     async def get_by_id(self, role_id: UUID) -> Role | None:
         stmt = (select(Role).where(Role.id == role_id))
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
 
     async def get_by_name(self, role_name: str) -> Role | None:
         stmt = (select(Role).where(Role.name == role_name))
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
+
+    async def get_all(self) -> list[Role]:
+        stmt = select(Role)
+
+        return list(await self._session.scalars(stmt))
 
     async def get_default_role(self) -> Role | None:
         stmt = (select(Role).where(Role.is_default == True))
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
+

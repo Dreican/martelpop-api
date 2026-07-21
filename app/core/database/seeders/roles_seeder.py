@@ -40,7 +40,7 @@ async def seed_roles(session: AsyncSession) -> None:
 
         if exists is None:
             session.add(Role(**data))
-        else:
-            exists.name = data["name"]
-            exists.description = data["description"]
-            exists.is_default = data["is_default"]
+        # else:
+        #     exists.name = data["name"]
+        #     exists.description = data["description"]
+        #     exists.is_default = data["is_default"]

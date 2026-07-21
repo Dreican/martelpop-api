@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database.helpers import Helper
 from app.core.database.repositories.sluggable_repository import SluggableRepository
-from app.features.auth.exceptions import EmailAlreadyExistsError
+from app.features.auth.exceptions.authentication_exceptions import EmailAlreadyExistsError
 from app.features.users.models.user import User
 
 logger = logging.getLogger(__name__)

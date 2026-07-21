@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security.http import HTTPAuthorizationCredentials
 
 from app.features.auth.dependencies.services import JwtServiceDep
-from app.features.auth.exceptions import ExpiredTokenError, InvalidTokenError
+from app.features.auth.exceptions.jwt_exceptions import InvalidTokenError, ExpiredTokenError
 from app.features.auth.security.bearer import bearer_scheme
 from app.features.users.dependencies.repositories import UserRepositoryDep
 from app.features.users.models.user import User

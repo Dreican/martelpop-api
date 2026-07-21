@@ -9,10 +9,7 @@ from jwt import InvalidTokenError as PyJwtError
 from app.core.config.jwt import JWTConfig
 from app.features.auth.dto.issued_tokens import IssuedTokens
 from app.features.auth.enums.token_type import TokenType
-from app.features.auth.exceptions import (
-    ExpiredTokenError,
-    InvalidTokenError, InvalidTokenTypeError,
-)
+from app.features.auth.exceptions.jwt_exceptions import InvalidTokenError, ExpiredTokenError, InvalidTokenTypeError
 from app.features.auth.models.role import Role
 from app.features.auth.security.token_payload import TokenPayload
 from app.features.users.models.user import User
