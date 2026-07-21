@@ -11,7 +11,7 @@ T = TypeVar("T", bound=Base)
 
 class BaseRepository[T]:
     def __init__(self, session: AsyncSession, model: type[T]):
-        self.model = model
+        self._model = model
         self._session = session
 
     async def add(self, entity: T) -> None:
@@ -27,5 +27,5 @@ class BaseRepository[T]:
         await self._session.refresh(entity)
 
     async def get_by_id(self, entity_id: UUID) -> T | None:
-        stmt = select(self.model).where(self.model.id == entity_id)
+        stmt = select(self._model).where(self._model.id == entity_id)
         return await self._session.scalar(stmt)

@@ -13,7 +13,7 @@ from app.features.users.models.user import User
 class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
 
     def __init__(self, session: AsyncSession):
-        super().__init__(session)
+        super().__init__(session, model=AuthenticationIdentity)
 
     async def get_by_id(self, identity_id: UUID) -> AuthenticationIdentity | None:
         stmt = (

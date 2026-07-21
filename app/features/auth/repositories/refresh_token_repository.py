@@ -10,7 +10,7 @@ from app.features.auth.models.refresh_token import RefreshToken
 
 class RefreshTokenRepository(BaseRepository[RefreshToken]):
     def __init__(self, session: AsyncSession):
-        super().__init__(session)
+        super().__init__(session, model=RefreshToken)
 
     async def get_by_jti(self, jti: UUID) -> RefreshToken | None:
         stmt = (

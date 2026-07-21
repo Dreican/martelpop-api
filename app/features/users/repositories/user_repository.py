@@ -3,6 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database.helpers import Helper
@@ -14,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class UserRepository(SluggableRepository[User]):
-    model = User
+    def __init__(self, session: AsyncSession):
+        super().__init__(session, model=User)
 
     async def add(self, user: User) -> None:
         try:
@@ -25,13 +27,6 @@ class UserRepository(SluggableRepository[User]):
                 logger.debug("Email already exists, unique constraint violation")
                 raise EmailAlreadyExistsError() from ex
             raise
-
-    async def get_by_id(self, user_id: UUID) -> User | None:
-        stmt = (
-            select(User).where(User.id == user_id)
-        )
-
-        return await self._session.scalar(stmt)
 
     async def get_by_email(self, email: str) -> User | None:
         stmt = (
