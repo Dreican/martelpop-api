@@ -1,13 +1,9 @@
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from starlette.status import (
-    HTTP_422_UNPROCESSABLE_CONTENT,
-    HTTP_500_INTERNAL_SERVER_ERROR
-)
 
 from app.core.constants import ErrorCode
 from app.core.exceptions.base import ApplicationError
@@ -64,7 +60,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
         return JSONResponse(
-            status_code=HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content=ErrorResponse(
                 code=ErrorCode.VALIDATION_ERROR,
                 detail="Request validation failed",
@@ -77,7 +73,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         logger.exception("Internal validation error")
 
         return JSONResponse(
-            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=ErrorResponse(
                 code=ErrorCode.INTERNAL_VALIDATION_ERROR,
                 detail="Internal validation error"
@@ -96,7 +92,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
         return JSONResponse(
-            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=ErrorResponse(
                 code=ErrorCode.INTERNAL_SERVER_ERROR,
                 detail="An unexpected error occurred.",

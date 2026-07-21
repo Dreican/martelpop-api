@@ -28,9 +28,13 @@ async def seed_role_permissions(session: AsyncSession) -> None:
         },
         RolesCode.VIP: {
             PermissionCode.EVENT_READ,
+            PermissionCode.REGISTRATION_CREATE,
+            PermissionCode.REGISTRATION_CANCEL
         },
         RolesCode.USER: {
             PermissionCode.EVENT_READ,
+            PermissionCode.REGISTRATION_CREATE,
+            PermissionCode.REGISTRATION_CANCEL
         },
     }
 
