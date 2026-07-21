@@ -22,16 +22,16 @@ class AuthorizationService:
         self._permissions = permissions_repository
 
     async def has_permission(self, user: User, permission: PermissionCode) -> bool:
-        permissions = self._permissions.get_permission_codes(user.role)
+        permissions = self._permissions.get_permission_codes(user.role.id)
         logger.debug(f"Checking if user {user.email} has permissions {permission.value}")
         return permission in permissions
 
     async def has_any_permissions(self, user: User, permissions: list[PermissionCode]) -> bool:
-        user_permissions = self._permissions.get_permission_codes(user.role)
+        user_permissions = self._permissions.get_permission_codes(user.role.id)
         logger.debug(f"Checking if user {user.email} has any permissions {permissions}")
         return any(permission in user_permissions for permission in permissions)
 
     async def has_all_permissions(self, user: User, permissions: list[PermissionCode]) -> bool:
-        user_permissions = self._permissions.get_permission_codes(user.role)
+        user_permissions = self._permissions.get_permission_codes(user.role.id)
         logger.debug(f"Checking if user {user.email} has all permissions {permissions}")
         return all(permission in user_permissions for permission in permissions)

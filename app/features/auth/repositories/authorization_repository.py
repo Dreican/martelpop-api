@@ -1,9 +1,10 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.models.permission import Permission
-from app.features.auth.models.role import Role
 from app.features.auth.models.role_permission import RolePermission
 
 
@@ -11,19 +12,18 @@ class AuthorizationRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-
-    async def get_permission_codes(self, role: Role) -> set[PermissionCode]:
+    async def get_permission_codes(self, role_id:UUID) -> set[PermissionCode]:
         stmt = (select(Permission.code)
                 .join(RolePermission)
-                .where(RolePermission.role_id == role.id))
+                .where(RolePermission.role_id == role_id))
 
         return set(await self._session.scalars(stmt))
 
-    async def role_has_permission(self, role: Role, permission: PermissionCode) -> bool:
+    async def role_has_permission(self, role_id: UUID, permission: PermissionCode) -> bool:
         stmt = (
             select(Permission.code)
             .join(RolePermission)
-            .where(RolePermission.role_id == role.id)
+            .where(RolePermission.role_id == role_id)
             .where(Permission.code == permission)
         )
 

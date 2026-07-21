@@ -11,7 +11,6 @@ from app.features.auth.models.role_permission import RolePermission
 class PermissionRepository(BaseRepository[Permission]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model=Permission)
-        self._session = session
 
     async def get_by_code(self, code: PermissionCode) -> Permission | None:
         stmt = (
