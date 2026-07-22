@@ -21,13 +21,13 @@ def setup_logging():
             },
             "handlers": {
                 "console": {
-                    "class": "logger.StreamHandler",
+                    "class": "logging.StreamHandler",
                     "formatter": "default",
                     "level": settings.log.level
                 },
 
                 "file": {
-                    "class": "logger.handlers.RotatingFileHandler",
+                    "class": "logging.handlers.RotatingFileHandler",
                     "formatter": "default",
                     "filename": str(log_dir / settings.log.file),
                     "maxBytes": 10 * 1024 * 1024,
@@ -37,7 +37,7 @@ def setup_logging():
                 },
 
                 "error_file": {
-                    "class": "logger.handlers.RotatingFileHandler",
+                    "class": "logging.handlers.RotatingFileHandler",
                     "formatter": "default",
                     "filename": str(log_dir / settings.log.error_file),
                     "maxBytes": 10 * 1024 * 1024,
