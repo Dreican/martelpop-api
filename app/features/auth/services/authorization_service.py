@@ -27,7 +27,7 @@ class AuthorizationService:
     async def require_permission(self, user: User, permission: PermissionCode) -> None:
         if not await self.has_permission(user, permission):
             logger.warning("Permission denied: user=%s permission=%s", user.email, permission.value)
-            raise PermissionDeniedError(permission)
+            raise PermissionDeniedError({permission})
 
     async def require_all_permissions(self, user: User, permissions: set[PermissionCode]) -> None:
         if not await self.has_all_permissions(user, permissions):

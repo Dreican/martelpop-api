@@ -14,3 +14,4 @@ class UserService:
         self._session = session
         self._users = user_repository
         self._slug = slug_service
+    

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, NoReturn
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security.http import HTTPAuthorizationCredentials
@@ -15,26 +15,38 @@ Credentials = Annotated[
 ]
 
 
+def unauthorized(detail: str) -> NoReturn:
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=detail,
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
 async def get_current_user(credentials: Credentials, jwt: JwtServiceDep, users: UserRepositoryDep) -> User:
     if credentials is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authenticated")
+        unauthorized("Not Authenticated")
 
     try:
-        payload = jwt.decode_access_token(credentials.credentials)
+        payload = jwt.decode_access_token(str(credentials.credentials))
 
     except ExpiredTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access token expired")
+        unauthorized("Access token expired")
 
     except InvalidTokenError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid access token")
+        unauthorized("Invalid access token")
 
     user = await users.get_by_id(payload.sub)
 
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        unauthorized("User not found")
+
+    assert user is not None
 
     if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User account is disabled")
+        unauthorized("User account is disabled")
+
+    if user.is_deleted:
+        unauthorized("User not found")
 
     return user
 
