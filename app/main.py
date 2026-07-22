@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(api: FastAPI):
     logger.info("Starting application")
 
     await seed_database()
@@ -35,39 +35,30 @@ async def lifespan(app: FastAPI):
     logger.info("Stopping application")
 
 
-app = FastAPI(
+api = FastAPI(
     lifespan=lifespan
 )
-app.include_router(api_router)
+api.include_router(api_router)
 
-configure_cors(app)
+configure_cors(api)
 logger.info("CORS configured")
 
-configure_trusted_hosts(app)
+configure_trusted_hosts(api)
 logger.info("Trusted hosts configured")
 
-app.add_middleware(RequestLoggingMiddleware)
-app.add_middleware(RequestContextMiddleware)
+api.add_middleware(RequestLoggingMiddleware)
+api.add_middleware(RequestContextMiddleware)
 logger.info("Request logging middleware configured")
 
-register_exception_handlers(app)
+register_exception_handlers(api)
 logger.info("Exception handlers registered")
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+api.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-logger.info(f"Application started : http://{get_settings().app.host}:{get_settings().app.port}")
+logger.info(f"Application started : http://localhost:{get_settings().app.port}")
 
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return FileResponse("app/static/favicon.ico")
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
