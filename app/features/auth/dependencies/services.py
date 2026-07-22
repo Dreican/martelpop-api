@@ -21,14 +21,18 @@ from app.features.users.dependencies.repositories import UserRepositoryDep
 def get_password_service() -> PasswordService:
     return PasswordService()
 
+
 PasswordServiceDep = Annotated[PasswordService, Depends(get_password_service)]
+
 
 @lru_cache
 def get_jwt_service() -> JwtService:
     settings = get_settings()
     return JwtService(settings.jwt)
 
+
 JwtServiceDep = Annotated[JwtService, Depends(get_jwt_service)]
+
 
 def get_authentication_service(
         session: SessionDep,
@@ -50,5 +54,6 @@ def get_authentication_service(
         refresh_token_repository=refresh_token,
         slug_service=slug_service
     )
+
 
 AuthenticationServiceDep = Annotated[AuthenticationService, Depends(get_authentication_service)]

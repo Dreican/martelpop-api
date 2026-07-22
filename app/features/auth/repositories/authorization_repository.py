@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 

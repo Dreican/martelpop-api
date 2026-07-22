@@ -27,4 +27,3 @@ class RoleRepository(BaseRepository[Role]):
     async def get_default_role(self) -> Role | None:
         stmt = (select(Role).where(Role.is_default == True))
         return await self._session.scalar(stmt)
-

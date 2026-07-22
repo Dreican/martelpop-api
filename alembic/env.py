@@ -17,7 +17,7 @@ config.set_main_option(
     str(get_settings().db.database_url),
 )
 
-# Interpret the config file for Python logging.
+# Interpret the config file for Python logger.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

@@ -7,8 +7,8 @@ from app.features.auth.models.role import Role
 from app.features.auth.repositories.authorization_repository import AuthorizationRepository
 from app.features.users.models.user import User
 
-
 logger = logging.getLogger(__name__)
+
 
 class AuthorizationService:
     def __init__(

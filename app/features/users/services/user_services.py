@@ -1,10 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies.database import SessionDep
 from app.core.dependencies.slug import SlugServiceDep
-from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
-from app.features.auth.repositories.role_repository import RoleRepository
-from app.features.auth.services.password_service import PasswordService
 from app.features.users.repositories.user_repository import UserRepository
 
 
