@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from app.features.storage.models.stored_file import StoredFile
     from app.features.waitlist.models.waitlist import Waitlist
     from app.features.events.models.activity_type import ActivityType
-    from app.features.events.models.event_status import EventStatus
+    from app.features.events.models.event_status import EventStatusCode
 
 
 class Event(Base, SoftDeleteMixin, SlugMixin):
@@ -71,7 +71,7 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     status_id: Mapped[UUID] = mapped_column(
         ForeignKey("event_statuses.id"),
     )
-    status: Mapped[EventStatus] = relationship(
+    status: Mapped[EventStatusCode] = relationship(
         back_populates="events",
         foreign_keys=[status_id],
     )

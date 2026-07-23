@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 
-class EventStatus(StrEnum):
+class EventStatusCode(StrEnum):
     DRAFT = "Draft"
     PUBLISHED = "Published"
     CANCELLED = "Cancelled"

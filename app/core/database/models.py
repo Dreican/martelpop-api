@@ -11,7 +11,7 @@ from app.features.auth.models.role_permission import RolePermission
 # events
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
-from app.features.events.models.event_status import EventStatus
+from app.features.events.models.event_status import EventStatusCode
 
 # registrations
 from app.features.registrations.models.registration import Registration
@@ -31,7 +31,7 @@ __all__ = [
     "RefreshToken",
     "StoredFile",
     "Event",
-    "EventStatus",
+    "EventStatusCode",
     "ActivityType",
     "Registration",
     "Waitlist",

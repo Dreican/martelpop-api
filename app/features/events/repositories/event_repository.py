@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database.repositories.sluggable_repository import SluggableRepository
-from app.features.events.enums.event_status import EventStatus
+from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
 
@@ -18,11 +18,11 @@ class EventRepository(SluggableRepository[Event]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model=Event)
 
-    async def get_by_id(self, event_id: UUID) -> Event | None:
+    async def get_by_id(self, entity_id: UUID) -> Event | None:
         stmt = (
             select(Event)
             .options(selectinload(ActivityType.events))
-            .where(ActivityType.id == event_id)
+            .where(ActivityType.id == entity_id)
         )
         return await self._session.scalar(stmt)
 
@@ -37,11 +37,18 @@ class EventRepository(SluggableRepository[Event]):
         stmt = (
             select(Event).where(
                 Event.start_at > datetime.now(UTC),
-                Event.status == EventStatus.PUBLISHED
+                Event.status == EventStatusCode.PUBLISHED
             )
         )
 
         return list(await self._session.scalars(stmt))
+
+    async def get_all(self) -> list[Event]:
+        stmt = (
+            select(Event)
+        )
+        return list(await self._session.scalars(stmt))
+
 
     async def search(self, query: str) -> list[Event]:
         stmt = (

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.features.events.enums.event_status import EventStatus
+from app.features.events.enums.event_status_code import EventStatusCode
 
 
 class CreateEventRequest(BaseModel):
@@ -15,4 +15,4 @@ class CreateEventRequest(BaseModel):
     starts_at: datetime
     ends_at: datetime
     capacity: int
-    status: EventStatus
+    status: EventStatusCode

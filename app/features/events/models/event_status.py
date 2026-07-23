@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String
+from sqlalchemy import String, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
+from app.features.events.enums.event_status_code import EventStatusCode
 
 if TYPE_CHECKING:
     from app.features.events.models.event import Event
@@ -17,7 +18,16 @@ class EventStatus(Base):
     # CANCELLED = "CANCELLED"
     # COMPLETED = "COMPLETED"
 
-    code: Mapped[str] = mapped_column(String(50), unique=True)
+    code: Mapped[EventStatusCode] = mapped_column(
+        Enum(
+            EventStatusCode,
+            values_callable=lambda e: [i.value for i in e],
+            native_enum=False,
+        ),
+        unique=True,
+        index=True,
+    )
+
     name: Mapped[str] = mapped_column(String(100), unique=True)
     description: Mapped[str | None]
 
