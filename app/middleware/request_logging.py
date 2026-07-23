@@ -3,7 +3,7 @@ import time
 
 from starlette.middleware.base import BaseHTTPMiddleware
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("middleware")
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
@@ -18,9 +18,10 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             duration = (time.perf_counter() - request.state.started_at) * 1000
 
             user = getattr(request.state, "user", None)
+            user_id = getattr(user, "id", "anonymous") if user is not None else "anonymous"
 
             user_id = (
-                user.id
+                user_id
                 if user is not None
                 else "anonymous"
             )

@@ -4,25 +4,9 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from app.core.config import settings
-from app.features.auth.models import *
-from app.features.events.models import *
-from app.features.registrations.enums import *
-from app.features.users.models import *
-from app.features.waitlist.models import Waitlist
-
-__all__ = [
-    "User",
-    "Role",
-    "Permission",
-    "RolePermission",
-    "Event",
-    "Registration",
-    "Waitlist",
-    "StoredFile",
-    "EventStatus",
-    "RegistrationStatus",
-]
+from app.core.config.settings import get_settings
+from app.core.database.base import Base
+import app.core.database.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -30,10 +14,10 @@ config = context.config
 
 config.set_main_option(
     "sqlalchemy.url",
-    settings.DATABASE_URL,
+    str(get_settings().db.database_url),
 )
 
-# Interpret the config file for Python logging.
+# Interpret the config file for Python logger.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -56,7 +40,7 @@ def run_migrations_offline() -> None:
 
     This configures the context with just a URL
     and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
+    here as well.  By skipping the Engine creation,
     we don't even need a DBAPI to be available.
 
     Calls to context.execute() here emit the given string to the

@@ -3,11 +3,12 @@ COMPOSE_DEV=podman-compose -f compose.yml -f compose.dev.yml
 COMPOSE_PROD=podman-compose -f compose.yml -f compose.prod.yml
 
 .PHONY: \
-	up down restart logs ps shell \
-	build rebuild \
+	up down clean restart logs ps shell \
+	build rebuild install freeze reset-db \
 	migrate revision downgrade \
 	test lint format \
-	prod-up prod-down
+	prod-up prod-down \
+	prune
 
 # =========================
 # Development
@@ -18,6 +19,9 @@ up:
 
 down:
 	$(COMPOSE_DEV) down
+
+clean:
+	$(COMPOSE_DEV) down -v --remove-orphans
 
 restart: down up
 
@@ -35,6 +39,16 @@ build:
 
 rebuild:
 	$(COMPOSE_DEV) build --no-cache
+
+install:
+	pip install -r requirements.txt
+
+freeze:
+	pip freeze > .\requirements.txt
+
+reset-db:
+	$(COMPOSE_DEV) down -v
+	$(COMPOSE_DEV) up --build
 
 # =========================
 # Database
@@ -71,3 +85,10 @@ prod-up:
 
 prod-down:
 	$(COMPOSE_PROD) down
+
+# =========================
+# Podman
+# =========================
+
+prune:
+	podman system prune -f
