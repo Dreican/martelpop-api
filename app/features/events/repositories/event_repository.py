@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, UTC
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -53,8 +53,13 @@ class EventRepository(SluggableRepository[Event]):
     async def search(self, query: str) -> list[Event]:
         stmt = (
             select(Event)
-            .where(Event.title.contains(query))
-            .where(Event.description.contains(query))
+            .where(
+                or_(
+                    Event.title.contains(query),
+                    Event.description.contains(query)
+                )
+            )
+
         )
 
         return list(await self._session.scalars(stmt))

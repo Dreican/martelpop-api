@@ -13,11 +13,6 @@ if TYPE_CHECKING:
 class EventStatus(Base):
     __tablename__ = "event_statuses"
 
-    # DRAFT = "DRAFT"
-    # PUBLISHED = "PUBLISHED"
-    # CANCELLED = "CANCELLED"
-    # COMPLETED = "COMPLETED"
-
     code: Mapped[EventStatusCode] = mapped_column(
         Enum(
             EventStatusCode,

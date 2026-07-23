@@ -17,9 +17,9 @@ class UserRepository(SluggableRepository[User]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model=User)
 
-    async def add(self, user: User) -> None:
+    async def add(self, entity: User) -> None:
         try:
-            await super().add(user)
+            await super().add(entity)
             await self._session.flush()
         except IntegrityError as ex:
             if Helper.is_email_unique_violation(ex):
@@ -34,19 +34,6 @@ class UserRepository(SluggableRepository[User]):
 
         return await self._session.scalar(stmt)
 
-    async def get_by_slug(self, slug: str) -> User | None:
-        stmt = (
-            select(User).where(User.slug == slug)
-        )
-
-        return await self._session.scalar(stmt)
-
-    async def exists_by_slug(self, slug: str) -> bool:
-        stmt = (
-            select(User).where(User.slug == slug)
-        )
-
-        return await self._session.scalar(stmt) is not None
 
     async def get_by_email_with_identities(self, email: str) -> User | None:
         stmt = (

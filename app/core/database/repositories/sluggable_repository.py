@@ -15,7 +15,7 @@ TSlug = TypeVar("TSlug", bound=HasSlug)
 class SluggableRepository[T](BaseRepository[T]):
 
     async def exists_by_slug(self, slug: str) -> bool:
-        stmt = select(self._model.id).where(self._model.slug == slug)
+        stmt = select(self._model).where(self._model.slug == slug)
         return await self._session.scalar(stmt) is not None
 
     async def get_by_slug(self, slug: str) -> TSlug | None:
