@@ -31,36 +31,33 @@ class EventService:
         self._activity_type_repo = activity_type_repository
         self._slug = slug_service
 
-    async def create_event(self, request: CreateEventRequest, creator: User) -> Event:
-        try:
-            default_status = await self._event_status_repo.get_default()
-            activity_type = await self._activity_type_repo.get_required(request.activity_type_id)
-            slug = await self._slug.create_unique(request.title, slug_exists=self._activity_type_repo.exists_by_slug)
+    async def create_event(self, request: CreateEventRequest, creator: User) -> EventResponse:
+        default_status = await self._event_status_repo.get_default()
+        activity_type = await self._activity_type_repo.get_required(request.activity_type_id)
+        slug = await self._slug.create_unique(request.title, slug_exists=self._event_repo.exists_by_slug)
 
-            event = Event(
-                title=request.title,
-                slug=slug,
-                description=request.description,
-                location=request.location,
-                start_at=request.starts_at,
-                end_at=request.ends_at,
-                capacity=request.capacity,
-                activity_type=activity_type,
-                status=default_status,
-                creator=creator,
-            )
+        event = Event(
+            title=request.title,
+            slug=slug,
+            description=request.description,
+            location=request.location,
+            start_at=request.starts_at,
+            end_at=request.ends_at,
+            capacity=request.capacity,
+            activity_type=activity_type,
+            status=default_status,
+            creator=creator,
+        )
 
-            await self._event_repo.add(event)
-            await self._session.commit()
-            await self._session.refresh(event)
-            return event
+        await self._event_repo.add(event)
+        await self._session.flush()
 
-        except Exception:
-            await self._session.rollback()
-            raise
+        return EventResponse.model_validate(event)
+
 
     async def get_event(self, event_id: UUID) -> EventResponse:
-        return await self._event_repo.get_by_id(event_id)
+        event = await self._event_repo.get_by_id(event_id)
+        return EventResponse.model_validate(event)
 
     async def get_event_by_activity_type(self, activity_type: ActivityType):
         return await self._event_repo.get_by_activity_type(activity_type)

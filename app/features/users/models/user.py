@@ -9,6 +9,7 @@ from app.core.database.base import Base
 from app.core.database.constraints import USERS_EMAIL_UNIQUE, USERS_SLUG_UNIQUE
 from app.core.database.mixin.slug import SlugMixin
 from app.core.database.mixin.soft_delete import SoftDeleteMixin
+from app.features.auth.enums.role_code import RoleCode
 from app.features.users.enums.user_status import UserStatus
 
 if TYPE_CHECKING:
@@ -113,6 +114,14 @@ class User(Base, SoftDeleteMixin, SlugMixin):
     @property
     def is_deleted(self) -> bool:
         return self.deleted_at is not None
+
+    @property
+    def is_admin(self) -> bool:
+        return self.role.code == RoleCode.ADMIN
+
+    @property
+    def is_vip(self):
+        return self.role.code == RoleCode.VIP
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"

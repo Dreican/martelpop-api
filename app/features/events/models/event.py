@@ -8,8 +8,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.constraints import EVENTS_SLUG_UNIQUE
+from app.core.database.helpers import Helper
 from app.core.database.mixin.slug import SlugMixin
 from app.core.database.mixin.soft_delete import SoftDeleteMixin
+from app.features.events.enums.event_audience import EventAudience
+from app.features.events.enums.event_status_code import EventStatusCode
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User
@@ -50,6 +53,12 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     capacity: Mapped[int | None]
 
+    audience: Mapped[EventAudience] = mapped_column(
+        Helper.enum_column(EventAudience),
+        nullable=False,
+        default=EventAudience.PUBLIC,
+    )
+
     banner_file_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("stored_files.id"),
     )
@@ -85,3 +94,30 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         back_populates="event",
         cascade="all, delete-orphan",
     )
+
+    @property
+    def is_full(self) -> bool:
+        return self.capacity is not None and (self.capacity <= self.registrations.count())
+
+    @property
+    def is_waitlisted(self) -> bool:
+        return self.waitlist.count() > 0
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.status.code == EventStatusCode.CANCELLED
+
+    @property
+    def is_draft(self) -> bool:
+        return self.status.code == EventStatusCode.DRAFT
+
+    @property
+    def is_published(self) -> bool:
+        return self.status.code == EventStatusCode.PUBLISHED
+
+    @property
+    def is_completed(self) -> bool:
+        return self.status.code == EventStatusCode.COMPLETED
+
+
+
