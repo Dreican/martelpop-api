@@ -15,3 +15,4 @@ class Base(IdMixin, TimestampMixin, DeclarativeBase):
     }
 
 
+from app.core.database import models
