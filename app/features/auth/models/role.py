@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.constraints import ROLES_NAME_UNIQUE
-from app.features.auth.enums.role_code import RolesCode
+from app.features.auth.enums.role_code import RoleCode
 
 if TYPE_CHECKING:
     from app.features.auth.models.role_permission import RolePermission
@@ -19,9 +19,9 @@ class Role(Base):
         UniqueConstraint("name", name=ROLES_NAME_UNIQUE),
     )
 
-    code: Mapped[RolesCode] = mapped_column(
+    code: Mapped[RoleCode] = mapped_column(
         Enum(
-            RolesCode,
+            RoleCode,
             values_callable=lambda e: [item.value for item in e],
             native_enum=False,
             name="role_code",

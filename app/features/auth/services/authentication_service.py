@@ -172,11 +172,6 @@ class AuthenticationService:
 
     async def _create_user(self, request: RegisterRequest) -> User:
         default_role = await self._roles.get_default_role()
-
-        if default_role is None:
-            logger.error("Default role not found")
-            raise DefaultRoleNotFoundError()
-
         slug = await self._slug.create_unique(request.firstname, request.lastname,
                                               slug_exists=self._users.exists_by_slug)
 

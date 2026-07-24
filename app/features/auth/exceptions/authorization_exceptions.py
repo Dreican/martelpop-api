@@ -7,6 +7,12 @@ from app.features.auth.enums.permission_code import PermissionCode
 class ForbiddenException(ApplicationError):
     status_code = status.HTTP_403_FORBIDDEN
 
+class PermissionNotFoundError(ForbiddenException):
+    code = "permission_not_found"
+
+    def __init__(self, permission_code: PermissionCode):
+        self.detail = f"Permission '{permission_code}' not found."
+
 
 class PermissionDeniedError(ForbiddenException):
     code = "permission_denied"

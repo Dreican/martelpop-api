@@ -10,9 +10,10 @@ T = TypeVar("T", bound=Base)
 
 
 class BaseRepository[T]:
-    def __init__(self, session: AsyncSession, model: type[T]):
+    def __init__(self, session: AsyncSession, model: type[T], not_found_exception: type[Exception]):
         self._model = model
         self._session = session
+        self._not_found_exception = not_found_exception
 
     async def add(self, entity: T) -> None:
         self._session.add(entity)
@@ -29,3 +30,11 @@ class BaseRepository[T]:
     async def get_by_id(self, entity_id: UUID) -> T | None:
         stmt = select(self._model).where(self._model.id == entity_id)
         return await self._session.scalar(stmt)
+
+    async def get_required(self, entity_id: UUID) -> T:
+        entity  = await self.get_by_id(entity_id)
+
+        if entity  is None:
+            raise self._not_found_exception()
+
+        return entity
