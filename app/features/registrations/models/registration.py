@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
@@ -6,6 +7,7 @@ from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
+from app.core.database.helpers import Helper
 from app.features.registrations.enums.registration_status import RegistrationStatus
 
 if TYPE_CHECKING:
@@ -34,7 +36,10 @@ class Registration(Base):
 
     note: Mapped[str | None]
 
-    status: Mapped[RegistrationStatus] = mapped_column(default=RegistrationStatus.REGISTERED)
+    status: Mapped[RegistrationStatus] = mapped_column(
+        Helper.enum_column(RegistrationStatus),
+        nullable=False,
+    )
 
     cancelled_at: Mapped[datetime | None]
 

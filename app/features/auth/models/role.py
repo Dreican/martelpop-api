@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.constraints import ROLES_NAME_UNIQUE
+from app.core.database.helpers import Helper
 from app.features.auth.enums.role_code import RoleCode
 
 if TYPE_CHECKING:
@@ -20,20 +21,17 @@ class Role(Base):
     )
 
     code: Mapped[RoleCode] = mapped_column(
-        Enum(
-            RoleCode,
-            values_callable=lambda e: [item.value for item in e],
-            native_enum=False,
-            name="role_code",
-        ),
+        Helper.enum_column(RoleCode),
         unique=True,
         nullable=False,
     )
+
     name: Mapped[str] = mapped_column(
         String(50),
         unique=True,
         index=True,
     )
+
     description: Mapped[str | None]
 
     is_default: Mapped[bool] = mapped_column(default=False)

@@ -1,6 +1,7 @@
 from fastapi import status
 
 from app.core.exceptions.base import ApplicationError
+from app.features.auth.enums.role_code import RoleCode
 
 
 class EmailAlreadyExistsError(ApplicationError):
@@ -22,9 +23,11 @@ class UserNotFoundError(ApplicationError):
 
 
 class RoleNotFoundError(ApplicationError):
+    def __init__(self, role_code: RoleCode):
+        super().__init__(f"{role_code.value} Role not found")
+
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     code = "role_not_found"
-    detail = "Role not found"
 
 
 class DefaultRoleNotFoundError(ApplicationError):

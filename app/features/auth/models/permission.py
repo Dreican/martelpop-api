@@ -5,6 +5,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
+from app.core.database.helpers import Helper
 from app.features.auth.enums.permission_code import PermissionCode
 
 if TYPE_CHECKING:
@@ -15,11 +16,7 @@ class Permission(Base):
     __tablename__ = "permissions"
 
     code: Mapped[PermissionCode] = mapped_column(
-        Enum(
-            PermissionCode,
-            values_callable=lambda e: [i.value for i in e],
-            native_enum=False,
-        ),
+        Helper.enum_column(PermissionCode),
         unique=True,
         index=True,
     )
