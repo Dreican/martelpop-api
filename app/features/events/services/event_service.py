@@ -4,11 +4,8 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.services.slug_service import SlugService
-
 from app.features.events.dto.create_event_request import CreateEventRequest
 from app.features.events.dto.event_response import EventResponse
-from app.features.events.exceptions.activity_type_exceptions import ActivityTypeNotFoundError
-from app.features.events.exceptions.event_status_exceptions import DefaultEventStatusNotFoundError
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository

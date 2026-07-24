@@ -32,9 +32,9 @@ class BaseRepository[T]:
         return await self._session.scalar(stmt)
 
     async def get_required(self, entity_id: UUID) -> T:
-        entity  = await self.get_by_id(entity_id)
+        entity = await self.get_by_id(entity_id)
 
-        if entity  is None:
+        if entity is None:
             raise self._not_found_exception()
 
         return entity

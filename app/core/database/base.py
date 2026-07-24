@@ -14,4 +14,4 @@ class Base(IdMixin, TimestampMixin, DeclarativeBase):
         datetime: TIMESTAMP(timezone=True),
     }
 
-from app.core.database import models
+

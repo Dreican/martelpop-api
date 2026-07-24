@@ -1,14 +1,12 @@
 import logging
-from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database.repositories.base_repository import BaseRepository
 from app.core.database.repositories.codable_repository import CodableRepository
+from app.features.auth.enums.role_code import RoleCode
 from app.features.auth.exceptions.authentication_exceptions import RoleNotFoundError, DefaultRoleNotFoundError
 from app.features.auth.models.role import Role
-from app.features.auth.enums.role_code import RoleCode
 
 logger = logging.getLogger(__name__)
 

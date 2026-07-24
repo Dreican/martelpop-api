@@ -34,7 +34,6 @@ class UserRepository(SluggableRepository[User]):
 
         return await self._session.scalar(stmt)
 
-
     async def get_by_email_with_identities(self, email: str) -> User | None:
         stmt = (
             select(User).options(selectinload(User.authentication_identities)).where(User.email == email)

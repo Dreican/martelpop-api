@@ -1,8 +1,8 @@
-import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+import logging
 from app.core.database.seeders.runnner import seed_database
 
 logger = logging.getLogger(__name__)

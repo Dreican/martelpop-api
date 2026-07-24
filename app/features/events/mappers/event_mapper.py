@@ -2,10 +2,7 @@ from app.features.events.dto.event_response import EventResponse
 from app.features.events.mappers.activity_type_mapper import ActivityTypeMapper
 from app.features.events.mappers.event_status_mapper import EventStatusMapper
 from app.features.events.models.event import Event
-from app.features.users.dto.user_response import UserResponse
-from app.features.users.mappers.role_mapper import RoleMapper
 from app.features.users.mappers.user_mapper import UserMapper
-from app.features.users.models.user import User
 
 
 class EventMapper:

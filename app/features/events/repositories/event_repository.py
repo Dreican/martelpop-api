@@ -49,7 +49,6 @@ class EventRepository(SluggableRepository[Event]):
         )
         return list(await self._session.scalars(stmt))
 
-
     async def search(self, query: str) -> list[Event]:
         stmt = (
             select(Event)

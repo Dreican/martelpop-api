@@ -6,7 +6,6 @@ from app.core.application import configure_application
 from app.core.logger.config import setup_logging
 from app.core.startup import lifespan
 
-
 setup_logging()
 logger = logging.getLogger(__name__)
 
@@ -15,4 +14,3 @@ app = FastAPI(
 )
 
 configure_application(app)
-

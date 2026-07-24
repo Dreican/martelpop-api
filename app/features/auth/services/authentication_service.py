@@ -14,7 +14,6 @@ from app.features.auth.enums.auth_provider import AuthProvider
 from app.features.auth.exceptions.authentication_exceptions import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
-    DefaultRoleNotFoundError,
     RefreshTokenReuseDetected
 )
 from app.features.auth.models.authentication_identity import AuthenticationIdentity

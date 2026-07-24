@@ -26,6 +26,7 @@ class RoleNotFoundError(ApplicationError):
     code = "role_not_found"
     detail = "Role not found"
 
+
 class DefaultRoleNotFoundError(ApplicationError):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     code = "default_role_not_found"

@@ -9,6 +9,7 @@ from app.core.database.repositories.base_repository import BaseRepository
 class HasCode(Protocol):
     code: StrEnum
 
+
 EntityT = TypeVar("EntityT")
 CodeT = TypeVar("CodeT", bound=StrEnum)
 
@@ -29,5 +30,3 @@ class CodableRepository(BaseRepository[EntityT], Generic[EntityT, CodeT]):
         if entity is None:
             raise self._not_found_exception(code)
         return entity
-
-

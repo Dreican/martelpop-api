@@ -23,9 +23,9 @@ class SluggableRepository[T](BaseRepository[T]):
         return await self._session.scalar(stmt)
 
     async def required_by_slug(self, slug: str) -> T:
-        entity  = await self.get_by_slug(slug)
+        entity = await self.get_by_slug(slug)
 
-        if entity  is None:
+        if entity is None:
             raise self._not_found_exception()
 
         return entity

@@ -22,6 +22,7 @@ def unauthorized(detail: str) -> NoReturn:
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+
 async def get_current_user(credentials: Credentials, jwt: JwtServiceDep, users: UserRepositoryDep) -> User:
     if credentials is None:
         unauthorized("Not Authenticated")
