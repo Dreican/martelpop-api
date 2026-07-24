@@ -29,12 +29,12 @@ class EventRepository(SluggableRepository[Event]):
         )
         return await self._session.scalar(stmt)
 
-    async def get_by_activity_type(self, activity_type: ActivityType) -> Event | None:
+    async def get_by_activity_type(self, activity_type_id: UUID) -> list[Event]:
         stmt = (
-            select(Event).where(Event.activity_type == activity_type)
+            select(Event).where(Event.activity_type.id == activity_type_id)
         )
 
-        return await self._session.scalar(stmt)
+        return list(await self._session.scalars(stmt))
 
     async def get_upcoming(self) -> list[Event]:
         stmt = (
@@ -61,7 +61,6 @@ class EventRepository(SluggableRepository[Event]):
                     Event.description.contains(query)
                 )
             )
-
         )
 
         return list(await self._session.scalars(stmt))

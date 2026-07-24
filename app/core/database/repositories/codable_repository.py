@@ -29,6 +29,6 @@ class CodableRepository(BaseRepository[EntityT], Generic[EntityT, CodeT]):
         entity = await self._session.scalar(stmt)
 
         if entity is None:
-            raise self._not_found_exception(code)
+            raise self._not_found_exception(code=code)
 
         return entity

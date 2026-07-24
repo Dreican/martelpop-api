@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import status
 
 
@@ -6,7 +8,10 @@ class ApplicationError(Exception):
     code: str = "application_error"
     detail: str = "Application error"
 
-    def __init__(self, detail: str = "Application error") -> None:
-        self.detail = detail
+    def __init__(self, detail: str | None = None, **context: Any) -> None:
+        if detail is not None:
+            self.detail = detail
+
+        self.context: dict[str, Any] = context
 
         super().__init__(self.detail)

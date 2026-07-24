@@ -26,6 +26,6 @@ class SluggableRepository[T](BaseRepository[T]):
         entity = await self.get_by_slug(slug)
 
         if entity is None:
-            raise self._not_found_exception()
+            raise self._not_found_exception(slug=slug)
 
         return entity

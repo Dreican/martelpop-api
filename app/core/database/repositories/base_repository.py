@@ -5,12 +5,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database.base import Base
+from app.core.exceptions.base import ApplicationError
 
 T = TypeVar("T", bound=Base)
 
 
 class BaseRepository[T]:
-    def __init__(self, session: AsyncSession, model: type[T], not_found_exception: type[Exception]):
+    def __init__(self, session: AsyncSession, model: type[T], not_found_exception: type[ApplicationError]):
         self._model = model
         self._session = session
         self._not_found_exception = not_found_exception
@@ -35,6 +36,6 @@ class BaseRepository[T]:
         entity = await self.get_by_id(entity_id)
 
         if entity is None:
-            raise self._not_found_exception()
+            raise self._not_found_exception(entity_id=entity_id)
 
         return entity

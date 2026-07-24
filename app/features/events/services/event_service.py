@@ -59,5 +59,10 @@ class EventService:
         event = await self._event_repo.get_by_id(event_id)
         return EventResponse.model_validate(event)
 
-    async def get_event_by_activity_type(self, activity_type: ActivityType):
-        return await self._event_repo.get_by_activity_type(activity_type)
+    async def get_event_by_activity_type(self, activity_type: ActivityType) -> list[EventResponse]:
+        events = await self._event_repo.get_by_activity_type(activity_type.id)
+
+        return [
+            EventResponse.model_validate(event)
+            for event in events
+        ]
