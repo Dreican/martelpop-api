@@ -123,5 +123,9 @@ class User(Base, SoftDeleteMixin, SlugMixin):
     def is_vip(self):
         return self.role.code == RoleCode.VIP
 
+    @property
+    def is_organizer(self):
+        return self.role.code == RoleCode.ORGANIZER
+
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"

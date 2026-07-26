@@ -2,16 +2,19 @@ import logging
 from datetime import datetime, UTC
 from uuid import UUID
 
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, Select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database.repositories.sluggable_repository import SluggableRepository
+from app.core.pagination.page import Page
+from app.features.events.dto.event_search_request import EventSearchRequest
 from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.enums.event_audience import EventAudience
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
+from app.features.events.models.event_status import EventStatus
 from app.features.users.models.user import User
 
 logger = logging.getLogger(__name__)
@@ -52,18 +55,25 @@ class EventRepository(SluggableRepository[Event]):
         )
         return list(await self._session.scalars(stmt))
 
-    async def search(self, query: str) -> list[Event]:
-        stmt = (
-            select(Event)
-            .where(
+    async def search(self, request: EventSearchRequest, user: User | None) -> Page[Event]:
+
+        stmt = Select(Event)
+
+        if request.search:
+            stmt = stmt.where(
                 or_(
-                    Event.title.contains(query),
-                    Event.description.contains(query)
+                    Event.title.ilike(f"%{request.search}%"),
+                    Event.description.ilike(f"%{request.search}%")
                 )
             )
-        )
 
-        return list(await self._session.scalars(stmt))
+        if request.activity_type_id:
+            stmt = stmt.where(Event.activity_type_id == request.activity_type_id)
+
+        if request.statuses:
+            stmt = (stmt.join(Event.status).where(EventStatus.code.in_(request.statuses)))
+
+        return await self.paginate(stmt, request.pagination)
 
     async def get_audience_required(self, event_id: UUID, audience: EventAudience) -> Event | None:
         stmt = (

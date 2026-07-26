@@ -4,7 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
-class CreateEventRequest(BaseModel):
+class EventCreateRequest(BaseModel):
     title: str = Field(..., description="The title of the event")
     slug: str = Field(..., description="The slug of the event")
     description: str | None = Field(..., description="The description of the event")

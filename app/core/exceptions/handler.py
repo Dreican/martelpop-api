@@ -21,6 +21,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             request.url.path,
             exc.code,
             exc.detail,
+            extra=exc.context
         )
 
         return JSONResponse(

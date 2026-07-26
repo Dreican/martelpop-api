@@ -53,6 +53,30 @@ class EventPolicy:
             and self._is_owner_or_admin(event, user)
         )
 
+    def visible_audiences(self, user: User | None) -> list[EventAudience]:
+        if user is None:
+            return [
+                EventAudience.PUBLIC,
+            ]
+        elif user.is_admin or user.is_organizer:
+            return [
+                EventAudience.PUBLIC,
+                EventAudience.MEMBERS,
+                EventAudience.VIP,
+                EventAudience.ORGANIZER
+            ]
+        elif user.is_vip:
+            return [
+                EventAudience.PUBLIC,
+                EventAudience.MEMBERS,
+                EventAudience.VIP
+            ]
+
+        return [
+            EventAudience.PUBLIC,
+            EventAudience.MEMBERS,
+        ]
+
 
     @staticmethod
     def _is_owner_or_admin(event: Event, user: User | None) -> bool:

@@ -24,7 +24,7 @@ class UserRepository(SluggableRepository[User]):
         except IntegrityError as ex:
             if Helper.is_email_unique_violation(ex):
                 logger.debug("Email already exists, unique constraint violation")
-                raise EmailAlreadyExistsError() from ex
+                raise EmailAlreadyExistsError(email=entity.email) from ex
             raise
 
     async def get_by_email(self, email: str) -> User | None:

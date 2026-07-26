@@ -80,19 +80,19 @@ class AuthenticationService:
 
         if identity is None:
             logger.warning("User doesn't exist", extra={"email": request.email})
-            raise InvalidCredentialsError()
+            raise InvalidCredentialsError(email=request.email)
 
         if identity.password_hash is None:
             logger.error("User has no password", extra={"user_id": identity.user.id, "email": request.email})
-            raise InvalidCredentialsError()
+            raise InvalidCredentialsError(email=request.email)
 
         if not identity.user.is_active:
             logger.warning("User is inactive", extra={"user_id": identity.user.id, "email": request.email})
-            raise InvalidCredentialsError()
+            raise InvalidCredentialsError(email=request.email)
 
         if not self._password.verify_password(request.password, identity.password_hash):
             logger.warning("Invalid credentials", extra={"email": request.email})
-            raise InvalidCredentialsError()
+            raise InvalidCredentialsError(email=request.email)
 
         async with self._session.begin():
             identity.last_login_at = datetime.now(UTC)
@@ -109,28 +109,28 @@ class AuthenticationService:
 
         if stored is None:
             logger.warning("Refresh token not found", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
-            raise InvalidCredentialsError()
+            raise InvalidCredentialsError(user_id=payload.sub)
 
         if stored.is_revoked:
             logger.warning("Refresh token is revoked", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
             async with self._session.begin():
                 await self._refresh_tokens.revoke_all_for_user(stored.user_id)
 
-            raise RefreshTokenReuseDetected()
+            raise RefreshTokenReuseDetected(user_id=payload.sub)
 
         if stored.is_expired:
             logger.warning("Refresh token is expired", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
-            raise InvalidCredentialsError()
+            raise InvalidCredentialsError(user_id=stored.user.email)
 
         if not self._password.verify_password(refresh_token, stored.token_hash):
             logger.warning("Invalid refresh token", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
-            raise InvalidCredentialsError()
+            raise InvalidCredentialsError(user_id=payload.sub)
 
         user = stored.user
 
         if not user.is_active:
             logger.warning("User is inactive", extra={"user_id": user.id, "email": stored.user.email})
-            raise InvalidCredentialsError()
+            raise InvalidCredentialsError(user_id=user.id)
 
         async with self._session.begin():
             stored.mark_used()
@@ -167,7 +167,7 @@ class AuthenticationService:
         existing = await self._users.get_by_email(email)
         if existing is not None:
             logger.error("Email already exists", extra={"email": email})
-            raise EmailAlreadyExistsError()
+            raise EmailAlreadyExistsError(email=email)
 
     async def _create_user(self, request: RegisterRequest) -> User:
         default_role = await self._roles.get_default_role()
