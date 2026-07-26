@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import String, Enum
@@ -22,6 +23,8 @@ class EventStatus(Base):
 
     name: Mapped[str] = mapped_column(String(100), unique=True)
     description: Mapped[str | None]
+
+    published_at: Mapped[datetime | None]
 
     is_default: Mapped[bool] = mapped_column(default=False)
     sort_order: Mapped[int] = mapped_column(default=0)

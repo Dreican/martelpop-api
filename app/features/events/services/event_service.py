@@ -98,7 +98,7 @@ class EventService:
         event = await self._get_publishable_event(event_id, user)
 
         event.status = await self._event_status_repo.get_published()
-        event.published_at = datetime.now(UTC)
+        event.status.published_at = datetime.now(UTC)
 
         return await self._save(event)
 
@@ -107,7 +107,7 @@ class EventService:
         event = await self._get_publishable_event(event_id, user)
 
         event.status = await self._event_status_repo.get_default()
-        event.published_at = None
+        event.status.published_at = None
 
         return await self._save(event)
 
