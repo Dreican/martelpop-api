@@ -22,3 +22,11 @@ class EventResponse(BaseModel):
     activity_type_id: ActivityTypeResponse
     creator: UserResponse
     status: EventStatusResponse
+    is_published: bool
+    is_cancelled: bool
+    is_completed: bool
+    is_full: bool
+    published_at: datetime | None
+    cancelled_at: datetime | None
+    completed_at: datetime | None
+

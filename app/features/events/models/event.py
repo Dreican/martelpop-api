@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -52,6 +52,10 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     end_at: Mapped[datetime | None] = mapped_column(default=func.now())
 
     capacity: Mapped[int | None]
+
+    published_at: Mapped[datetime | None]
+    cancelled_at: Mapped[datetime | None]
+    completed_at: Mapped[datetime | None]
 
     audience: Mapped[EventAudience] = mapped_column(
         Helper.enum_column(EventAudience),
@@ -119,5 +123,20 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     def is_completed(self) -> bool:
         return self.status.code == EventStatusCode.COMPLETED
 
+    def publish(self, event_status: EventStatus) -> None:
+        self.status = event_status
+        self.published_at = datetime.now(UTC)
 
+    def cancel(self, event_status: EventStatus) -> None:
+        self.status = event_status
+        self.cancelled_at = datetime.now(UTC)
 
+    def complete(self, event_status: EventStatus) -> None:
+        self.status = event_status
+        self.completed_at = datetime.now(UTC)
+
+    def unpublish(self, event_status: EventStatus) -> None:
+        self.status = event_status
+        self.published_at = None
+        self.cancelled_at = None
+        self.completed_at = None

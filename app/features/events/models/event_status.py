@@ -24,8 +24,6 @@ class EventStatus(Base):
     name: Mapped[str] = mapped_column(String(100), unique=True)
     description: Mapped[str | None]
 
-    published_at: Mapped[datetime | None]
-
     is_default: Mapped[bool] = mapped_column(default=False)
     sort_order: Mapped[int] = mapped_column(default=0)
     is_bookable: Mapped[bool] = mapped_column(default=True)

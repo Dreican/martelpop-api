@@ -31,6 +31,7 @@ class Waitlist(Base):
         ForeignKey("events.id"),
         nullable=False
     )
+
     position: Mapped[int]
     promoted_at: Mapped[datetime | None]
 

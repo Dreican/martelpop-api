@@ -56,7 +56,6 @@ class EventRepository(SluggableRepository[Event]):
         return list(await self._session.scalars(stmt))
 
     async def search(self, request: EventSearchRequest, user: User | None) -> Page[Event]:
-
         stmt = Select(Event)
 
         if request.search:
@@ -72,6 +71,15 @@ class EventRepository(SluggableRepository[Event]):
 
         if request.statuses:
             stmt = (stmt.join(Event.status).where(EventStatus.code.in_(request.statuses)))
+
+        if request.starts_after:
+            stmt = stmt.where(Event.start_at > request.starts_after)
+
+        if request.ends_before:
+            stmt = stmt.where(Event.start_at < request.ends_before)
+
+        stmt = stmt.order_by(request.sort)
+
 
         return await self.paginate(stmt, request.pagination)
 

@@ -71,7 +71,6 @@ class EventService:
 
 
     async def list_events(self, request: EventSearchRequest, user: User | None) -> Page[EventResponse]:
-
         page = await self._event_repo.search(request, user)
 
         return page.map(EventResponse.model_validate)
@@ -97,17 +96,16 @@ class EventService:
     async def publish_event(self, event_id: UUID, user: User) -> EventResponse:
         event = await self._get_publishable_event(event_id, user)
 
-        event.status = await self._event_status_repo.get_published()
-        event.status.published_at = datetime.now(UTC)
+        status = await self._event_status_repo.get_published()
+        event.publish(status)
 
         return await self._save(event)
-
 
     async def unpublish_event(self, event_id: UUID, user: User) -> EventResponse:
         event = await self._get_publishable_event(event_id, user)
 
-        event.status = await self._event_status_repo.get_default()
-        event.status.published_at = None
+        status = await self._event_status_repo.get_default()
+        event.unpublish(status)
 
         return await self._save(event)
 
@@ -117,8 +115,18 @@ class EventService:
         if not self._policy.can_cancel(event, user):
             raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=user.email)
 
-        event.status = await self._event_status_repo.get_cancelled()
-        event.published_at = None
+        status = await self._event_status_repo.get_cancelled()
+        event.cancel(status)
+
+        return await self._save(event)
+
+    async def complete_event(self, event_id: UUID, user: User) -> EventResponse:
+        event = await self._event_repo.get_required(event_id)
+        if not self._policy.can_complete(event, user):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_PUBLISH}, user=user.email)
+
+        status = await self._event_status_repo.get_complete()
+        event.complete(status)
 
         return await self._save(event)
 

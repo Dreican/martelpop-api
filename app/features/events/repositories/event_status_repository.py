@@ -60,3 +60,15 @@ class EventStatusRepository(CodableRepository[EventStatus, EventStatusCode]):
             raise EventStatusNotFoundError(EventStatusCode.CANCELLED)
 
         return event_status
+
+    async def get_complete(self):
+        stmt = (
+            select(EventStatus).where(EventStatus.code == EventStatusCode.COMPLETED)
+        )
+
+        event_status = await self._session.scalar(stmt)
+
+        if event_status is None:
+            raise EventStatusNotFoundError(EventStatusCode.COMPLETED)
+
+        return event_status

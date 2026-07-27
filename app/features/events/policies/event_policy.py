@@ -34,22 +34,15 @@ class EventPolicy:
             and self._is_owner_or_admin(event, user)
         )
 
-    def can_publish(self, event: Event, user: User | None) -> bool:
-        return (
-            event.is_draft
-            and self._is_owner_or_admin(event, user)
-        )
-
-    def can_unpublish(self, event: Event, user: User | None) -> bool:
-        return (
-            (event.is_published
-            or event.is_cancelled)
-            and self._is_owner_or_admin(event, user)
-        )
-
     def can_cancel(self, event: Event, user: User | None) -> bool:
         return (
             not event.is_published
+            and self._is_owner_or_admin(event, user)
+        )
+
+    def can_complete(self, event: Event, user: User | None) -> bool:
+        return (
+            event.is_published
             and self._is_owner_or_admin(event, user)
         )
 
