@@ -1,6 +1,8 @@
 from app.features.auth.enums.role_code import RoleCode
 from app.features.events.enums.event_audience import EventAudience
+from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.models.event import Event
+from app.features.events.models.event_status import EventStatus
 from app.features.users.models.user import User
 
 
@@ -46,29 +48,52 @@ class EventPolicy:
             and self._is_owner_or_admin(event, user)
         )
 
-    def visible_audiences(self, user: User | None) -> list[EventAudience]:
+    @staticmethod
+    def visible_statuses(user: User | None) -> set[EventStatusCode]:
         if user is None:
-            return [
-                EventAudience.PUBLIC,
-            ]
+            return {
+               EventStatusCode.PUBLISHED,
+               EventStatusCode.COMPLETED,
+            }
         elif user.is_admin or user.is_organizer:
-            return [
+            return {
+                EventStatusCode.DRAFT,
+                EventStatusCode.PUBLISHED,
+                EventStatusCode.COMPLETED,
+                EventStatusCode.CANCELLED,
+            }
+
+        return {
+            EventStatusCode.PUBLISHED,
+            EventStatusCode.COMPLETED,
+            EventStatusCode.CANCELLED,
+        }
+
+
+    @staticmethod
+    def visible_audiences(user: User | None) -> set[EventAudience]:
+        if user is None:
+            return {
+                EventAudience.PUBLIC,
+            }
+        elif user.is_admin or user.is_organizer:
+            return {
                 EventAudience.PUBLIC,
                 EventAudience.MEMBERS,
                 EventAudience.VIP,
                 EventAudience.ORGANIZER
-            ]
+            }
         elif user.is_vip:
-            return [
+            return {
                 EventAudience.PUBLIC,
                 EventAudience.MEMBERS,
                 EventAudience.VIP
-            ]
+            }
 
-        return [
+        return {
             EventAudience.PUBLIC,
             EventAudience.MEMBERS,
-        ]
+        }
 
 
     @staticmethod

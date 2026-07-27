@@ -1,14 +1,16 @@
 import logging
 from datetime import datetime, UTC
+from typing import Collection
 from uuid import UUID
 
-from sqlalchemy import select, or_, Select
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database.repositories.sluggable_repository import SluggableRepository
 from app.core.pagination.page import Page
 from app.features.events.dto.event_search_request import EventSearchRequest
+from app.features.events.enums.event_sort import EventSort
 from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.enums.event_audience import EventAudience
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
@@ -55,8 +57,8 @@ class EventRepository(SluggableRepository[Event]):
         )
         return list(await self._session.scalars(stmt))
 
-    async def search(self, request: EventSearchRequest, user: User | None) -> Page[Event]:
-        stmt = Select(Event)
+    async def search(self, request: EventSearchRequest, statuses: set[EventStatusCode] | None, audience: set[EventAudience] | None) -> Page[Event]:
+        stmt = select(Event)
 
         if request.search:
             stmt = stmt.where(
@@ -69,17 +71,46 @@ class EventRepository(SluggableRepository[Event]):
         if request.activity_type_id:
             stmt = stmt.where(Event.activity_type_id == request.activity_type_id)
 
-        if request.statuses:
-            stmt = (stmt.join(Event.status).where(EventStatus.code.in_(request.statuses)))
+        allowed_statuses = statuses
+
+        if request.statuses is not None:
+            if allowed_statuses is None:
+                allowed_statuses = request.statuses
+
+            else:
+                allowed_statuses = allowed_statuses.intersection(request.statuses)
+
+        if allowed_statuses is not None:
+            stmt = (stmt.join(Event.status).where(EventStatus.code.in_(allowed_statuses)))
 
         if request.starts_after:
-            stmt = stmt.where(Event.start_at > request.starts_after)
+            stmt = stmt.where(Event.start_at >= request.starts_after)
 
         if request.ends_before:
-            stmt = stmt.where(Event.start_at < request.ends_before)
+            stmt = stmt.where(Event.end_at <= request.ends_before)
 
-        stmt = stmt.order_by(request.sort)
+        if audience is not None:
+            stmt = stmt.where(Event.audience.in_(audience))
 
+        match request.sort:
+            case EventSort.START_DATE_ASC:
+                stmt = stmt.order_by(Event.start_at.asc())
+            case EventSort.START_DATE_DESC:
+                stmt = stmt.order_by(Event.start_at.desc())
+            case EventSort.END_DATE_ASC:
+                stmt = stmt.order_by(Event.end_at.asc())
+            case EventSort.END_DATE_DESC:
+                stmt = stmt.order_by(Event.end_at.desc())
+            case EventSort.TITLE_ASC:
+                stmt = stmt.order_by(Event.title.asc())
+            case EventSort.TITLE_DESC:
+                stmt = stmt.order_by(Event.title.desc())
+            case EventSort.CREATE_DATE_ASC:
+                stmt = stmt.order_by(Event.created_at.asc())
+            case EventSort.CREATE_DATE_DESC:
+                stmt = stmt.order_by(Event.created_at.desc())
+            case _:
+                stmt = stmt.order_by(Event.start_at.desc())
 
         return await self.paginate(stmt, request.pagination)
 

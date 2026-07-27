@@ -71,7 +71,9 @@ class EventService:
 
 
     async def list_events(self, request: EventSearchRequest, user: User | None) -> Page[EventResponse]:
-        page = await self._event_repo.search(request, user)
+        statuses = self._policy.visible_statuses(user)
+        audience = self._policy.visible_audiences(user)
+        page = await self._event_repo.search(request, statuses, audience)
 
         return page.map(EventResponse.model_validate)
 
