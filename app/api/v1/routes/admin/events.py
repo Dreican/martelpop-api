@@ -26,22 +26,22 @@ async def update_event(event_id: UUID, event: EventUpdateRequest, event_service:
 async def delete_event(event_id: UUID, event_service: EventServiceDep, user: CurrentUser):
     return await event_service.delete_event(event_id, user)
 
-@router.get("/{event_id}/publish", response_model=EventResponse, status_code=status.HTTP_200_OK)
+@router.post("/{event_id}/publish", response_model=EventResponse, status_code=status.HTTP_200_OK)
 async def publish_event(event_id: UUID, event_service: EventServiceDep, user: CurrentUser):
     return await event_service.publish_event(event_id, user)
 
-@router.get("/{event_id}/unpublish", response_model=EventResponse, status_code=status.HTTP_200_OK)
+@router.post("/{event_id}/unpublish", response_model=EventResponse, status_code=status.HTTP_200_OK)
 async def unpublish_event(event_id: UUID, event_service: EventServiceDep, user: CurrentUser):
     return await event_service.unpublish_event(event_id, user)
 
-@router.get("/{event_id}/publish", response_model=EventResponse, status_code=status.HTTP_200_OK)
+@router.post("/{event_id}/publish", response_model=EventResponse, status_code=status.HTTP_200_OK)
 async def publish_event(event_id: UUID, event_service: EventServiceDep, user: CurrentUser):
     return await event_service.publish_event(event_id, user)
 
-@router.get("/{event_id}/cancel", response_model=EventResponse, status_code=status.HTTP_200_OK)
+@router.post("/{event_id}/cancel", response_model=EventResponse, status_code=status.HTTP_200_OK)
 async def cancel_event(event_id: UUID, event_service: EventServiceDep, user: CurrentUser):
     return await event_service.cancel_event(event_id, user)
 
-@router.get("/{event_id}/complete", response_model=EventResponse, status_code=status.HTTP_200_OK)
+@router.post("/{event_id}/complete", response_model=EventResponse, status_code=status.HTTP_200_OK)
 async def cancel_event(event_id: UUID, event_service: EventServiceDep, user: CurrentUser):
     return await event_service.complete_event(event_id, user)
