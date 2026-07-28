@@ -69,6 +69,13 @@ class EventService:
 
         return EventResponse.model_validate(event)
 
+    async def get_event_by_slug(self, event_slug: str, user: User | None) -> EventResponse:
+        event = await self._event_repo.required_by_slug(event_slug)
+        if not self._policy.can_view(event, user):
+            raise EventNotFoundError(event_slug=event_slug)
+
+        return EventResponse.model_validate(event)
+
 
     async def list_events(self, request: EventSearchRequest, user: User | None) -> Page[EventResponse]:
         statuses = self._policy.visible_statuses(user)
@@ -92,6 +99,16 @@ class EventService:
         event.start_at = request.start_at
         event.end_at = request.end_at
         event.capacity = request.capacity
+
+        return await self._save(event)
+
+    async def delete_event(self, event_id: UUID, user: User) -> EventResponse:
+        event = await self._event_repo.get_required(event_id)
+
+        if not self._policy.can_delete(event, user):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_DELETE}, user=user.email)
+
+        event.deleted_at = datetime.now(UTC)
 
         return await self._save(event)
 

@@ -33,4 +33,4 @@ def get_event_service(
     )
 
 
-AuthenticationServiceDep = Annotated[EventService, Depends(get_event_service)]
+EventServiceDep = Annotated[EventService, Depends(get_event_service)]

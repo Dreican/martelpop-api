@@ -36,6 +36,12 @@ class EventPolicy:
             and self._is_owner_or_admin(event, user)
         )
 
+    def can_delete(self, event: Event, user: User | None) -> bool:
+        return (
+            event.status.code is not EventStatusCode.COMPLETED
+            and self._is_owner_or_admin(event, user)
+        )
+
     def can_cancel(self, event: Event, user: User | None) -> bool:
         return (
             not event.is_published
