@@ -82,14 +82,7 @@ class EventPolicy:
             return {
                 EventAudience.PUBLIC,
             }
-        elif user.is_admin or user.is_organizer:
-            return {
-                EventAudience.PUBLIC,
-                EventAudience.MEMBERS,
-                EventAudience.VIP,
-                EventAudience.ORGANIZER
-            }
-        elif user.is_vip:
+        elif user.is_admin or user.is_organizer or user.is_vip:
             return {
                 EventAudience.PUBLIC,
                 EventAudience.MEMBERS,

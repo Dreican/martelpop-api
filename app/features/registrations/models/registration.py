@@ -65,3 +65,7 @@ class Registration(Base):
     event: Mapped["Event"] = relationship(
         back_populates="registrations"
     )
+
+    @property
+    def is_cancel(self) -> bool:
+        return self.cancelled_at is not None

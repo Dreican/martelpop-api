@@ -123,6 +123,10 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     def is_completed(self) -> bool:
         return self.status.code == EventStatusCode.COMPLETED
 
+    @property
+    def is_vip_event(self) -> bool:
+        return self.audience == EventAudience.VIP
+
     def publish(self, event_status: EventStatus) -> None:
         self.status = event_status
         self.published_at = datetime.now(UTC)
