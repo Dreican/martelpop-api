@@ -1,3 +1,4 @@
+from app.features.events.enums.event_audience import EventAudience
 from app.features.events.models.event import Event
 from app.features.registrations.models.registration import Registration
 from app.features.users.models.user import User
@@ -23,18 +24,39 @@ class RegistrationPolicy:
         return self._is_owner_or_organizer(registration, user)
 
     def can_register(self, event: Event, user: User | None) -> bool:
+        if user is None:
+            return False
+
         if not event.status.is_bookable:
             return False
 
         if event.is_full:
             return False
 
-        if event.is_vip_event and not user.is_vip:
+        if event.audience.VIP and not user.is_vip:
             return False
 
         return True
 
 
+
+    @staticmethod
+    def register_audiences(user: User | None) -> set[EventAudience]:
+        if user is None:
+            return {
+                EventAudience.PUBLIC,
+            }
+        elif user.is_admin or user.is_organizer or user.is_vip:
+            return {
+                EventAudience.PUBLIC,
+                EventAudience.MEMBERS,
+                EventAudience.VIP
+            }
+
+        return {
+            EventAudience.PUBLIC,
+            EventAudience.MEMBERS,
+        }
 
     @staticmethod
     def _is_owner_or_organizer(registration: Registration, user: User | None) -> bool:

@@ -2,8 +2,10 @@ import logging
 from datetime import datetime, UTC
 from uuid import UUID
 
+from dns.message import MessageSection
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.login_request import LoginRequest
@@ -30,7 +32,7 @@ from app.features.users.repositories.user_repository import UserRepository
 logger = logging.getLogger(__name__)
 
 
-class AuthenticationService:
+class AuthenticationService(BaseService):
 
     def __init__(
             self,
@@ -43,7 +45,7 @@ class AuthenticationService:
             refresh_token_repository: RefreshTokenRepository,
             slug_service: SlugService
     ) -> None:
-        self._session = session
+        super().__init__(session)
         self._users = user_repository
         self._roles = role_repository
         self._identities = authentication_identity_repository
@@ -65,10 +67,10 @@ class AuthenticationService:
             tokens = await self._issue_tokens(user, session)
             await self._refresh_tokens.add(tokens.refresh_token)
 
-            await self._session.commit()
+            await self._commit()
 
         except Exception:
-            await self._session.rollback()
+            await self._rollback()
             raise
 
         logger.info("User registered", extra={"user_id": user.id, "email": request.email})
@@ -145,7 +147,7 @@ class AuthenticationService:
         payload = self._jwt.decode_refresh_token(refresh_token)
 
         revoked = await self._refresh_tokens.revoke(user_id=payload.sub, refresh_jti=payload.jti)
-        await self._session.commit()
+        await self._commit()
 
         if not revoked:
             logger.warning(

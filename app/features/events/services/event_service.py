@@ -5,6 +5,7 @@ from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination.page import Page
+from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
@@ -24,7 +25,7 @@ from app.features.users.models.user import User
 logger = logging.getLogger(__name__)
 
 
-class EventService:
+class EventService(BaseService):
     def __init__(
             self,
             session: AsyncSession,
@@ -34,7 +35,7 @@ class EventService:
             slug_service: SlugService,
             policy_service: EventPolicy
     ):
-        self._session = session
+        super().__init__(session)
         self._event_repo = event_repository
         self._event_status_repo = event_status_repository
         self._activity_type_repo = activity_type_repository
@@ -59,7 +60,9 @@ class EventService:
             creator=creator,
         )
 
-        return await self._save(event)
+        await self._flush()
+        await self._refresh(event)
+        return EventResponse.model_validate(event)
 
 
     async def get_event(self, event_id: UUID, user: User | None) -> EventResponse:
@@ -150,8 +153,8 @@ class EventService:
         return await self._save(event)
 
     async def _save(self, event: Event) -> EventResponse:
-        await self._session.commit()
-        await self._session.refresh(event)
+        await self._commit()
+        await self._refresh(event)
 
         return EventResponse.model_validate(event)
 
