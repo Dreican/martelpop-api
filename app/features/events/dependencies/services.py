@@ -29,7 +29,7 @@ def get_event_service(
         event_status_repository=event_status_repository,
         activity_type_repository=activity_type_repository,
         slug_service=slug_service,
-        policy_service=policy_service
+        event_policy=policy_service
     )
 
 

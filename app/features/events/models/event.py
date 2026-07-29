@@ -127,6 +127,14 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     def is_vip_event(self) -> bool:
         return self.audience == EventAudience.VIP
 
+    def update(self, title: str, description: str, location: str, start_at: datetime, end_at: datetime, capacity: int):
+        self.title = title
+        self.description = description
+        self.location = location
+        self.start_at = start_at
+        self.end_at = end_at
+        self.capacity = capacity
+
     def publish(self, event_status: EventStatus) -> None:
         self.status = event_status
         self.published_at = datetime.now(UTC)
@@ -144,3 +152,8 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         self.published_at = None
         self.cancelled_at = None
         self.completed_at = None
+
+    def delete(self) -> None:
+        self.cancel(self.status)
+        self.deleted_at = datetime.now(UTC)
+

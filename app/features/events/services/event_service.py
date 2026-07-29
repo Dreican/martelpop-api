@@ -33,14 +33,14 @@ class EventService(BaseService):
             event_status_repository: EventStatusRepository,
             activity_type_repository: ActivityTypeRepository,
             slug_service: SlugService,
-            policy_service: EventPolicy
+            event_policy: EventPolicy
     ):
         super().__init__(session)
         self._event_repo = event_repository
         self._event_status_repo = event_status_repository
         self._activity_type_repo = activity_type_repository
         self._slug = slug_service
-        self._policy = policy_service
+        self._policy = event_policy
 
     async def create_event(self, request: EventCreateRequest, creator: User) -> EventResponse:
         default_status = await self._event_status_repo.get_default()
@@ -60,6 +60,7 @@ class EventService(BaseService):
             creator=creator,
         )
 
+        await self._event_repo.add(event)
         await self._flush()
         await self._refresh(event)
         return EventResponse.model_validate(event)
@@ -96,14 +97,16 @@ class EventService(BaseService):
         if event.title != request.title:
             event.slug = await self._slug.create_unique(request.title, slug_exists=self._event_repo.exists_by_slug)
 
-        event.title = request.title
-        event.description = request.description
-        event.location = request.location
-        event.start_at = request.start_at
-        event.end_at = request.end_at
-        event.capacity = request.capacity
+        event.update(
+            title=request.title,
+            description=request.description,
+            location=request.location,
+            start_at=request.start_at,
+            end_at=request.end_at,
+            capacity=request.capacity
+        )
 
-        return await self._save(event)
+        return await self._persist(event)
 
     async def delete_event(self, event_id: UUID, user: User) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
@@ -111,9 +114,9 @@ class EventService(BaseService):
         if not self._policy.can_delete(event, user):
             raise PermissionDeniedError(permissions={PermissionCode.EVENT_DELETE}, user=user.email)
 
-        event.deleted_at = datetime.now(UTC)
+        event.delete()
 
-        return await self._save(event)
+        return await self._persist(event)
 
     async def publish_event(self, event_id: UUID, user: User) -> EventResponse:
         event = await self._get_publishable_event(event_id, user)
@@ -121,7 +124,7 @@ class EventService(BaseService):
         status = await self._event_status_repo.get_published()
         event.publish(status)
 
-        return await self._save(event)
+        return await self._persist(event)
 
     async def unpublish_event(self, event_id: UUID, user: User) -> EventResponse:
         event = await self._get_publishable_event(event_id, user)
@@ -129,7 +132,7 @@ class EventService(BaseService):
         status = await self._event_status_repo.get_default()
         event.unpublish(status)
 
-        return await self._save(event)
+        return await self._persist(event)
 
     async def cancel_event(self, event_id: UUID, user: User) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
@@ -140,7 +143,7 @@ class EventService(BaseService):
         status = await self._event_status_repo.get_cancelled()
         event.cancel(status)
 
-        return await self._save(event)
+        return await self._persist(event)
 
     async def complete_event(self, event_id: UUID, user: User) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
@@ -150,9 +153,9 @@ class EventService(BaseService):
         status = await self._event_status_repo.get_complete()
         event.complete(status)
 
-        return await self._save(event)
+        return await self._persist(event)
 
-    async def _save(self, event: Event) -> EventResponse:
+    async def _persist(self, event: Event) -> EventResponse:
         await self._commit()
         await self._refresh(event)
 
