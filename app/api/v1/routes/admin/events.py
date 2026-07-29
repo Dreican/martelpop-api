@@ -1,8 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 
 from app.features.auth.dependencies.current_user import CurrentUser
+from app.features.auth.dependencies.permissions import permission
+from app.features.auth.enums.permission_code import PermissionCode
 from app.features.events.dependencies.services import EventServiceDep
 from app.features.events.dto.event_create_request import EventCreateRequest
 from app.features.events.dto.event_response import EventResponse
@@ -11,7 +13,7 @@ from app.features.events.dto.event_update_request import EventUpdateRequest
 router = APIRouter(prefix="/events", tags=["Admin Events"])
 
 @router.get("/{event_id}", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def get_events(event_id: UUID ,event_service: EventServiceDep, user: CurrentUser):
+async def get_events(event_id: UUID, _: permission(PermissionCode.EVENT_READ) , event_service: EventServiceDep, user: CurrentUser):
     return await event_service.get_event(event_id, user)
 
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)

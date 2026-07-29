@@ -15,7 +15,7 @@ class RequirePermission:
         await authorization.require_all_permissions(user, self._permissions)
 
 
-def Permission(*permissions: PermissionCode):
+def permission(*permissions: PermissionCode):
     return Annotated[
         None,
         Depends(RequirePermission(*permissions)),
