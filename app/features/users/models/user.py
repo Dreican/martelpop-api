@@ -35,6 +35,7 @@ class User(Base, SoftDeleteMixin, SlugMixin):
         index=True
     )
 
+    display_name: Mapped[str] = mapped_column(String(100))
     firstname: Mapped[str] = mapped_column(String(100))
     lastname: Mapped[str] = mapped_column(String(100))
 

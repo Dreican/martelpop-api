@@ -17,3 +17,4 @@ class PermissionCache:
 
     def clear(self) -> None:
         self._cache.clear()
+
