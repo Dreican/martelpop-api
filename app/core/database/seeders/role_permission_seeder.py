@@ -16,8 +16,10 @@ async def seed_role_permissions(session: AsyncSession) -> None:
             PermissionCode.EVENT_UPDATE,
             PermissionCode.EVENT_DELETE,
             PermissionCode.EVENT_PUBLISH,
+            PermissionCode.EVENT_CANCEL,
             PermissionCode.REGISTRATION_MANAGE,
             PermissionCode.ROLE_UPDATE,
+            PermissionCode.ACTIVITY_TYPE_MANAGE,
         },
         RoleCode.ORGANIZER: {
             PermissionCode.EVENT_READ,
@@ -25,17 +27,27 @@ async def seed_role_permissions(session: AsyncSession) -> None:
             PermissionCode.EVENT_UPDATE,
             PermissionCode.EVENT_DELETE,
             PermissionCode.EVENT_PUBLISH,
+            PermissionCode.EVENT_CANCEL,
+            PermissionCode.REGISTRATION_CREATE,
+            PermissionCode.REGISTRATION_CANCEL,
+            PermissionCode.ACTIVITY_TYPE_READ,
         },
         RoleCode.VIP: {
             PermissionCode.EVENT_READ,
             PermissionCode.REGISTRATION_CREATE,
-            PermissionCode.REGISTRATION_CANCEL
+            PermissionCode.REGISTRATION_CANCEL,
+            PermissionCode.ACTIVITY_TYPE_READ,
         },
         RoleCode.USER: {
             PermissionCode.EVENT_READ,
             PermissionCode.REGISTRATION_CREATE,
-            PermissionCode.REGISTRATION_CANCEL
+            PermissionCode.REGISTRATION_CANCEL,
+            PermissionCode.ACTIVITY_TYPE_READ,
         },
+        RoleCode.ANONYMOUS: {
+            PermissionCode.EVENT_READ,
+            PermissionCode.ACTIVITY_TYPE_READ
+        }
     }
 
     roles = {

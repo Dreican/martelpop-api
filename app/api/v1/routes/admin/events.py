@@ -12,8 +12,8 @@ from app.features.events.dto.event_update_request import EventUpdateRequest
 
 router = APIRouter(prefix="/events", tags=["Admin Events"])
 
-@router.get("/{event_id}", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def get_events(event_id: UUID, _: permission(PermissionCode.EVENT_READ) , event_service: EventServiceDep, user: CurrentUser):
+@router.get("/{event_id}", response_model=EventResponse, status_code=status.HTTP_200_OK, dependencies=[Depends(permission(PermissionCode.EVENT_READ))])
+async def get_events(event_id: UUID, event_service: EventServiceDep, user: CurrentUser):
     return await event_service.get_event(event_id, user)
 
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)

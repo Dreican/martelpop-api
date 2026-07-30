@@ -6,3 +6,4 @@ class RoleCode(StrEnum):
     ORGANIZER = "organizer"
     VIP = "vip"
     USER = "user"
+    ANONYMOUS = "anonymous"

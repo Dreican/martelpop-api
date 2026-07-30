@@ -7,7 +7,7 @@ from app.features.auth.dependencies.current_user import CurrentUser
 from app.features.auth.enums.permission_code import PermissionCode
 
 
-class RequirePermission:
+class PermissionRequirement:
     def __init__(self, *permissions: PermissionCode):
         self._permissions = set(permissions)
 
@@ -18,5 +18,5 @@ class RequirePermission:
 def permission(*permissions: PermissionCode):
     return Annotated[
         None,
-        Depends(RequirePermission(*permissions)),
+        Depends(PermissionRequirement(*permissions)),
     ]
