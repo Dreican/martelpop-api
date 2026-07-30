@@ -1,0 +1,36 @@
+from dataclasses import dataclass
+from uuid import UUID
+
+from app.features.auth.enums.role_code import RoleCode
+from app.features.auth.models.role import Role
+from app.features.users.models.user import User
+
+
+@dataclass(slots=True)
+class Principal:
+    user: User | None
+    role: Role
+
+    @property
+    def is_authenticated(self) -> bool:
+        return self.user is not None
+
+    @property
+    def id(self) -> UUID | None:
+        return self.user.id if self.user else None
+
+    @property
+    def email(self) -> str | None:
+        return self.user.email if self.user else None
+
+    @property
+    def is_admin(self) -> bool:
+        return self.role.code == RoleCode.ADMIN
+
+    @property
+    def is_vip(self) -> bool:
+        return self.role.code == RoleCode.VIP
+
+    @property
+    def is_organizer(self) -> bool:
+        return self.role.code == RoleCode.ORGANIZER
