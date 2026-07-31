@@ -24,11 +24,8 @@ def get_authorization_repository(session: SessionDep) -> AuthorizationRepository
 AuthorizationRepositoryDep = Annotated[AuthorizationRepository, Depends(get_authorization_repository)]
 
 
-def get_authorization_service(
-        repository: AuthorizationRepositoryDep,
-        cache: PermissionCacheDep
-) -> AuthorizationService:
-    return AuthorizationService(authorization_repository=repository, permission_cache=cache)
+def get_authorization_service() -> AuthorizationService:
+    return AuthorizationService()
 
 
 AuthorizationServiceDep = Annotated[AuthorizationService, Depends(get_authorization_service)]

@@ -1,6 +1,3 @@
-from fastapi import status
-
-from app.core.exceptions.base import ApplicationError
 from app.core.exceptions.forbidden import ForbiddenError
 from app.features.auth.enums.permission_code import PermissionCode
 

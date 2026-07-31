@@ -4,7 +4,6 @@ from fastapi import Depends
 
 from app.features.auth.dependencies.authorization import AuthorizationServiceDep
 from app.features.auth.dependencies.current_principal import CurrentPrincipal
-from app.features.auth.dependencies.current_user import CurrentUser
 from app.features.auth.enums.permission_code import PermissionCode
 
 

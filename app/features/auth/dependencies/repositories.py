@@ -22,5 +22,7 @@ def get_refresh_token_repository(session: SessionDep) -> RefreshTokenRepository:
 
 RoleRepositoryDep = Annotated[RoleRepository, Depends(get_role_repository)]
 AuthenticationIdentityRepositoryDep = Annotated[
-    AuthenticationIdentityRepository, Depends(get_authentication_identity_repository)]
+    AuthenticationIdentityRepository,\
+    Depends(get_authentication_identity_repository)
+]
 RefreshTokenRepositoryDep = Annotated[RefreshTokenRepository, Depends(get_refresh_token_repository)]

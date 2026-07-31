@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, UTC
 from uuid import UUID
 
-from dns.message import MessageSection
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.services.base_service import BaseService

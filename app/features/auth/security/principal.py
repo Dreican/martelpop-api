@@ -1,18 +1,16 @@
 from dataclasses import dataclass
-from typing import Any
 from uuid import UUID
-
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.enums.role_code import RoleCode
+from app.features.auth.models.role import Role
 from app.features.users.models.user import User
 
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class Principal:
     user: User | None
-    role: RoleCode
+    role: Role
     permissions: frozenset[PermissionCode]
 
     @property
@@ -40,12 +38,17 @@ class Principal:
 
     @property
     def is_admin(self) -> bool:
-        return self.role == RoleCode.ADMIN
+        return self.role.code == RoleCode.ADMIN
 
     @property
     def is_vip(self) -> bool:
-        return self.role == RoleCode.VIP
+        return self.role.code == RoleCode.VIP
 
     @property
     def is_organizer(self) -> bool:
-        return self.role == RoleCode.ORGANIZER
+        return self.role.code == RoleCode.ORGANIZER
+
+
+@dataclass(frozen=True, slots=True)
+class AuthenticatedPrincipal(Principal):
+    user: User

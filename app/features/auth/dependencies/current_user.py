@@ -7,7 +7,6 @@ from app.features.auth.dependencies.current_principal import CurrentPrincipal
 from app.features.auth.dependencies.services import JwtServiceDep
 from app.features.auth.exceptions.jwt_exceptions import InvalidTokenError, ExpiredTokenError
 from app.features.auth.security.bearer import bearer_scheme
-from app.features.auth.security.principal import Principal
 from app.features.users.dependencies.repositories import UserRepositoryDep
 from app.features.users.models.user import User
 
@@ -25,7 +24,7 @@ def unauthorized(detail: str) -> NoReturn:
     )
 
 
-async def get_current_user( principal: CurrentPrincipal) -> User:
+async def get_current_user(principal: CurrentPrincipal) -> User:
     if not principal.is_authenticated:
         unauthorized("Not authenticated")
 
@@ -40,7 +39,6 @@ async def authenticate_user(credentials: Credentials, jwt: JwtServiceDep, users:
 
     try:
         payload = jwt.decode_access_token(str(credentials.credentials))
-
     except (ExpiredTokenError, InvalidTokenError):
         return None
 

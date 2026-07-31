@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
+from app.features.auth.dependencies.current_principal import CurrentPrincipal
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.events.dto.event_create_request import EventCreateRequest
@@ -66,24 +67,24 @@ class EventService(BaseService):
         return EventResponse.model_validate(event)
 
 
-    async def get_event(self, event_id: UUID, user: User | None) -> EventResponse:
+    async def get_event(self, event_id: UUID, principal: CurrentPrincipal) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
-        if not self._policy.can_view(event, user):
+        if not self._policy.can_view(event, principal.user):
             raise EventNotFoundError(event_id=event_id)
 
         return EventResponse.model_validate(event)
 
-    async def get_event_by_slug(self, event_slug: str, user: User | None) -> EventResponse:
+    async def get_event_by_slug(self, event_slug: str, principal: CurrentPrincipal) -> EventResponse:
         event = await self._event_repo.required_by_slug(event_slug)
-        if not self._policy.can_view(event, user):
+        if not self._policy.can_view(event, principal.user):
             raise EventNotFoundError(event_slug=event_slug)
 
         return EventResponse.model_validate(event)
 
 
-    async def list_events(self, request: EventSearchRequest, user: User | None) -> Page[EventResponse]:
-        statuses = self._policy.visible_statuses(user)
-        audience = self._policy.visible_audiences(user)
+    async def list_events(self, request: EventSearchRequest, principal: CurrentPrincipal) -> Page[EventResponse]:
+        statuses = self._policy.visible_statuses(principal.user)
+        audience = self._policy.visible_audiences(principal.user)
         page = await self._event_repo.search(request, statuses, audience)
 
         return page.map(EventResponse.model_validate)

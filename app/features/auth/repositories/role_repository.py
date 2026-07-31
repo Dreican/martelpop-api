@@ -32,4 +32,6 @@ class RoleRepository(CodableRepository[Role, RoleCode]):
             logger.error("Default role not found")
             raise DefaultRoleNotFoundError()
 
+        assert role is not None
+
         return role

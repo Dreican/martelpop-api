@@ -2,7 +2,6 @@ from fastapi import status
 
 from app.core.exceptions.base import ApplicationError
 from app.core.exceptions.not_found import NotFoundError
-from app.features.auth.enums.role_code import RoleCode
 
 
 class EmailAlreadyExistsError(ApplicationError):
