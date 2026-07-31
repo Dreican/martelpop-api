@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.features.auth.dependencies.authorization import PermissionCacheDep, AuthorizationRepositoryDep
+from app.features.auth.dependencies.authorization import PermissionCacheDep
 from app.features.auth.dependencies.current_user import authenticate_user, Credentials, unauthorized
 from app.features.auth.dependencies.repositories import RoleRepositoryDep
 from app.features.auth.dependencies.services import JwtServiceDep
@@ -16,7 +16,6 @@ async def get_current_principal(
         jwt: JwtServiceDep,
         users: UserRepositoryDep,
         roles: RoleRepositoryDep,
-        authorization: AuthorizationRepositoryDep,
         cache: PermissionCacheDep
 ) -> Principal:
     user = await authenticate_user(credential, jwt, users)
@@ -26,11 +25,7 @@ async def get_current_principal(
     else:
         role = user.role
 
-    permissions = cache.get(role.code)
-
-    if permissions is None:
-        permissions = await authorization.get_permission_codes(role.code)
-        cache.add(role.code, permissions)
+    permissions = await cache.get_permissions(role.code)
 
     return Principal(user=user, role=role, permissions=frozenset(permissions))
 
@@ -51,7 +46,7 @@ async def get_authenticated_principal(principal: CurrentPrincipal) -> Authentica
     return AuthenticatedPrincipal(
         user=principal.user,
         role=principal.role,
-        permissions=principal.permissions,
+        permissions=frozenset(principal.permissions),
     )
 
 
