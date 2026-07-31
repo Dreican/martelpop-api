@@ -32,9 +32,7 @@ class PermissionCache:
 
         logger.debug("Permission cache miss for role %s",role.value)
 
-        permissions = frozenset(
-            await self._authorization.get_permission_codes(role)
-        )
+        permissions = frozenset(await self._authorization.get_permission_codes(role))
 
         self._cache[role] = permissions
 

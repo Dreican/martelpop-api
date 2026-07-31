@@ -10,8 +10,7 @@ class UserMapper:
         return UserResponse(
             id=user.id,
             email=user.email,
-            firstname=user.firstname,
-            lastname=user.lastname,
+            display_name=user.display_name,
             role=RoleMapper.to_response(user.role),
             is_active=user.is_active,
             avatar_url=(

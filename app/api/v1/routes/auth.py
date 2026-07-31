@@ -9,6 +9,7 @@ from app.features.auth.dto.logout_request import LogoutRequest
 from app.features.auth.dto.refresh_request import RefreshRequest
 from app.features.auth.dto.register_request import RegisterRequest
 from app.features.auth.dto.token_response import TokenResponse
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.users.dto.user_response import UserResponse
 from app.features.users.mappers.user_mapper import UserMapper
 
@@ -64,14 +65,15 @@ async def logout(request: LogoutRequest, auth: AuthenticationServiceDep) -> Resp
     "/logout-all",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def logout_all(current_user: CurrentUser, auth: AuthenticationServiceDep) -> Response:
-    await auth.logout_all(current_user.id)
+async def logout_all(principal: AuthenticatedPrincipal, auth: AuthenticationServiceDep) -> Response:
+    await auth.logout_all(principal.user.id)
     return Response()
 
 
 @router.get(
     "/me",
+    status_code=status.HTTP_200_OK,
     response_model=UserResponse
 )
-async def me(current_user: CurrentUser) -> UserResponse:
-    return UserMapper.to_response(current_user)
+async def me(principal: AuthenticatedPrincipal) -> UserResponse:
+    return UserMapper.to_response(principal.user)

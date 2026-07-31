@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.features.auth.dependencies.current_principal import CurrentPrincipal
+from app.features.auth.dependencies.current_principal import CurrentPrincipal, AuthenticatedPrincipal
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.events.dto.event_create_request import EventCreateRequest
@@ -43,7 +43,7 @@ class EventService(BaseService):
         self._slug = slug_service
         self._policy = event_policy
 
-    async def create_event(self, request: EventCreateRequest, creator: User) -> EventResponse:
+    async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         default_status = await self._event_status_repo.get_default()
         activity_type = await self._activity_type_repo.get_required(request.activity_type_id)
         slug = await self._slug.create_unique(request.title, slug_exists=self._event_repo.exists_by_slug)
@@ -58,7 +58,7 @@ class EventService(BaseService):
             capacity=request.capacity,
             activity_type=activity_type,
             status=default_status,
-            creator=creator,
+            creator=principal.user,
         )
 
         await self._event_repo.add(event)
@@ -89,11 +89,11 @@ class EventService(BaseService):
 
         return page.map(EventResponse.model_validate)
 
-    async def update_event(self, event_id: UUID, request: EventUpdateRequest, user: User) -> EventResponse:
+    async def update_event(self, event_id: UUID, request: EventUpdateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
 
-        if not self._policy.can_edit(event, user):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=user.email)
+        if not self._policy.can_edit(event, principal.user):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.user.display_name)
 
         if event.title != request.title:
             event.slug = await self._slug.create_unique(request.title, slug_exists=self._event_repo.exists_by_slug)

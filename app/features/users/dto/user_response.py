@@ -9,8 +9,7 @@ class UserResponse(BaseModel):
     model_config = dict(from_attributes=True)
     id: UUID
     email: str
-    firstname: str
-    lastname: str
+    display_name: str
     is_active: bool
     role: RoleResponse
     avatar_url: str | None

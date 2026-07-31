@@ -3,9 +3,9 @@ from uuid import UUID
 from fastapi import APIRouter, status, Depends
 
 from app.features.auth.dependencies.current_principal import CurrentPrincipal
-from app.features.auth.dependencies.current_principal import Currentprincipal
 from app.features.auth.dependencies.permissions import permission
 from app.features.auth.enums.permission_code import PermissionCode
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.events.dependencies.services import EventServiceDep
 from app.features.events.dto.event_create_request import EventCreateRequest
 from app.features.events.dto.event_response import EventResponse
@@ -18,33 +18,33 @@ async def get_events(event_id: UUID, event_service: EventServiceDep, principal: 
     return await event_service.get_event(event_id, principal)
 
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(permission(PermissionCode.EVENT_CREATE))])
-async def create_event(event: EventCreateRequest, event_service: EventServiceDep, principal: CurrentPrincipal):
-    return await event_service.create_event(event, principal.user)
+async def create_event(event: EventCreateRequest, event_service: EventServiceDep, principal: AuthenticatedPrincipal):
+    return await event_service.create_event(event, principal)
 
 @router.patch("/{event_id}", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def update_event(event_id: UUID, event: EventUpdateRequest, event_service: EventServiceDep, principal: CurrentPrincipal):
+async def update_event(event_id: UUID, event: EventUpdateRequest, event_service: EventServiceDep, principal: AuthenticatedPrincipal):
     return await event_service.update_event(event_id, event, principal)
 
 @router.delete("/{event_id}", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def delete_event(event_id: UUID, event_service: EventServiceDep, principal: CurrentPrincipal):
+async def delete_event(event_id: UUID, event_service: EventServiceDep, principal: AuthenticatedPrincipal):
     return await event_service.delete_event(event_id, principal)
 
 @router.post("/{event_id}/publish", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def publish_event(event_id: UUID, event_service: EventServiceDep, principal: CurrentPrincipal):
+async def publish_event(event_id: UUID, event_service: EventServiceDep, principal: AuthenticatedPrincipal):
     return await event_service.publish_event(event_id, principal)
 
 @router.post("/{event_id}/unpublish", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def unpublish_event(event_id: UUID, event_service: EventServiceDep, principal: CurrentPrincipal):
+async def unpublish_event(event_id: UUID, event_service: EventServiceDep, principal: AuthenticatedPrincipal):
     return await event_service.unpublish_event(event_id, principal)
 
 @router.post("/{event_id}/publish", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def publish_event(event_id: UUID, event_service: EventServiceDep, principal: CurrentPrincipal):
+async def publish_event(event_id: UUID, event_service: EventServiceDep, principal: AuthenticatedPrincipal):
     return await event_service.publish_event(event_id, principal)
 
 @router.post("/{event_id}/cancel", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def cancel_event(event_id: UUID, event_service: EventServiceDep, principal: CurrentPrincipal):
+async def cancel_event(event_id: UUID, event_service: EventServiceDep, principal: AuthenticatedPrincipal):
     return await event_service.cancel_event(event_id, principal)
 
 @router.post("/{event_id}/complete", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def cancel_event(event_id: UUID, event_service: EventServiceDep, principal: CurrentPrincipal):
+async def cancel_event(event_id: UUID, event_service: EventServiceDep, principal: AuthenticatedPrincipal):
     return await event_service.complete_event(event_id, principal)
