@@ -1,3 +1,4 @@
+from app.core.database.seeders.activity_type import seed_activity_types
 from app.core.database.seeders.permission_seeder import seed_permissions
 from app.core.database.seeders.role_permission_seeder import seed_role_permissions
 from app.core.database.seeders.roles_seeder import seed_roles
@@ -10,3 +11,4 @@ async def seed_database() -> None:
             await seed_roles(session)
             await seed_permissions(session)
             await seed_role_permissions(session)
+            await seed_activity_types(session)
