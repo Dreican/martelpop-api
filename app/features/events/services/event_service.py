@@ -85,6 +85,7 @@ class EventService(BaseService):
 
     async def list_events(self, request: EventSearchRequest, principal: Principal) -> Page[EventResponse]:
         access = self._filter.build(principal)
+        # access = replace(access, include_deleted=True)
         page = await self._event_repo.search(request, access)
 
         return page.map(EventResponse.model_validate)

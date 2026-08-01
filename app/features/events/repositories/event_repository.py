@@ -1,8 +1,9 @@
 import logging
 from datetime import datetime, UTC
+from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, Select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -59,6 +60,24 @@ class EventRepository(SluggableRepository[Event]):
     async def search(self, request: EventSearchRequest, access: EventAccess) -> Page[Event]:
         stmt = select(Event)
 
+        stmt = self._apply_access(stmt, request, access)
+        stmt = self._apply_filters(stmt, request)
+        stmt = self._apply_sort(stmt, request.sort)
+
+        return await self.paginate(stmt, request.pagination)
+
+
+    async def get_audience_required(self, event_id: UUID, audience: EventAudience) -> Event | None:
+        stmt = (
+            select(Event)
+            .where(Event.id == event_id)
+            .where(Event.audience == audience)
+        )
+
+        return await self._session.scalar(stmt)
+
+    @staticmethod
+    def _apply_filters(stmt: Select[tuple[Any]], request: EventSearchRequest) -> Select[tuple[Any]]:
         if request.search:
             stmt = stmt.where(
                 or_(
@@ -70,28 +89,32 @@ class EventRepository(SluggableRepository[Event]):
         if request.activity_type_id:
             stmt = stmt.where(Event.activity_type_id == request.activity_type_id)
 
-        allowed_statuses = access.statuses
-
-        if request.statuses is not None:
-            if allowed_statuses is None:
-                allowed_statuses = request.statuses
-
-            else:
-                allowed_statuses = allowed_statuses.intersection(request.statuses)
-
-        if allowed_statuses is not None:
-            stmt = (stmt.join(Event.status).where(EventStatus.code.in_(allowed_statuses)))
-
         if request.starts_after:
             stmt = stmt.where(Event.start_at >= request.starts_after)
 
         if request.ends_before:
             stmt = stmt.where(Event.end_at <= request.ends_before)
+        return stmt
 
-        if access.audiences is not None:
-            stmt = stmt.where(Event.audience.in_(access.audiences))
+    def _apply_access(
+            self,
+            stmt: Select[tuple[Any]],
+            request: EventSearchRequest,
+            access: EventAccess
+    ) -> Select[tuple[Any]]:
 
-        match request.sort:
+        if access.include_deleted:
+            stmt = stmt.where(Event.deleted_at.is_not_(None))
+
+        statuses = self._allowed_statuses(access, request)
+
+        stmt = stmt.join(Event.status).where(EventStatus.code.in_(statuses))
+        stmt = stmt.where(Event.audience.in_(access.audiences))
+        return stmt
+
+    @staticmethod
+    def _apply_sort(stmt: Select[tuple[Any]], sort: EventSort) -> Select[tuple[Any]]:
+        match sort:
             case EventSort.START_DATE_ASC:
                 stmt = stmt.order_by(Event.start_at.asc())
             case EventSort.START_DATE_DESC:
@@ -111,13 +134,13 @@ class EventRepository(SluggableRepository[Event]):
             case _:
                 stmt = stmt.order_by(Event.start_at.desc())
 
-        return await self.paginate(stmt, request.pagination)
+        return stmt
 
-    async def get_audience_required(self, event_id: UUID, audience: EventAudience) -> Event | None:
-        stmt = (
-            select(Event)
-            .where(Event.id == event_id)
-            .where(Event.audience == audience)
-        )
+    @staticmethod
+    def _allowed_statuses(access: EventAccess, request: EventSearchRequest) -> set[EventStatusCode]:
+        statuses = set(access.statuses)
 
-        return await self._session.scalar(stmt)
+        if request.statuses is not None:
+            statuses = statuses.intersection(request.statuses)
+
+        return statuses
