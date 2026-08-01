@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.features.auth.dependencies.current_principal import CurrentPrincipal, AuthenticatedPrincipal
+from app.features.auth.dependencies.current_principal import CurrentPrincipalDep, AuthenticatedPrincipalDep
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.events.dto.event_create_request import EventCreateRequest
@@ -43,7 +43,7 @@ class EventService(BaseService):
         self._slug = slug_service
         self._policy = event_policy
 
-    async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
+    async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipalDep) -> EventResponse:
         default_status = await self._event_status_repo.get_default()
         activity_type = await self._activity_type_repo.get_required(request.activity_type_id)
         slug = await self._slug.create_unique(request.title, slug_exists=self._event_repo.exists_by_slug)
@@ -67,14 +67,14 @@ class EventService(BaseService):
         return EventResponse.model_validate(event)
 
 
-    async def get_event(self, event_id: UUID, principal: CurrentPrincipal) -> EventResponse:
+    async def get_event(self, event_id: UUID, principal: CurrentPrincipalDep) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
         if not self._policy.can_view(event, principal.user):
             raise EventNotFoundError(event_id=event_id)
 
         return EventResponse.model_validate(event)
 
-    async def get_event_by_slug(self, event_slug: str, principal: CurrentPrincipal) -> EventResponse:
+    async def get_event_by_slug(self, event_slug: str, principal: CurrentPrincipalDep) -> EventResponse:
         event = await self._event_repo.required_by_slug(event_slug)
         if not self._policy.can_view(event, principal.user):
             raise EventNotFoundError(event_slug=event_slug)
@@ -82,14 +82,14 @@ class EventService(BaseService):
         return EventResponse.model_validate(event)
 
 
-    async def list_events(self, request: EventSearchRequest, principal: CurrentPrincipal) -> Page[EventResponse]:
+    async def list_events(self, request: EventSearchRequest, principal: CurrentPrincipalDep) -> Page[EventResponse]:
         statuses = self._policy.visible_statuses(principal.user)
         audience = self._policy.visible_audiences(principal.user)
         page = await self._event_repo.search(request, statuses, audience)
 
         return page.map(EventResponse.model_validate)
 
-    async def update_event(self, event_id: UUID, request: EventUpdateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
+    async def update_event(self, event_id: UUID, request: EventUpdateRequest, principal: AuthenticatedPrincipalDep) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
 
         if not self._policy.can_edit(event, principal.user):
@@ -109,47 +109,47 @@ class EventService(BaseService):
 
         return await self._persist(event)
 
-    async def delete_event(self, event_id: UUID, user: User) -> EventResponse:
+    async def delete_event(self, event_id: UUID, principal: AuthenticatedPrincipalDep) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
 
-        if not self._policy.can_delete(event, user):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_DELETE}, user=user.email)
+        if not self._policy.can_delete(event, principal.user):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_DELETE}, user=principal.user.display_name)
 
         event.delete()
 
         return await self._persist(event)
 
-    async def publish_event(self, event_id: UUID, user: User) -> EventResponse:
-        event = await self._get_publishable_event(event_id, user)
+    async def publish_event(self, event_id: UUID, principal: AuthenticatedPrincipalDep) -> EventResponse:
+        event = await self._get_publishable_event(event_id, principal.user)
 
         status = await self._event_status_repo.get_published()
         event.publish(status)
 
         return await self._persist(event)
 
-    async def unpublish_event(self, event_id: UUID, user: User) -> EventResponse:
-        event = await self._get_publishable_event(event_id, user)
+    async def unpublish_event(self, event_id: UUID, principal: AuthenticatedPrincipalDep) -> EventResponse:
+        event = await self._get_publishable_event(event_id, principal.user)
 
         status = await self._event_status_repo.get_default()
         event.unpublish(status)
 
         return await self._persist(event)
 
-    async def cancel_event(self, event_id: UUID, user: User) -> EventResponse:
+    async def cancel_event(self, event_id: UUID, principal: AuthenticatedPrincipalDep) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
 
-        if not self._policy.can_cancel(event, user):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=user.email)
+        if not self._policy.can_cancel(event, principal.user):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.user.display_name)
 
         status = await self._event_status_repo.get_cancelled()
         event.cancel(status)
 
         return await self._persist(event)
 
-    async def complete_event(self, event_id: UUID, user: User) -> EventResponse:
+    async def complete_event(self, event_id: UUID, principal: AuthenticatedPrincipalDep) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
-        if not self._policy.can_complete(event, user):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_PUBLISH}, user=user.email)
+        if not self._policy.can_complete(event, principal.user):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_PUBLISH}, user=principal.user.display_name)
 
         status = await self._event_status_repo.get_complete()
         event.complete(status)
@@ -166,6 +166,6 @@ class EventService(BaseService):
         event = await self._event_repo.get_required(event_id)
 
         if not self._policy.can_edit(event, user):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_PUBLISH}, user=user.email)
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_PUBLISH}, user=user.display_name)
 
         return event

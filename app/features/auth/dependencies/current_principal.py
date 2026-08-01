@@ -9,7 +9,7 @@ from app.features.auth.dependencies.services import JwtServiceDep
 from app.features.auth.enums.role_code import RoleCode
 from app.features.auth.exceptions.jwt_exceptions import ExpiredTokenError, InvalidTokenError
 from app.features.auth.security.bearer import bearer_scheme
-from app.features.auth.security.principal import Principal, AuthenticatedPrincipal
+from app.features.auth.security.principal import Principal, AuthenticatedPrincipalDep
 from app.features.users.dependencies.repositories import UserRepositoryDep
 from app.features.users.models.user import User
 
@@ -26,7 +26,12 @@ def unauthorized(detail: str) -> NoReturn:
     )
 
 
-async def authenticate_user(credentials: Credentials, jwt: JwtServiceDep, users: UserRepositoryDep) -> User | None:
+async def authenticate_user(
+        credentials: Credentials,
+        jwt: JwtServiceDep,
+        users: UserRepositoryDep
+) -> User | None:
+
     if credentials is None:
         unauthorized("Not Authenticated")
 
@@ -65,27 +70,27 @@ async def get_current_principal(
     return Principal(user=user, role=role, permissions=frozenset(permissions))
 
 
-CurrentPrincipal = Annotated[
+CurrentPrincipalDep = Annotated[
     Principal,
     Depends(get_current_principal),
 ]
 
 
-async def get_authenticated_principal(principal: CurrentPrincipal) -> AuthenticatedPrincipal:
+async def get_authenticated_principal(principal: CurrentPrincipalDep) -> AuthenticatedPrincipalDep:
 
     if principal.user is None:
         unauthorized("Not authenticated")
 
     assert principal.user is not None
 
-    return AuthenticatedPrincipal(
+    return AuthenticatedPrincipalDep(
         user=principal.user,
         role=principal.role,
         permissions=frozenset(principal.permissions),
     )
 
 
-AuthenticatedPrincipal = Annotated[
-    AuthenticatedPrincipal,
+AuthenticatedPrincipalDep = Annotated[
+    AuthenticatedPrincipalDep,
     Depends(get_authenticated_principal),
 ]
