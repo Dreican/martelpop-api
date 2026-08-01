@@ -2,7 +2,6 @@ from fastapi import APIRouter, status, Depends
 
 from app.core.pagination.page import Page
 from app.features.auth.dependencies.current_principal import CurrentPrincipal
-from app.features.auth.dependencies.current_user import CurrentUser
 from app.features.auth.dependencies.permissions import permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.events.dependencies.services import EventServiceDep

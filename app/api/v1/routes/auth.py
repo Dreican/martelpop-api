@@ -1,7 +1,6 @@
 from fastapi import APIRouter, status
 from fastapi import Response
 
-from app.features.auth.dependencies.current_user import CurrentUser
 from app.features.auth.dependencies.services import AuthenticationServiceDep
 from app.features.auth.dependencies.session import SessionInfoDep
 from app.features.auth.dto.login_request import LoginRequest
