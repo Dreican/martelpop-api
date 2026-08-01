@@ -18,9 +18,9 @@ class RequirePermission:
         return principal
 
 
-def require_permission(*permissions: PermissionCode) -> type[AuthenticatedPrincipal]:
+def require_permission(*permissions: PermissionCode):
     return Annotated[
-        AuthenticatedPrincipal,
+        Principal,
         Depends(RequirePermission(*permissions)),
     ]
 
