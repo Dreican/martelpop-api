@@ -13,10 +13,11 @@ router = APIRouter(
     tags=["Events"],
 )
 
-@router.get("/{event_slug}", response_model=EventResponse, status_code=status.HTTP_200_OK)
-async def get_event(event_slug: str, event_service: EventServiceDep, principal: Principal = permission(PermissionCode.EVENT_READ)):
-    return await event_service.get_event_by_slug(event_slug, principal)
 
 @router.get("/search", response_model=Page[EventResponse], status_code=status.HTTP_200_OK)
 async def search_events(request: EventSearchRequest, event_service: EventServiceDep, principal: Principal = permission(PermissionCode.EVENT_READ)):
     return await event_service.list_events(request, principal)
+
+@router.get("/{event_slug}", response_model=EventResponse, status_code=status.HTTP_200_OK)
+async def get_event(event_slug: str, event_service: EventServiceDep, principal: Principal = permission(PermissionCode.EVENT_READ)):
+    return await event_service.get_event_by_slug(event_slug, principal)

@@ -15,16 +15,19 @@ class AuthorizationRepository:
     async def get_permission_codes(self, role_code: RoleCode) -> set[PermissionCode]:
         stmt = (select(Permission.code)
                 .join(RolePermission)
-                .where(RolePermission.role.code == role_code))
+                .join(Role)
+                .where(Role.code == role_code))
 
         return set(await self._session.scalars(stmt))
 
     async def role_has_permission(self, role: Role, permission: PermissionCode) -> bool:
         stmt = (
-            select(exists())
-            .join(RolePermission)
-            .where(RolePermission.role_id == role.id)
-            .where(Permission.code == permission)
+            select(
+                exists()
+                .where(RolePermission.role_id == role.id)
+                .where(RolePermission.permission_id == Permission.id)
+                .where(Permission.code == permission)
+            )
         )
 
         return await self._session.scalar(stmt) is not None

@@ -27,7 +27,7 @@ async def authenticate_user(
 ) -> User | None:
 
     if credentials is None:
-        unauthorized("Not Authenticated")
+        return None
 
     try:
         payload = jwt.decode_access_token(str(credentials.credentials))
