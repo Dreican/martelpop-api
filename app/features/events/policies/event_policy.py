@@ -10,55 +10,51 @@ class EventPolicy:
 
     def can_view(self, event: Event, principal: Principal) -> bool:
 
-        if principal.user is None:
-            if event.audience == EventAudience.PUBLIC:
+        if event.is_draft:
+            if principal.user is None:
+                return False
+
+            return (
+                self._is_owner_or_admin(event, principal.require_authenticated())
+                or principal.is_organizer
+            )
+
+        match event.audience:
+            case EventAudience.PUBLIC:
                 return True
 
-            return False
+            case EventAudience.MEMBERS:
+                return principal.user is not None
 
-        if event.is_draft:
-            return (
-                self._is_owner_or_admin(event, principal.user)
-                or (
-                        principal.user is not None
-                        and principal.role.code == RoleCode.ORGANIZER
-                )
-            )
-
-        if event.audience == EventAudience.PUBLIC:
-            return True
-
-        if event.audience == EventAudience.VIP:
-            return (
+            case EventAudience.VIP:
+                return (
                     principal.user is not None
                     and principal.is_vip
-            )
-
-        return False
+                )
 
 
     def can_edit(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
             event.status.allow_edit
-            and self._is_owner_or_admin(event, principal.user)
+            and self._is_owner_or_admin(event, principal)
         )
 
     def can_delete(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
             event.status.code is not EventStatusCode.COMPLETED
-            and self._is_owner_or_admin(event, principal.user)
+            and self._is_owner_or_admin(event, principal)
         )
 
     def can_cancel(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
             not event.is_published
-            and self._is_owner_or_admin(event, principal.user)
+            and self._is_owner_or_admin(event, principal)
         )
 
     def can_complete(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
             event.is_published
-            and self._is_owner_or_admin(event, principal.user)
+            and self._is_owner_or_admin(event, principal)
         )
 
     @staticmethod
@@ -103,8 +99,5 @@ class EventPolicy:
 
 
     @staticmethod
-    def _is_owner_or_admin(event: Event, user: User) -> bool:
-        return (
-            user.is_admin
-            or event.created_by == user.id
-        )
+    def _is_owner_or_admin(event: Event, principal: AuthenticatedPrincipal) -> bool:
+        return principal.is_admin or event.is_owner(principal)

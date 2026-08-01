@@ -11,6 +11,7 @@ from app.core.database.constraints import EVENTS_SLUG_UNIQUE
 from app.core.database.helpers import Helper
 from app.core.database.mixin.slug import SlugMixin
 from app.core.database.mixin.soft_delete import SoftDeleteMixin
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.events.enums.event_audience import EventAudience
 from app.features.events.enums.event_status_code import EventStatusCode
 
@@ -157,3 +158,6 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         self.cancel(self.status)
         self.deleted_at = datetime.now(UTC)
 
+
+    def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
+        return self.created_by == principal.user.id

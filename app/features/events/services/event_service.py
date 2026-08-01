@@ -14,6 +14,7 @@ from app.features.events.dto.event_response import EventResponse
 from app.features.events.dto.event_search_request import EventSearchRequest
 from app.features.events.dto.event_update_request import EventUpdateRequest
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
+from app.features.events.filters.event_access_filter import EventAccessFilter
 from app.features.events.models.event import Event
 from app.features.events.policies.event_policy import EventPolicy
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository
@@ -32,7 +33,8 @@ class EventService(BaseService):
             event_status_repository: EventStatusRepository,
             activity_type_repository: ActivityTypeRepository,
             slug_service: SlugService,
-            event_policy: EventPolicy
+            event_policy: EventPolicy,
+            event_filter: EventAccessFilter
     ):
         super().__init__(session)
         self._event_repo = event_repository
@@ -40,6 +42,7 @@ class EventService(BaseService):
         self._activity_type_repo = activity_type_repository
         self._slug = slug_service
         self._policy = event_policy
+        self._filter = event_filter
 
     async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         default_status = await self._event_status_repo.get_default()
@@ -81,9 +84,8 @@ class EventService(BaseService):
 
 
     async def list_events(self, request: EventSearchRequest, principal: Principal) -> Page[EventResponse]:
-        statuses = self._policy.visible_statuses(principal)
-        audience = self._policy.visible_audiences(principal)
-        page = await self._event_repo.search(request, statuses, audience)
+        access = self._filter.build(principal)
+        page = await self._event_repo.search(request, access)
 
         return page.map(EventResponse.model_validate)
 

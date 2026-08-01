@@ -13,6 +13,7 @@ from app.features.events.enums.event_audience import EventAudience
 from app.features.events.enums.event_sort import EventSort
 from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
+from app.features.events.filters.event_access import EventAccess
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
 from app.features.events.models.event_status import EventStatus
@@ -55,7 +56,7 @@ class EventRepository(SluggableRepository[Event]):
         )
         return list(await self._session.scalars(stmt))
 
-    async def search(self, request: EventSearchRequest, statuses: set[EventStatusCode] | None, audience: set[EventAudience] | None) -> Page[Event]:
+    async def search(self, request: EventSearchRequest, access: EventAccess) -> Page[Event]:
         stmt = select(Event)
 
         if request.search:
@@ -69,7 +70,7 @@ class EventRepository(SluggableRepository[Event]):
         if request.activity_type_id:
             stmt = stmt.where(Event.activity_type_id == request.activity_type_id)
 
-        allowed_statuses = statuses
+        allowed_statuses = access.statuses
 
         if request.statuses is not None:
             if allowed_statuses is None:
@@ -87,8 +88,8 @@ class EventRepository(SluggableRepository[Event]):
         if request.ends_before:
             stmt = stmt.where(Event.end_at <= request.ends_before)
 
-        if audience is not None:
-            stmt = stmt.where(Event.audience.in_(audience))
+        if access.audiences is not None:
+            stmt = stmt.where(Event.audience.in_(access.audiences))
 
         match request.sort:
             case EventSort.START_DATE_ASC:
