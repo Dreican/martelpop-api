@@ -5,12 +5,13 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database.repositories.base_repository import BaseRepository
+from app.features.auth.exceptions.authentication_exceptions import RefreshTokenNotFoundError
 from app.features.auth.models.refresh_token import RefreshToken
 
 
 class RefreshTokenRepository(BaseRepository[RefreshToken]):
     def __init__(self, session: AsyncSession):
-        super().__init__(session, model=RefreshToken)
+        super().__init__(session, model=RefreshToken, not_found_exception=RefreshTokenNotFoundError)
 
     async def get_by_jti(self, jti: UUID) -> RefreshToken | None:
         stmt = (

@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database.helpers import Helper
 from app.core.database.repositories.sluggable_repository import SluggableRepository
-from app.features.auth.exceptions.authentication_exceptions import EmailAlreadyExistsError
+from app.features.auth.exceptions.authentication_exceptions import EmailAlreadyExistsError, UserNotFoundError
 from app.features.users.models.user import User
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class UserRepository(SluggableRepository[User]):
     def __init__(self, session: AsyncSession):
-        super().__init__(session, model=User)
+        super().__init__(session, model=User, not_found_exception=UserNotFoundError)
 
     async def add(self, entity: User) -> None:
         try:

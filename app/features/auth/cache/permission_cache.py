@@ -7,7 +7,7 @@ from app.features.auth.repositories.authorization_repository import Authorizatio
 logger = logging.getLogger(__name__)
 
 class PermissionCache:
-    def __init__(self,authorization_repository: AuthorizationRepository):
+    def __init__(self, authorization_repository: AuthorizationRepository):
         self._authorization = authorization_repository
         self._cache: dict[RoleCode, frozenset[PermissionCode]] = {}
 

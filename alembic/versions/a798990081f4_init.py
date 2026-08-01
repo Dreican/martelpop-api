@@ -1,8 +1,8 @@
 """Init
 
-Revision ID: 4702ba5f07b9
+Revision ID: a798990081f4
 Revises: 
-Create Date: 2026-07-24 10:09:19.336244
+Create Date: 2026-08-01 13:33:16.693746
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4702ba5f07b9'
+revision: str = 'a798990081f4'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,7 +27,6 @@ def upgrade() -> None:
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('is_default', sa.Boolean(), nullable=False),
     sa.Column('sort_order', sa.Integer(), nullable=False),
-    sa.Column('is_public', sa.Boolean(), nullable=False),
     sa.Column('is_bookable', sa.Boolean(), nullable=False),
     sa.Column('allow_edit', sa.Boolean(), nullable=False),
     sa.Column('id', sa.Uuid(), nullable=False),
@@ -38,7 +37,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_event_statuses_code'), 'event_statuses', ['code'], unique=True)
     op.create_table('permissions',
-    sa.Column('code', sa.Enum('user.read', 'user.update', 'user.delete', 'user.impersonate', 'role.read', 'role.update', 'permission.read', 'role.permissions.manage', 'event.create', 'event.read', 'event.update', 'event.delete', 'event.publish', 'registration.create', 'registration.cancel', 'registration.manage', 'waitlist.manage', name='permissioncode', native_enum=False), nullable=False),
+    sa.Column('code', sa.Enum('user.read', 'user.update', 'user.delete', 'user.impersonate', 'role.read', 'role.update', 'permission.read', 'role.permissions.manage', 'event.create', 'event.read', 'event.update', 'event.delete', 'event.cancel', 'event.publish', 'activity_type.read', 'activity_type.manage', 'registration.create', 'registration.cancel', 'registration.manage', 'waitlist.manage', name='permissioncode', native_enum=False), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('id', sa.Uuid(), nullable=False),
@@ -49,7 +48,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_permissions_code'), 'permissions', ['code'], unique=True)
     op.create_index(op.f('ix_permissions_name'), 'permissions', ['name'], unique=True)
     op.create_table('roles',
-    sa.Column('code', sa.Enum('admin', 'organizer', 'vip', 'user', name='rolecode', native_enum=False), nullable=False),
+    sa.Column('code', sa.Enum('admin', 'organizer', 'vip', 'user', 'anonymous', name='rolecode', native_enum=False), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('is_default', sa.Boolean(), nullable=False),
@@ -74,6 +73,7 @@ def upgrade() -> None:
     )
     op.create_table('users',
     sa.Column('email', sa.String(length=255), nullable=False),
+    sa.Column('display_name', sa.String(length=100), nullable=False),
     sa.Column('firstname', sa.String(length=100), nullable=False),
     sa.Column('lastname', sa.String(length=100), nullable=False),
     sa.Column('avatar_file_id', sa.Uuid(), nullable=True),
@@ -178,6 +178,10 @@ def upgrade() -> None:
     sa.Column('start_at', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('end_at', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('capacity', sa.Integer(), nullable=True),
+    sa.Column('published_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('cancelled_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('completed_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('audience', sa.Enum('PUBLIC', 'MEMBERS', 'VIP', name='eventaudience', native_enum=False), nullable=False),
     sa.Column('banner_file_id', sa.Uuid(), nullable=True),
     sa.Column('created_by', sa.Uuid(), nullable=False),
     sa.Column('status_id', sa.Uuid(), nullable=False),

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.features.auth.dependencies.current_principal import unauthorized
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.enums.role_code import RoleCode
+from app.features.auth.exceptions.helper import unauthorized
 from app.features.auth.models.role import Role
 from app.features.users.models.user import User
 

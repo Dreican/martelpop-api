@@ -10,7 +10,7 @@ from app.features.events.models.event_status import EventStatus
 
 class EventStatusRepository(CodableRepository[EventStatus, EventStatusCode]):
     def __init__(self, session: AsyncSession):
-        super().__init__(session, model=EventStatus, not_found_exception=DefaultEventStatusNotFoundError)
+        super().__init__(session, model=EventStatus, not_found_exception=EventStatusNotFoundError)
 
     async def get_all(self) -> list[EventStatus]:
         stmt = (

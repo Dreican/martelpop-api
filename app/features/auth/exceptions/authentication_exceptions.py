@@ -37,3 +37,14 @@ class RefreshTokenReuseDetected(ApplicationError):
     status_code = status.HTTP_400_BAD_REQUEST
     code = "refresh_token_reuse_detected"
     detail = "Refresh token reuse detected"
+
+
+class AuthenticationIdentityNotFoundError(NotFoundError):
+    status_code = status.HTTP_404_NOT_FOUND
+    code = "authentication_identity_not_found"
+    detail = "Authentication identity not found"
+
+class RefreshTokenNotFoundError(NotFoundError):
+    status_code = status.HTTP_404_NOT_FOUND
+    code = "refresh_token_not_found"
+    detail = "Refresh token not found"

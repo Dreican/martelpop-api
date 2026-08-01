@@ -1,8 +1,9 @@
 from fastapi import Depends
 
 from app.features.auth.dependencies.authorization import AuthorizationServiceDep
-from app.features.auth.dependencies.current_principal import CurrentPrincipalDep, unauthorized
+from app.features.auth.dependencies.current_principal import CurrentPrincipalDep
 from app.features.auth.enums.permission_code import PermissionCode
+from app.features.auth.exceptions.helper import unauthorized
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 
 
@@ -11,7 +12,7 @@ class PermissionDependency:
         self._permissions = frozenset(permissions)
 
     async def __call__(self, principal: CurrentPrincipalDep, authorization: AuthorizationServiceDep) -> Principal:
-        await authorization.require_all_permissions(principal, self._permissions)
+        authorization.require_all_permissions(principal, self._permissions)
         return principal
 
 

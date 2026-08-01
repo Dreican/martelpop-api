@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database.repositories.base_repository import BaseRepository
 from app.features.auth.enums.auth_provider import AuthProvider
+from app.features.auth.exceptions.authentication_exceptions import AuthenticationIdentityNotFoundError
 from app.features.auth.models.authentication_identity import AuthenticationIdentity
 from app.features.users.models.user import User
 
@@ -13,13 +14,13 @@ from app.features.users.models.user import User
 class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
 
     def __init__(self, session: AsyncSession):
-        super().__init__(session, model=AuthenticationIdentity)
+        super().__init__(session, model=AuthenticationIdentity, not_found_exception=AuthenticationIdentityNotFoundError)
 
-    async def get_by_id(self, identity_id: UUID) -> AuthenticationIdentity | None:
+    async def get_by_id(self, entity_id: UUID) -> AuthenticationIdentity | None:
         stmt = (
             select(AuthenticationIdentity)
             .options(selectinload(AuthenticationIdentity.user))
-            .where(AuthenticationIdentity.id == identity_id)
+            .where(AuthenticationIdentity.id == entity_id)
         )
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()

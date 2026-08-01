@@ -49,7 +49,8 @@ class BaseRepository[T]:
         )
 
         total = await self._session.scalar(total_stmt)
-        assert total is not None
+        if total is None:
+            total = 0
 
         stmt = (stmt.offset(request.offset).limit(request.page_size))
 

@@ -9,17 +9,17 @@ logger = logging.getLogger(__name__)
 
 class AuthorizationService:
 
-    async def require_permission(self, principal: Principal, permission: PermissionCode) -> None:
+    def require_permission(self, principal: Principal, permission: PermissionCode) -> None:
         if not self.has_permission(principal, permission):
             logger.warning("Permission denied: user=%s permission=%s", principal.fullname, permission.value)
             raise PermissionDeniedError({permission}, user=principal.display_name)
 
-    async def require_all_permissions(self, principal: Principal, permissions: frozenset[PermissionCode]) -> None:
+    def require_all_permissions(self, principal: Principal, permissions: frozenset[PermissionCode]) -> None:
         if not self.has_all_permissions(principal, permissions):
             logger.warning("Permission denied: user=%s permissions=%s", principal.fullname, permissions)
             raise PermissionDeniedError(set(permissions), user=principal.display_name)
 
-    async def require_any_permissions(self, principal: Principal, permissions: frozenset[PermissionCode]) -> None:
+    def require_any_permissions(self, principal: Principal, permissions: frozenset[PermissionCode]) -> None:
         if not self.has_any_permissions(principal, permissions):
             logger.warning("Permission denied: user=%s permissions=%s", principal.fullname, permissions)
             raise PermissionDeniedError(set(permissions), user=principal.display_name)

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 from fastapi import Response
 
+from app.features.auth.dependencies.current_principal import AuthenticatedPrincipalDep
 from app.features.auth.dependencies.services import AuthenticationServiceDep
 from app.features.auth.dependencies.session import SessionInfoDep
 from app.features.auth.dto.login_request import LoginRequest
@@ -8,7 +9,6 @@ from app.features.auth.dto.logout_request import LogoutRequest
 from app.features.auth.dto.refresh_request import RefreshRequest
 from app.features.auth.dto.register_request import RegisterRequest
 from app.features.auth.dto.token_response import TokenResponse
-from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.users.dto.user_response import UserResponse
 from app.features.users.mappers.user_mapper import UserMapper
 
@@ -64,7 +64,7 @@ async def logout(request: LogoutRequest, auth: AuthenticationServiceDep) -> Resp
     "/logout-all",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def logout_all(principal: AuthenticatedPrincipal, auth: AuthenticationServiceDep) -> Response:
+async def logout_all(principal: AuthenticatedPrincipalDep, auth: AuthenticationServiceDep) -> Response:
     await auth.logout_all(principal.user.id)
     return Response()
 
@@ -74,5 +74,5 @@ async def logout_all(principal: AuthenticatedPrincipal, auth: AuthenticationServ
     status_code=status.HTTP_200_OK,
     response_model=UserResponse
 )
-async def me(principal: AuthenticatedPrincipal) -> UserResponse:
+async def me(principal: AuthenticatedPrincipalDep) -> UserResponse:
     return UserMapper.to_response(principal.user)

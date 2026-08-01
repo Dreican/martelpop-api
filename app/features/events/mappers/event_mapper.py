@@ -25,7 +25,14 @@ class EventMapper:
             location=event.location,
             activity_type_id=ActivityTypeMapper.to_response(event.activity_type),
             creator=UserMapper.to_response(event.creator),
-            status=EventStatusMapper.to_response(event.status)
+            status=EventStatusMapper.to_response(event.status),
+            published_at=event.published_at,
+            cancelled_at=event.cancelled_at,
+            completed_at=event.completed_at,
+            is_published=event.is_published,
+            is_cancelled=event.is_cancelled,
+            is_completed=event.is_completed,
+            is_full=event.is_full
         )
 
     @staticmethod

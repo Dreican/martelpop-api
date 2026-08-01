@@ -83,11 +83,6 @@ async def seed_permissions(session: AsyncSession) -> None:
             "description": "Can manage activity types",
         },
         {
-            "code": PermissionCode.EVENT_DELETE,
-            "name": "Delete event",
-            "description": "Can delete events",
-        },
-        {
             "code": PermissionCode.REGISTRATION_CREATE,
             "name": "Create registration",
             "description": "Can create registrations",

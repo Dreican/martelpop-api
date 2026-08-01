@@ -101,11 +101,11 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     @property
     def is_full(self) -> bool:
-        return self.capacity is not None and (self.capacity <= self.registrations.count())
+        return self.capacity is not None and (self.capacity <= len(self.registrations))
 
     @property
     def is_waitlisted(self) -> bool:
-        return self.waitlist.count() > 0
+        return len(self.waitlist) > 0
 
     @property
     def is_cancelled(self) -> bool:
