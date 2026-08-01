@@ -1,20 +1,27 @@
 from app.features.auth.enums.role_code import RoleCode
+from app.features.auth.security.principal import Principal, AuthenticatedPrincipal
 from app.features.events.enums.event_audience import EventAudience
 from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.models.event import Event
-from app.features.events.models.event_status import EventStatus
 from app.features.users.models.user import User
 
 
 class EventPolicy:
 
-    def can_view(self, event: Event, user: User | None) -> bool:
+    def can_view(self, event: Event, principal: Principal) -> bool:
+
+        if principal.user is None:
+            if event.audience == EventAudience.PUBLIC:
+                return True
+
+            return False
+
         if event.is_draft:
             return (
-                self._is_owner_or_admin(event, user)
+                self._is_owner_or_admin(event, principal.user)
                 or (
-                    user is not None
-                    and user.role.code == RoleCode.ORGANIZER
+                        principal.user is not None
+                        and principal.role.code == RoleCode.ORGANIZER
                 )
             )
 
@@ -23,45 +30,45 @@ class EventPolicy:
 
         if event.audience == EventAudience.VIP:
             return (
-                user is not None
-                and user.is_vip
+                    principal.user is not None
+                    and principal.is_vip
             )
 
         return False
 
 
-    def can_edit(self, event: Event, user: User | None) -> bool:
+    def can_edit(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
             event.status.allow_edit
-            and self._is_owner_or_admin(event, user)
+            and self._is_owner_or_admin(event, principal.user)
         )
 
-    def can_delete(self, event: Event, user: User | None) -> bool:
+    def can_delete(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
             event.status.code is not EventStatusCode.COMPLETED
-            and self._is_owner_or_admin(event, user)
+            and self._is_owner_or_admin(event, principal.user)
         )
 
-    def can_cancel(self, event: Event, user: User | None) -> bool:
+    def can_cancel(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
             not event.is_published
-            and self._is_owner_or_admin(event, user)
+            and self._is_owner_or_admin(event, principal.user)
         )
 
-    def can_complete(self, event: Event, user: User | None) -> bool:
+    def can_complete(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
             event.is_published
-            and self._is_owner_or_admin(event, user)
+            and self._is_owner_or_admin(event, principal.user)
         )
 
     @staticmethod
-    def visible_statuses(user: User | None) -> set[EventStatusCode]:
-        if user is None:
+    def visible_statuses(principal: Principal) -> set[EventStatusCode]:
+        if principal.user is None:
             return {
                EventStatusCode.PUBLISHED,
                EventStatusCode.COMPLETED,
             }
-        elif user.is_admin or user.is_organizer:
+        elif principal.is_admin or principal.is_organizer:
             return {
                 EventStatusCode.DRAFT,
                 EventStatusCode.PUBLISHED,
@@ -77,12 +84,12 @@ class EventPolicy:
 
 
     @staticmethod
-    def visible_audiences(user: User | None) -> set[EventAudience]:
-        if user is None:
+    def visible_audiences(principal: Principal) -> set[EventAudience]:
+        if principal.user is None:
             return {
                 EventAudience.PUBLIC,
             }
-        elif user.is_admin or user.is_organizer or user.is_vip:
+        elif principal.is_admin or principal.is_organizer or principal.is_vip:
             return {
                 EventAudience.PUBLIC,
                 EventAudience.MEMBERS,
@@ -96,11 +103,8 @@ class EventPolicy:
 
 
     @staticmethod
-    def _is_owner_or_admin(event: Event, user: User | None) -> bool:
+    def _is_owner_or_admin(event: Event, user: User) -> bool:
         return (
-            user is not None
-            and (
-                user.is_admin
-                or event.created_by == user.id
-            )
+            user.is_admin
+            or event.created_by == user.id
         )

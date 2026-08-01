@@ -5,7 +5,6 @@ from app.core.database.repositories.codable_repository import CodableRepository
 from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.exceptions.event_status_exceptions import DefaultEventStatusNotFoundError, \
     EventStatusNotFoundError
-from app.features.events.models import event_status
 from app.features.events.models.event_status import EventStatus
 
 

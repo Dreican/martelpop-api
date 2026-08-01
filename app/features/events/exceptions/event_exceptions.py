@@ -1,8 +1,3 @@
-from typing import Any
-from uuid import UUID
-
-from fastapi import status
-from app.core.exceptions.base import ApplicationError
 from app.core.exceptions.not_found import NotFoundError
 
 

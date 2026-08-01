@@ -1,24 +1,21 @@
 import logging
 from datetime import datetime, UTC
-from typing import Collection
 from uuid import UUID
 
-from sqlalchemy import select, or_, update
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.database.mixin.soft_delete import SoftDeleteMixin
 from app.core.database.repositories.sluggable_repository import SluggableRepository
 from app.core.pagination.page import Page
 from app.features.events.dto.event_search_request import EventSearchRequest
+from app.features.events.enums.event_audience import EventAudience
 from app.features.events.enums.event_sort import EventSort
 from app.features.events.enums.event_status_code import EventStatusCode
-from app.features.events.enums.event_audience import EventAudience
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
 from app.features.events.models.event_status import EventStatus
-from app.features.users.models.user import User
 
 logger = logging.getLogger(__name__)
 

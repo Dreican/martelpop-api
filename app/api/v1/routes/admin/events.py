@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, status, Depends
 
 from app.features.auth.dependencies.current_principal import CurrentPrincipalDep
-from app.features.auth.dependencies.require_permissions import require_permission, authenticated_permission
+from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.events.dependencies.services import EventServiceDep

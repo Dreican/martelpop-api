@@ -1,15 +1,12 @@
-from typing import Annotated
-
 from fastapi import Depends
 
 from app.features.auth.dependencies.authorization import AuthorizationServiceDep
-from app.features.auth.dependencies.current_principal import CurrentPrincipalDep, AuthenticatedPrincipalDep, \
-    unauthorized
+from app.features.auth.dependencies.current_principal import CurrentPrincipalDep, unauthorized
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 
 
-class RequirePermission:
+class PermissionDependency:
     def __init__(self, *permissions: PermissionCode):
         self._permissions = frozenset(permissions)
 
@@ -18,17 +15,8 @@ class RequirePermission:
         return principal
 
 
-def require_permission(*permissions: PermissionCode):
-    return Annotated[
-        Principal,
-        Depends(RequirePermission(*permissions)),
-    ]
 
-
-class RequireAuthenticatedPermission:
-
-    def __init__(self, *permissions: PermissionCode):
-        self._permissions = frozenset(permissions)
+class AuthenticatedPermissionDependency(PermissionDependency):
 
     async def __call__(
         self,
@@ -36,35 +24,20 @@ class RequireAuthenticatedPermission:
         authorization: AuthorizationServiceDep,
     ) -> AuthenticatedPrincipal:
 
+        principal = await super().__call__(principal, authorization)
+
         if principal.user is None:
             unauthorized("Authentication required.")
 
-        await authorization.require_all_permissions(
-            principal,
-            self._permissions,
-        )
+        return principal.require_authenticated()
 
-        return AuthenticatedPrincipal(
-            user=principal.user,
-            role=principal.role,
-            permissions=principal.permissions,
-        )
-
-
-
-def require_authenticated_permission(*permissions: PermissionCode):
-    return Annotated[
-        AuthenticatedPrincipal,
-        Depends(RequireAuthenticatedPermission(*permissions))
-    ]
-
-
-def authenticated_permission(*permissions: PermissionCode):
-    return Depends(
-        RequireAuthenticatedPermission(*permissions)
-    )
 
 def permission(*permissions: PermissionCode):
     return Depends(
-        RequirePermission(*permissions)
+        PermissionDependency(*permissions)
+    )
+
+def authenticated_permission(*permissions: PermissionCode):
+    return Depends(
+        AuthenticatedPermissionDependency(*permissions)
     )

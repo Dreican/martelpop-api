@@ -1,7 +1,5 @@
-from email import policy
 from typing import Annotated
 
-from dns.dnssec import Policy
 from fastapi import Depends
 
 from app.core.dependencies.database import SessionDep

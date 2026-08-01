@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
+from app.features.auth.dependencies.current_principal import unauthorized
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.enums.role_code import RoleCode
 from app.features.auth.models.role import Role
@@ -47,6 +48,14 @@ class Principal:
     @property
     def is_organizer(self) -> bool:
         return self.role.code == RoleCode.ORGANIZER
+
+    def require_authenticated(self) -> AuthenticatedPrincipal:
+        if not self.is_authenticated:
+            unauthorized("Authentication required.")
+
+        assert self.user is not None
+
+        return AuthenticatedPrincipal(self.user, self.role, self.permissions)
 
 
 @dataclass(frozen=True, slots=True)

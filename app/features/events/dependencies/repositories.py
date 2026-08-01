@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.dependencies.database import SessionDep
-from app.features.events.repositories.event_repository import EventRepository
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository
+from app.features.events.repositories.event_repository import EventRepository
 from app.features.events.repositories.event_status_repository import EventStatusRepository
 
 
