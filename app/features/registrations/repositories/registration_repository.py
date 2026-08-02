@@ -4,6 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database.repositories.base_repository import BaseRepository
+from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.events.models.event import Event
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import RegistrationNotFoundError
 from app.features.registrations.models.registration import Registration
@@ -20,3 +22,19 @@ class RegistrationRepository(BaseRepository[Registration]):
         )
 
         return list(await self._session.scalars(stmt))
+
+    async def exists(self, event_id: UUID, user_id: UUID) -> bool:
+        stmt = (
+            select(1)
+            .where(Registration.event_id == event_id)
+            .where(Registration.user_id == user_id)
+            .exists()
+        )
+
+        already_registered = await self._session.scalar(select(stmt))
+
+        return bool(already_registered)
+
+    async def cancel(self, registration: Registration) -> None:
+
+        registration.status = RegistrationStatus.CANCELLED

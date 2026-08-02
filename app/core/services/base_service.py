@@ -21,3 +21,7 @@ class BaseService:
     async def _refresh(self, entity: T) -> T:
         await self._session.refresh(entity)
         return entity
+
+    async def _save(self, entity: T) -> T:
+        await self._flush()
+        return await self._refresh(entity)

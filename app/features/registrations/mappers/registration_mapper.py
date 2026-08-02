@@ -1,5 +1,3 @@
-from app.features.auth.security.principal import AuthenticatedPrincipal
-from app.features.events.dto.event_response import EventResponse
 from app.features.events.mappers.event_mapper import EventMapper
 from app.features.registrations.dto.registration_response import RegistrationResponse
 from app.features.registrations.models.registration import Registration

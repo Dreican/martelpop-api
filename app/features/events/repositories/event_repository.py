@@ -26,6 +26,22 @@ class EventRepository(SluggableRepository[Event]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model=Event, not_found_exception=EventNotFoundError)
 
+    async def required_by_id_with_registration(self, entity_id: UUID) -> Event:
+        stmt = (
+            select(Event)
+            .options(selectinload(Event.registrations))
+            .where(Event.id == entity_id)
+        )
+
+        event = await self._session.scalar(stmt)
+
+        if event is None:
+            raise self._not_found_exception(event_id=entity_id)
+
+        assert event is not None
+
+        return event
+
     async def get_by_id_with_activity(self, entity_id: UUID) -> Event | None:
         stmt = (
             select(Event)

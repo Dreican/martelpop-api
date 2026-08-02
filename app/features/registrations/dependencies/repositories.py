@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi.params import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies.database import SessionDep
 from app.features.registrations.repositories.registration_repository import RegistrationRepository
