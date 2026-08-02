@@ -102,7 +102,11 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     @property
     def is_full(self) -> bool:
-        return self.capacity is not None and (self.capacity <= len(self.registrations))
+        return self.capacity is not None and (self.remaining_capacity <= 0)
+
+    @property
+    def remaining_capacity(self) -> int:
+        return self.capacity - len(self.registrations)
 
     @property
     def is_waitlisted(self) -> bool:
@@ -127,6 +131,10 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     @property
     def is_vip_event(self) -> bool:
         return self.audience == EventAudience.VIP
+
+    @property
+    def is_registration_open(self) -> bool:
+        return self.is_published and not self.is_full
 
     def update(self, title: str, description: str, location: str, start_at: datetime, end_at: datetime, capacity: int):
         self.title = title
@@ -154,8 +162,8 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         self.cancelled_at = None
         self.completed_at = None
 
-    def delete(self) -> None:
-        self.cancel(self.status)
+    def delete(self, event_status: EventStatus) -> None:
+        self.cancel(event_status)
         self.deleted_at = datetime.now(UTC)
 
 

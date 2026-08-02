@@ -29,23 +29,26 @@ class EventRepository(SluggableRepository[Event]):
     async def get_by_id_with_activity(self, entity_id: UUID) -> Event | None:
         stmt = (
             select(Event)
-            .options(selectinload(ActivityType.events))
+            .options(selectinload(Event.activity_type))
             .where(ActivityType.id == entity_id)
         )
         return await self._session.scalar(stmt)
 
     async def get_by_activity_type(self, activity_type_id: UUID) -> list[Event]:
         stmt = (
-            select(Event).where(Event.activity_type.id == activity_type_id)
+            select(Event)
+            .where(Event.activity_type_id == activity_type_id)
         )
 
         return list(await self._session.scalars(stmt))
 
     async def get_upcoming(self) -> list[Event]:
         stmt = (
-            select(Event).where(
+            select(Event)
+            .join(Event.status)
+            .where(
                 Event.start_at > datetime.now(UTC),
-                Event.status == EventStatusCode.PUBLISHED
+                EventStatus.code == EventStatusCode.PUBLISHED
             )
         )
 
@@ -60,7 +63,7 @@ class EventRepository(SluggableRepository[Event]):
     async def search(self, request: EventSearchRequest, access: EventAccess) -> Page[Event]:
         stmt = select(Event)
 
-        stmt = self._apply_access(stmt, request, access)
+        stmt = self._apply_access_filter(stmt, request, access)
         stmt = self._apply_filters(stmt, request)
         stmt = self._apply_sort(stmt, request.sort)
 
@@ -96,51 +99,41 @@ class EventRepository(SluggableRepository[Event]):
             stmt = stmt.where(Event.end_at <= request.ends_before)
         return stmt
 
-    def _apply_access(
-            self,
+    @staticmethod
+    def _apply_access_filter(
             stmt: Select[tuple[Any]],
             request: EventSearchRequest,
             access: EventAccess
     ) -> Select[tuple[Any]]:
 
-        if access.include_deleted:
-            stmt = stmt.where(Event.deleted_at.is_not_(None))
+        if not access.include_deleted:
+            stmt = stmt.where(Event.deleted_at.is_(None))
 
-        statuses = self._allowed_statuses(access, request)
-
-        stmt = stmt.join(Event.status).where(EventStatus.code.in_(statuses))
+        stmt = (stmt.join(Event.status).where(
+            EventStatus.code.in_(access.allowed_statuses(request.statuses))
+        ))
         stmt = stmt.where(Event.audience.in_(access.audiences))
         return stmt
 
     @staticmethod
     def _apply_sort(stmt: Select[tuple[Any]], sort: EventSort) -> Select[tuple[Any]]:
-        match sort:
-            case EventSort.START_DATE_ASC:
-                stmt = stmt.order_by(Event.start_at.asc())
-            case EventSort.START_DATE_DESC:
-                stmt = stmt.order_by(Event.start_at.desc())
-            case EventSort.END_DATE_ASC:
-                stmt = stmt.order_by(Event.end_at.asc())
-            case EventSort.END_DATE_DESC:
-                stmt = stmt.order_by(Event.end_at.desc())
-            case EventSort.TITLE_ASC:
-                stmt = stmt.order_by(Event.title.asc())
-            case EventSort.TITLE_DESC:
-                stmt = stmt.order_by(Event.title.desc())
-            case EventSort.CREATE_DATE_ASC:
-                stmt = stmt.order_by(Event.created_at.asc())
-            case EventSort.CREATE_DATE_DESC:
-                stmt = stmt.order_by(Event.created_at.desc())
-            case _:
-                stmt = stmt.order_by(Event.start_at.desc())
+        sorts = {
+            EventSort.START_DATE_ASC: Event.start_at.asc(),
+            EventSort.START_DATE_DESC: Event.start_at.desc(),
+            EventSort.END_DATE_ASC: Event.end_at.asc(),
+            EventSort.END_DATE_DESC: Event.end_at.desc(),
+            EventSort.TITLE_ASC: Event.title.asc(),
+            EventSort.TITLE_DESC: Event.title.desc(),
+            EventSort.CREATE_DATE_ASC: Event.created_at.asc(),
+            EventSort.CREATE_DATE_DESC: Event.created_at.desc(),
+        }
+
+        stmt = stmt.order_by(
+            sorts.get(
+                sort,
+                Event.start_at.desc(),
+            )
+        )
 
         return stmt
 
-    @staticmethod
-    def _allowed_statuses(access: EventAccess, request: EventSearchRequest) -> set[EventStatusCode]:
-        statuses = set(access.statuses)
-
-        if request.statuses is not None:
-            statuses = statuses.intersection(request.statuses)
-
-        return statuses

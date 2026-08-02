@@ -15,6 +15,7 @@ from app.features.events.dto.event_search_request import EventSearchRequest
 from app.features.events.dto.event_update_request import EventUpdateRequest
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
 from app.features.events.filters.event_access_filter import EventAccessFilter
+from app.features.events.mappers.event_mapper import EventMapper
 from app.features.events.models.event import Event
 from app.features.events.policies.event_policy import EventPolicy
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository
@@ -65,7 +66,7 @@ class EventService(BaseService):
         await self._event_repo.add(event)
         await self._flush()
         await self._refresh(event)
-        return EventResponse.model_validate(event)
+        return EventMapper.to_response(event)
 
 
     async def get_event(self, event_id: UUID, principal: Principal) -> EventResponse:
@@ -73,14 +74,14 @@ class EventService(BaseService):
         if not self._policy.can_view(event, principal):
             raise EventNotFoundError(event_id=event_id)
 
-        return EventResponse.model_validate(event)
+        return EventMapper.to_response(event)
 
     async def get_event_by_slug(self, event_slug: str, principal: Principal) -> EventResponse:
         event = await self._event_repo.required_by_slug(event_slug)
         if not self._policy.can_view(event, principal):
             raise EventNotFoundError(event_slug=event_slug)
 
-        return EventResponse.model_validate(event)
+        return EventMapper.to_response(event)
 
 
     async def list_events(self, request: EventSearchRequest, principal: Principal) -> Page[EventResponse]:
@@ -88,7 +89,7 @@ class EventService(BaseService):
         # access = replace(access, include_deleted=True)
         page = await self._event_repo.search(request, access)
 
-        return page.map(EventResponse.model_validate)
+        return page.map(EventMapper.to_response)
 
     async def update_event(self, event_id: UUID, request: EventUpdateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
@@ -116,7 +117,8 @@ class EventService(BaseService):
         if not self._policy.can_delete(event, principal):
             raise PermissionDeniedError(permissions={PermissionCode.EVENT_DELETE}, user=principal.user.display_name)
 
-        event.delete()
+        status = await self._event_status_repo.get_cancelled()
+        event.delete(status)
 
         return await self._persist(event)
 
@@ -161,7 +163,7 @@ class EventService(BaseService):
         await self._commit()
         await self._refresh(event)
 
-        return EventResponse.model_validate(event)
+        return EventMapper.to_response(event)
 
     async def _get_publishable_event(self, event_id: UUID, principal: AuthenticatedPrincipal) -> Event:
         event = await self._event_repo.get_required(event_id)

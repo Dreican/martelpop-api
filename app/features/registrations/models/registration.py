@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.helpers import Helper
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.registrations.enums.registration_status import RegistrationStatus
 
 if TYPE_CHECKING:
@@ -69,3 +70,7 @@ class Registration(Base):
     @property
     def is_cancel(self) -> bool:
         return self.cancelled_at is not None
+
+
+    def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
+        return self.user_id == principal.user.id
