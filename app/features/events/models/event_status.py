@@ -25,7 +25,7 @@ class EventStatus(Base):
 
     is_default: Mapped[bool] = mapped_column(default=False)
     sort_order: Mapped[int] = mapped_column(default=0)
-    is_bookable: Mapped[bool] = mapped_column(default=True)
+    is_bookable: Mapped[bool] = mapped_column(default=False)
     allow_edit: Mapped[bool] = mapped_column(default=True)
 
     events: Mapped[list["Event"]] = relationship(
