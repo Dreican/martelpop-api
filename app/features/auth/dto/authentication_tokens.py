@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.features.auth.dto.token_response import TokenResponse
+from app.features.auth.dto.responses.token_response import TokenResponse
 from app.features.auth.models.refresh_token import RefreshToken
 
 

@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from app.core.database.repositories.base_repository import BaseRepository
 from app.core.pagination.page import Page
 from app.features.events.models.event import Event
-from app.features.registrations.dto.registration_search_request import RegistrationSearchRequest
+from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
 from app.features.registrations.enums.registration_sort import RegistrationSort
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import RegistrationNotFoundError

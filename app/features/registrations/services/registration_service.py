@@ -7,11 +7,11 @@ from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.events.repositories.event_repository import EventRepository
-from app.features.registrations.dto.cancel_request import CancelRequest
-from app.features.registrations.dto.registration_create_request import RegistrationRequest
-from app.features.registrations.dto.registration_response import RegistrationResponse
-from app.features.registrations.dto.registration_search_request import RegistrationSearchRequest
-from app.features.registrations.dto.registration_update_request import RegistrationUpdateRequest
+from app.features.registrations.dto.requests.cancel_request import CancelRequest
+from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
+from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
+from app.features.registrations.dto.requests.registration_update_request import RegistrationUpdateRequest
+from app.features.registrations.dto.responses.registration_response import RegistrationResponse
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import RegistrationClosedError, EventFullError, \
     AlreadyRegisteredError

@@ -4,7 +4,6 @@ from fastapi import Depends
 
 from app.core.dependencies.database import SessionDep
 from app.features.storage.dependencies.repositories import StorageRepositoryDep
-from app.features.storage.repositories.storage_repository import StorageRepository
 from app.features.storage.services.sotrage_service import StorageService
 
 
