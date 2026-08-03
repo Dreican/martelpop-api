@@ -14,14 +14,16 @@ class RegistrationPolicy:
 
         return True
 
-    def can_edit(self, registration: Registration, principal: AuthenticatedPrincipal) -> bool:
-        return registration.is_owner(principal)
 
     def can_cancel(self, registration: Registration, principal: AuthenticatedPrincipal) -> bool:
         return (
                 not registration.is_cancelled
                 and self._is_owner_or_organizer(registration, principal)
         )
+
+    @staticmethod
+    def can_update(registration: Registration, principal: AuthenticatedPrincipal) -> bool:
+        return registration.is_owner(principal)
 
     @staticmethod
     def can_manage(event: Event, principal: AuthenticatedPrincipal) -> bool:

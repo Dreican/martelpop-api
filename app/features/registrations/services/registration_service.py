@@ -9,6 +9,7 @@ from app.features.events.repositories.event_repository import EventRepository
 from app.features.registrations.dto.cancel_request import CancelRequest
 from app.features.registrations.dto.registration_create_request import RegistrationRequest
 from app.features.registrations.dto.registration_response import RegistrationResponse
+from app.features.registrations.dto.registration_update_request import RegistrationUpdateRequest
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import RegistrationClosedError, EventFullError, \
     AlreadyRegisteredError
@@ -64,19 +65,23 @@ class RegistrationService(BaseService):
         registration = await self._registrations.get_required(request.registration_id)
 
         if not self._policy.can_cancel(registration, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_CANCEL},
-                                        user=principal.user.display_name)
+            raise PermissionDeniedError(
+                permissions={PermissionCode.REGISTRATION_CANCEL},
+                user=principal.user.display_name
+            )
 
         registration.cancel()
 
         return await self._persist(registration)
 
-    async def update(self, request: UpdateRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
+    async def update(self, request: RegistrationUpdateRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
         registration = await self._registrations.get_required(request.registration_id)
 
         if not self._policy.can_update(registration, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_UPDATE},
-                                        user=principal.user.display_name)
+            raise PermissionDeniedError(
+                permissions={PermissionCode.REGISTRATION_CREATE},
+                user=principal.user.display_name
+            )
 
         registration.note = request.note
 
