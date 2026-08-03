@@ -6,9 +6,9 @@ from app.features.auth.dependencies.require_permissions import authenticated_per
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.events.dependencies.services import EventServiceDep
-from app.features.events.dto.event_create_request import EventCreateRequest
-from app.features.events.dto.event_response import EventResponse
-from app.features.events.dto.event_update_request import EventUpdateRequest
+from app.features.events.dto.requests.event_create_request import EventCreateRequest
+from app.features.events.dto.responses.event_response import EventResponse
+from app.features.events.dto.requests.event_update_request import EventUpdateRequest
 
 router = APIRouter(prefix="/events", tags=["Admin Events"])
 

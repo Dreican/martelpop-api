@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.features.events.dto.event_response import EventResponse
+from app.features.events.dto.responses.event_response import EventResponse
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.users.dto.user_response import UserResponse
 

@@ -1,5 +1,5 @@
 from app.core.factories.response_factory import ResponseFactory
-from app.features.events.dto.activity_type_response import ActivityTypeResponse
+from app.features.events.dto.responses.activity_type_response import ActivityTypeResponse
 from app.features.events.models.activity_type import ActivityType
 from app.features.storage.services.sotrage_service import StorageService
 

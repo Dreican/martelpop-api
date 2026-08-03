@@ -5,8 +5,8 @@ from app.features.auth.dependencies.require_permissions import permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import Principal
 from app.features.events.dependencies.services import EventServiceDep
-from app.features.events.dto.event_response import EventResponse
-from app.features.events.dto.event_search_request import EventSearchRequest
+from app.features.events.dto.responses.event_response import EventResponse
+from app.features.events.dto.requests.event_search_request import EventSearchRequest
 
 router = APIRouter(
     prefix="/events",

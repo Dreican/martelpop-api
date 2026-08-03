@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database.repositories.sluggable_repository import SluggableRepository
 from app.core.pagination.page import Page
-from app.features.events.dto.event_search_request import EventSearchRequest
+from app.features.events.dto.requests.event_search_request import EventSearchRequest
 from app.features.events.enums.event_audience import EventAudience
 from app.features.events.enums.event_sort import EventSort
 from app.features.events.enums.event_status_code import EventStatusCode
@@ -53,6 +53,7 @@ class EventRepository(SluggableRepository[Event]):
     async def get_by_activity_type(self, activity_type_id: UUID) -> list[Event]:
         stmt = (
             select(Event)
+            .options(selectinload(Event.activity_type))
             .where(Event.activity_type_id == activity_type_id)
         )
 
@@ -62,6 +63,7 @@ class EventRepository(SluggableRepository[Event]):
         stmt = (
             select(Event)
             .join(Event.status)
+            .options(selectinload(Event.activity_type))
             .where(
                 Event.start_at > datetime.now(UTC),
                 EventStatus.code == EventStatusCode.PUBLISHED

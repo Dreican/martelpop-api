@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.features.users.dto.role_response import RoleResponse
+from app.features.auth.dto.role_summary_response import RoleSummaryResponse
 
 
 class UserResponse(BaseModel):
@@ -11,5 +11,5 @@ class UserResponse(BaseModel):
     email: str
     display_name: str
     is_active: bool
-    role: RoleResponse
+    role: RoleSummaryResponse
     avatar_url: str | None

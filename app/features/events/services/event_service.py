@@ -10,10 +10,10 @@ from app.core.services.slug_service import SlugService
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
-from app.features.events.dto.event_create_request import EventCreateRequest
-from app.features.events.dto.event_response import EventResponse
-from app.features.events.dto.event_search_request import EventSearchRequest
-from app.features.events.dto.event_update_request import EventUpdateRequest
+from app.features.events.dto.requests.event_create_request import EventCreateRequest
+from app.features.events.dto.responses.event_response import EventResponse
+from app.features.events.dto.requests.event_search_request import EventSearchRequest
+from app.features.events.dto.requests.event_update_request import EventUpdateRequest
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
 from app.features.events.factories.event_response_factory import EventResponseFactory
 from app.features.events.filters.event_access_filter import EventAccessFilter

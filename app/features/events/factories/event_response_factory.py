@@ -1,5 +1,5 @@
 from app.core.factories.response_factory import ResponseFactory
-from app.features.events.dto.event_response import EventResponse
+from app.features.events.dto.responses.event_response import EventResponse
 from app.features.events.factories.activity_type_response_factory import ActivityTypeResponseFactory
 from app.features.events.models.event import Event
 from app.features.storage.services.sotrage_service import StorageService
@@ -22,6 +22,5 @@ class EventResponseFactory(ResponseFactory[Event, EventResponse]):
 
         response.banner_url = self._storage.public_url(entity.banner_file_id)
         response.activity_type = self._activity_type_factory.create(entity.activity_type)
-        response.creator = self._users.create(entity.creator)
 
         return response

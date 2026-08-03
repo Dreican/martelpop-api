@@ -39,4 +39,4 @@ class Permission(Base):
     )
 
     def __repr__(self) -> str:
-        return f"Permissions(id={self.id!r}, name={self.name!r}, description={self.description!r})"
+        return f"Permissions(id={self.code!r}, name={self.name!r})"

@@ -1,6 +1,7 @@
 from app.features.registrations.factories.registration_mapper import RegistrationMapper
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
@@ -9,6 +10,7 @@ from app.features.events.repositories.event_repository import EventRepository
 from app.features.registrations.dto.cancel_request import CancelRequest
 from app.features.registrations.dto.registration_create_request import RegistrationRequest
 from app.features.registrations.dto.registration_response import RegistrationResponse
+from app.features.registrations.dto.registration_search_request import RegistrationSearchRequest
 from app.features.registrations.dto.registration_update_request import RegistrationUpdateRequest
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import RegistrationClosedError, EventFullError, \
@@ -86,6 +88,12 @@ class RegistrationService(BaseService):
         registration.note = request.note
 
         return await self._persist(registration)
+
+    async def get_my_registrations(self, request: RegistrationSearchRequest, principal: AuthenticatedPrincipal) -> Page[RegistrationResponse]:
+        page = await self._registrations.search_by_user(request, principal.user.id)
+
+        return self._response.create_page(page)
+
 
     async def _persist(self, registration: Registration) -> RegistrationResponse:
         await self._commit()
