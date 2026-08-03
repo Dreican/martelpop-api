@@ -12,12 +12,12 @@ class RegistrationResponseFactory(ResponseFactory[Registration, RegistrationResp
     def __init__(
             self,
             storage: StorageService,
-            event_summary_factory: EventSummaryResponseFactory,
-            user_summary_factory: UserSummaryResponseFactory
+            event_factory: EventSummaryResponseFactory,
+            user_factory: UserSummaryResponseFactory
     ):
         super().__init__(storage)
-        self._events = event_summary_factory
-        self._users = user_summary_factory
+        self._events = event_factory
+        self._users = user_factory
 
     def create(self, entity: Registration) -> RegistrationResponse:
         response = RegistrationResponse.model_validate(entity)
