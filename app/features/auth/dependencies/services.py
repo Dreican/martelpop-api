@@ -14,6 +14,7 @@ from app.features.auth.dependencies.repositories import (
 from app.features.auth.services.authentication_service import AuthenticationService
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
+from app.features.users.dependencies.factories import UserResponseFactoryDep
 from app.features.users.dependencies.repositories import UserRepositoryDep
 
 
@@ -42,7 +43,8 @@ def get_authentication_service(
         refresh_token: RefreshTokenRepositoryDep,
         password_service: PasswordServiceDep,
         jwt_service: JwtServiceDep,
-        slug_service: SlugServiceDep
+        slug_service: SlugServiceDep,
+        user_response_factory: UserResponseFactoryDep
 ) -> AuthenticationService:
     return AuthenticationService(
         session=session,
@@ -52,7 +54,8 @@ def get_authentication_service(
         password_service=password_service,
         jwt_service=jwt_service,
         refresh_token_repository=refresh_token,
-        slug_service=slug_service
+        slug_service=slug_service,
+        user_response_factory=user_response_factory
     )
 
 

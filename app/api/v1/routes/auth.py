@@ -74,5 +74,5 @@ async def logout_all(principal: AuthenticatedPrincipalDep, auth: AuthenticationS
     status_code=status.HTTP_200_OK,
     response_model=UserResponse
 )
-async def me(principal: AuthenticatedPrincipalDep) -> UserResponse:
-    return UserMapper.to_response(principal.user)
+async def me(principal: AuthenticatedPrincipalDep, auth: AuthenticationServiceDep) -> UserResponse:
+    return await auth.me(principal)

@@ -10,6 +10,5 @@ class EventStatusResponse(BaseModel):
     description: str | None
     is_default: bool
     sort_order: int
-    is_public: bool
     is_bookable: bool
     allow_edit: bool

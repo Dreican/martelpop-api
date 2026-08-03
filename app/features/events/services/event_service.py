@@ -14,6 +14,7 @@ from app.features.events.dto.event_response import EventResponse
 from app.features.events.dto.event_search_request import EventSearchRequest
 from app.features.events.dto.event_update_request import EventUpdateRequest
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
+from app.features.events.factories.event_response_factory import EventResponseFactory
 from app.features.events.filters.event_access_filter import EventAccessFilter
 from app.features.events.mappers.event_mapper import EventMapper
 from app.features.events.models.event import Event
@@ -35,7 +36,8 @@ class EventService(BaseService):
             activity_type_repository: ActivityTypeRepository,
             slug_service: SlugService,
             event_policy: EventPolicy,
-            event_filter: EventAccessFilter
+            event_access: EventAccessFilter,
+            event_response: EventResponseFactory,
     ):
         super().__init__(session)
         self._event_repo = event_repository
@@ -43,7 +45,8 @@ class EventService(BaseService):
         self._activity_type_repo = activity_type_repository
         self._slug = slug_service
         self._policy = event_policy
-        self._filter = event_filter
+        self._access = event_access
+        self._response = event_response
 
     async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         default_status = await self._event_status_repo.get_default()
@@ -66,7 +69,7 @@ class EventService(BaseService):
         await self._event_repo.add(event)
         await self._flush()
         await self._refresh(event)
-        return EventMapper.to_response(event)
+        return self._response.create(event)
 
 
     async def get_event(self, event_id: UUID, principal: Principal) -> EventResponse:
@@ -74,22 +77,22 @@ class EventService(BaseService):
         if not self._policy.can_view(event, principal):
             raise EventNotFoundError(event_id=event_id)
 
-        return EventMapper.to_response(event)
+        return self._response.create(event)
 
     async def get_event_by_slug(self, event_slug: str, principal: Principal) -> EventResponse:
         event = await self._event_repo.required_by_slug(event_slug)
         if not self._policy.can_view(event, principal):
             raise EventNotFoundError(event_slug=event_slug)
 
-        return EventMapper.to_response(event)
+        return self._response.create(event)
 
 
     async def list_events(self, request: EventSearchRequest, principal: Principal) -> Page[EventResponse]:
-        access = self._filter.build(principal)
+        access = self._access.build(principal)
         # access = replace(access, include_deleted=True)
         page = await self._event_repo.search(request, access)
 
-        return page.map(EventMapper.to_response)
+        return page.map(self._response.create)
 
     async def update_event(self, event_id: UUID, request: EventUpdateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
@@ -163,7 +166,7 @@ class EventService(BaseService):
         await self._commit()
         await self._refresh(event)
 
-        return EventMapper.to_response(event)
+        return self._response.create(event)
 
     async def _get_publishable_event(self, event_id: UUID, principal: AuthenticatedPrincipal) -> Event:
         event = await self._event_repo.get_required(event_id)

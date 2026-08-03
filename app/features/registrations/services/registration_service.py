@@ -11,7 +11,7 @@ from app.features.registrations.dto.registration_response import RegistrationRes
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import RegistrationClosedError, EventFullError, \
     AlreadyRegisteredError
-from app.features.registrations.mappers.registration_mapper import RegistrationMapper
+from app.features.registrations.factories.registration_mapper import RegistrationMapper
 from app.features.registrations.models.registration import Registration
 from app.features.registrations.policies.registration_policy import RegistrationPolicy
 from app.features.registrations.repositories.registration_repository import RegistrationRepository

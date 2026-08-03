@@ -22,9 +22,12 @@ from app.features.auth.models.refresh_token import RefreshToken
 from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
 from app.features.auth.repositories.refresh_token_repository import RefreshTokenRepository
 from app.features.auth.repositories.role_repository import RoleRepository
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
+from app.features.users.dto.user_response import UserResponse
 from app.features.users.enums.user_status import UserStatus
+from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
 
@@ -42,7 +45,8 @@ class AuthenticationService(BaseService):
             password_service: PasswordService,
             jwt_service: JwtService,
             refresh_token_repository: RefreshTokenRepository,
-            slug_service: SlugService
+            slug_service: SlugService,
+            user_response_factory: UserResponseFactory
     ) -> None:
         super().__init__(session)
         self._users = user_repository
@@ -52,6 +56,7 @@ class AuthenticationService(BaseService):
         self._jwt = jwt_service
         self._refresh_tokens = refresh_token_repository
         self._slug = slug_service
+        self._user_response = user_response_factory
 
     async def register(self, request: RegisterRequest, session: SessionInfo) -> TokenResponse:
         try:
@@ -163,6 +168,9 @@ class AuthenticationService(BaseService):
             count,
             extra={"user_id": user_id},
         )
+
+    async def me(self, principal: AuthenticatedPrincipal) -> UserResponse:
+        return self._user_response.create(principal.user)
 
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)

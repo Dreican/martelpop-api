@@ -19,7 +19,8 @@ class EventResponse(BaseModel):
     start_date: datetime | None
     end_date: datetime | None
     capacity: int | None
-    activity_type_id: ActivityTypeResponse
+    banner_url: str | None
+    activity_type: ActivityTypeResponse
     creator: UserResponse
     status: EventStatusResponse
     is_published: bool

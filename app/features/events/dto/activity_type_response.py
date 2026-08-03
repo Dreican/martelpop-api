@@ -7,7 +7,7 @@ class ActivityTypeResponse(BaseModel):
     model_config = dict(from_attributes=True)
     id: UUID
     name: str
-    description: str | None
     slug: str
+    description: str | None
     icon_url: str | None
     color: str | None

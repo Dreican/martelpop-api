@@ -23,7 +23,7 @@ class EventMapper:
             end_date=event.end_at,
             capacity=event.capacity,
             location=event.location,
-            activity_type_id=ActivityTypeMapper.to_response(event.activity_type),
+            activity_type=ActivityTypeMapper.to_response(event.activity_type),
             creator=UserMapper.to_response(event.creator),
             status=EventStatusMapper.to_response(event.status),
             published_at=event.published_at,

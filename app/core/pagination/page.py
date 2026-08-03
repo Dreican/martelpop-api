@@ -14,7 +14,6 @@ class Page(BaseModel, Generic[T]):
 
     total: int
 
-
     @computed_field
     @property
     def page_count(self) -> int:
