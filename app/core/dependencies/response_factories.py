@@ -43,7 +43,7 @@ def get_registration_response_factory(
         event_factory: EventResponseFactoryDep,
         user_factory: UserResponseFactoryDep
 ) -> RegistrationResponseFactory:
-    return RegistrationResponseFactory(storage=storage, event_factory=event_factory, user_factory=user_factory)
+    return RegistrationResponseFactory(storage=storage, event_summary_factory=event_factory, user_summary_factory=user_factory)
 
 
 RegistrationResponseFactoryDep = Annotated[RegistrationResponseFactory, Depends(get_registration_response_factory)]
