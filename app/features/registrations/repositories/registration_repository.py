@@ -4,8 +4,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database.repositories.base_repository import BaseRepository
-from app.features.auth.security.principal import AuthenticatedPrincipal
-from app.features.events.models.event import Event
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import RegistrationNotFoundError
 from app.features.registrations.models.registration import Registration
@@ -14,7 +12,6 @@ from app.features.registrations.models.registration import Registration
 class RegistrationRepository(BaseRepository[Registration]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model=Registration, not_found_exception=RegistrationNotFoundError)
-
 
     async def get_by_status(self, registration_status: RegistrationStatus) -> list[Registration]:
         stmt = (
@@ -36,5 +33,4 @@ class RegistrationRepository(BaseRepository[Registration]):
         return bool(already_registered)
 
     async def cancel(self, registration: Registration) -> None:
-
         registration.status = RegistrationStatus.CANCELLED

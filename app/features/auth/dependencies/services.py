@@ -5,6 +5,7 @@ from fastapi import Depends
 
 from app.core.config.settings import get_settings
 from app.core.dependencies.database import SessionDep
+from app.core.dependencies.response_factories import UserResponseFactoryDep
 from app.core.dependencies.slug import SlugServiceDep
 from app.features.auth.dependencies.repositories import (
     RoleRepositoryDep,
@@ -14,7 +15,6 @@ from app.features.auth.dependencies.repositories import (
 from app.features.auth.services.authentication_service import AuthenticationService
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
-from app.features.users.dependencies.factories import UserResponseFactoryDep
 from app.features.users.dependencies.repositories import UserRepositoryDep
 
 

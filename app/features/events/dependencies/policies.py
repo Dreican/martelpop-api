@@ -2,13 +2,13 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.features.events.filters.event_access import EventAccess
 from app.features.events.filters.event_access_filter import EventAccessFilter
 from app.features.events.policies.event_policy import EventPolicy
 
 
 def get_event_policy() -> EventPolicy:
     return EventPolicy()
+
 
 def get_event_access() -> EventAccessFilter:
     return EventAccessFilter()

@@ -1,10 +1,7 @@
-from typing import Collection
-
-from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
+from app.features.auth.security.principal import Principal
 from app.features.events.enums.event_audience import EventAudience
 from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.filters.event_access import EventAccess
-from app.features.events.models.event import Event
 
 
 class EventAccessFilter:

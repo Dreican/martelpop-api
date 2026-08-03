@@ -24,7 +24,6 @@ class EventAccess:
     def can_view_deleted(self) -> bool:
         return self.include_deleted
 
-
     def allowed_statuses(self, requested: Collection[EventStatusCode] | None) -> set[EventStatusCode]:
         statuses = set(self.statuses)
 

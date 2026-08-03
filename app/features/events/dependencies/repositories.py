@@ -19,6 +19,7 @@ def get_activity_type_repository(session: SessionDep) -> ActivityTypeRepository:
 def get_event_status_repository(session: SessionDep) -> EventStatusRepository:
     return EventStatusRepository(session=session)
 
+
 EventRepositoryDep = Annotated[EventRepository, Depends(get_event_repository)]
 ActivityTypeRepositoryDep = Annotated[ActivityTypeRepository, Depends(get_activity_type_repository)]
 EventStatusRepositoryDep = Annotated[EventStatusRepository, Depends(get_event_status_repository)]

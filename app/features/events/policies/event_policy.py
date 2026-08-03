@@ -1,9 +1,7 @@
-from app.features.auth.enums.role_code import RoleCode
 from app.features.auth.security.principal import Principal, AuthenticatedPrincipal
 from app.features.events.enums.event_audience import EventAudience
 from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.models.event import Event
-from app.features.users.models.user import User
 
 
 class EventPolicy:
@@ -15,8 +13,8 @@ class EventPolicy:
                 return False
 
             return (
-                self._is_owner_or_admin(event, principal.require_authenticated())
-                or principal.is_organizer
+                    self._is_owner_or_admin(event, principal.require_authenticated())
+                    or principal.is_organizer
             )
 
         match event.audience:
@@ -28,41 +26,40 @@ class EventPolicy:
 
             case EventAudience.VIP:
                 return (
-                    principal.user is not None
-                    and principal.is_vip
+                        principal.user is not None
+                        and principal.is_vip
                 )
-
 
     def can_edit(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
-            event.status.allow_edit
-            and self._is_owner_or_admin(event, principal)
+                event.status.allow_edit
+                and self._is_owner_or_admin(event, principal)
         )
 
     def can_delete(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
-            event.status.code is not EventStatusCode.COMPLETED
-            and self._is_owner_or_admin(event, principal)
+                event.status.code is not EventStatusCode.COMPLETED
+                and self._is_owner_or_admin(event, principal)
         )
 
     def can_cancel(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
-            not event.is_published
-            and self._is_owner_or_admin(event, principal)
+                not event.is_published
+                and self._is_owner_or_admin(event, principal)
         )
 
     def can_complete(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
-            event.is_published
-            and self._is_owner_or_admin(event, principal)
+                event.is_published
+                and self._is_owner_or_admin(event, principal)
         )
 
     @staticmethod
     def visible_statuses(principal: Principal) -> set[EventStatusCode]:
         if principal.user is None:
             return {
-               EventStatusCode.PUBLISHED,
-               EventStatusCode.COMPLETED,
+                EventStatusCode.PUBLISHED,
+                EventStatusCode.COMPLETED,
             }
         elif principal.is_admin or principal.is_organizer:
             return {
@@ -77,7 +74,6 @@ class EventPolicy:
             EventStatusCode.COMPLETED,
             EventStatusCode.CANCELLED,
         }
-
 
     @staticmethod
     def visible_audiences(principal: Principal) -> set[EventAudience]:
@@ -96,7 +92,6 @@ class EventPolicy:
             EventAudience.PUBLIC,
             EventAudience.MEMBERS,
         }
-
 
     @staticmethod
     def _is_owner_or_admin(event: Event, principal: AuthenticatedPrincipal) -> bool:

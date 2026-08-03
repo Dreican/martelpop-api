@@ -3,15 +3,14 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.dependencies.database import SessionDep
+from app.core.dependencies.response_factories import EventResponseFactoryDep
 from app.core.dependencies.slug import SlugServiceDep
-from app.features.events.dependencies.factories import EventResponseFactoryDep
 from app.features.events.dependencies.policies import EventPolicyDep, EventAccessFilterDep
 from app.features.events.dependencies.repositories import (
     EventRepositoryDep,
     ActivityTypeRepositoryDep,
     EventStatusRepositoryDep
 )
-from app.features.events.filters.event_access_filter import EventAccessFilter
 from app.features.events.services.event_service import EventService
 
 

@@ -10,5 +10,4 @@ def get_registration_repository(session: SessionDep) -> RegistrationRepository:
     return RegistrationRepository(session=session)
 
 
-
 RegistrationRepositoryDep = Annotated[RegistrationRepository, Depends(get_registration_repository)]

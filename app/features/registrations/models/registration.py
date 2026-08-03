@@ -70,10 +70,8 @@ class Registration(Base):
     def is_cancelled(self) -> bool:
         return self.cancelled_at is not None
 
-
     def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
         return self.user_id == principal.user.id
-
 
     def cancel(self):
         self.cancelled_at = datetime.now()

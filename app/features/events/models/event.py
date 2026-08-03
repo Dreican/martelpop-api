@@ -170,6 +170,5 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         self.cancel(event_status)
         self.deleted_at = datetime.now(UTC)
 
-
     def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
         return self.created_by == principal.user.id

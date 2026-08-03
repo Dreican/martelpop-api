@@ -1,6 +1,7 @@
 import logging
 from uuid import UUID
 
+from app.features.events.mappers.event_mapper import EventMapper
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination.page import Page
@@ -16,13 +17,11 @@ from app.features.events.dto.event_update_request import EventUpdateRequest
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
 from app.features.events.factories.event_response_factory import EventResponseFactory
 from app.features.events.filters.event_access_filter import EventAccessFilter
-from app.features.events.mappers.event_mapper import EventMapper
 from app.features.events.models.event import Event
 from app.features.events.policies.event_policy import EventPolicy
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository
 from app.features.events.repositories.event_repository import EventRepository
 from app.features.events.repositories.event_status_repository import EventStatusRepository
-from app.features.users.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +70,6 @@ class EventService(BaseService):
         await self._refresh(event)
         return self._response.create(event)
 
-
     async def get_event(self, event_id: UUID, principal: Principal) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
         if not self._policy.can_view(event, principal):
@@ -86,7 +84,6 @@ class EventService(BaseService):
 
         return self._response.create(event)
 
-
     async def list_events(self, request: EventSearchRequest, principal: Principal) -> Page[EventResponse]:
         access = self._access.build(principal)
         # access = replace(access, include_deleted=True)
@@ -94,7 +91,8 @@ class EventService(BaseService):
 
         return page.map(self._response.create)
 
-    async def update_event(self, event_id: UUID, request: EventUpdateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
+    async def update_event(self, event_id: UUID, request: EventUpdateRequest,
+                           principal: AuthenticatedPrincipal) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
 
         if not self._policy.can_edit(event, principal):

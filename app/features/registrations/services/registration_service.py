@@ -1,3 +1,4 @@
+from app.features.registrations.factories.registration_mapper import RegistrationMapper
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.services.base_service import BaseService
@@ -11,7 +12,7 @@ from app.features.registrations.dto.registration_response import RegistrationRes
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import RegistrationClosedError, EventFullError, \
     AlreadyRegisteredError
-from app.features.registrations.factories.registration_mapper import RegistrationMapper
+from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
 from app.features.registrations.models.registration import Registration
 from app.features.registrations.policies.registration_policy import RegistrationPolicy
 from app.features.registrations.repositories.registration_repository import RegistrationRepository
@@ -22,13 +23,15 @@ class RegistrationService(BaseService):
             self,
             session: AsyncSession,
             registration_repository: RegistrationRepository,
-            registration_policy: RegistrationPolicy,
             event_repository: EventRepository,
+            registration_policy: RegistrationPolicy,
+            registration_response: RegistrationResponseFactory
     ):
         super().__init__(session)
         self._registrations = registration_repository
         self._policy = registration_policy
         self._events = event_repository
+        self._response = registration_response
 
     async def register(self, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
         event = await self._events.get_required(request.event_id)
@@ -43,7 +46,8 @@ class RegistrationService(BaseService):
             raise AlreadyRegisteredError(event_slug=event.slug, user_display_name=principal.user.display_name)
 
         if not self._policy.can_register(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_CREATE}, user=principal.user.display_name)
+            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_CREATE},
+                                        user=principal.user.display_name)
 
         registration = Registration(
             event=event,
@@ -54,22 +58,21 @@ class RegistrationService(BaseService):
         await self._registrations.add(registration)
         await self._save(registration)
 
-        return RegistrationMapper.to_response(registration)
-
+        return self._response.create(registration)
 
     async def cancel(self, request: CancelRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
         registration = await self._registrations.get_required(request.registration_id)
 
         if not self._policy.can_cancel(registration, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_CANCEL}, user=principal.user.display_name)
+            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_CANCEL},
+                                        user=principal.user.display_name)
 
         registration.cancel()
 
         return await self._persist(registration)
 
-
     async def _persist(self, registration: Registration) -> RegistrationResponse:
         await self._commit()
         await self._refresh(registration)
 
-        return RegistrationMapper.to_response(registration)
+        return self._response.create(registration)

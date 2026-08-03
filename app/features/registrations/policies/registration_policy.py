@@ -14,41 +14,38 @@ class RegistrationPolicy:
 
         return True
 
-
     def can_edit(self, registration: Registration, principal: AuthenticatedPrincipal) -> bool:
         return registration.is_owner(principal)
 
-
     def can_cancel(self, registration: Registration, principal: AuthenticatedPrincipal) -> bool:
         return (
-            not registration.is_cancelled
-            and self._is_owner_or_organizer(registration, principal)
+                not registration.is_cancelled
+                and self._is_owner_or_organizer(registration, principal)
         )
 
     @staticmethod
     def can_manage(event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
-            principal.is_admin
-            or principal.is_organizer
-            or event.is_owner(principal)
+                principal.is_admin
+                or principal.is_organizer
+                or event.is_owner(principal)
         )
 
     @staticmethod
     def can_register(event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
-            event.status.is_bookable
-            and not event.is_full
-            and (
-                not event.is_vip_event
-                or principal.is_vip
-            )
+                event.status.is_bookable
+                and not event.is_full
+                and (
+                        not event.is_vip_event
+                        or principal.is_vip
+                )
         )
-
 
     @staticmethod
     def _is_owner_or_organizer(registration: Registration, principal: AuthenticatedPrincipal) -> bool:
         return (
-            principal.is_admin
-            or principal.is_organizer
-            or registration.is_owner(principal)
+                principal.is_admin
+                or principal.is_organizer
+                or registration.is_owner(principal)
         )

@@ -85,7 +85,6 @@ class EventRepository(SluggableRepository[Event]):
 
         return await self.paginate(stmt, request.pagination)
 
-
     async def get_audience_required(self, event_id: UUID, audience: EventAudience) -> Event | None:
         stmt = (
             select(Event)
@@ -152,4 +151,3 @@ class EventRepository(SluggableRepository[Event]):
         )
 
         return stmt
-
