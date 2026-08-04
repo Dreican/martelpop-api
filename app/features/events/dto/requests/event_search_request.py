@@ -16,7 +16,4 @@ class EventSearchRequest(BaseModel):
     ends_before: datetime | None
     statuses: set[EventStatusCode] | None
 
-    page: int = 1
-    page_size: int = 20
-
     sort: EventSort = EventSort.START_DATE_ASC

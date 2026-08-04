@@ -19,6 +19,19 @@ class RegistrationRepository(BaseRepository[Registration]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model=Registration, not_found_exception=RegistrationNotFoundError)
 
+    async def get_required(self, entity_id: UUID) -> Registration:
+        stmt = (
+            select(Registration)
+        )
+        stmt = self._with_summary_graph(stmt)
+        registration = await self._session.scalar(stmt)
+
+        if not registration:
+            raise RegistrationNotFoundError(entity_id=entity_id)
+
+        return registration
+
+
     async def get_by_status(self, registration_status: RegistrationStatus) -> list[Registration]:
         stmt = (
             select(Registration).where(Registration.status == registration_status)
@@ -45,18 +58,29 @@ class RegistrationRepository(BaseRepository[Registration]):
         stmt = (
             select(Registration)
             .where(Registration.user_id == user_id)
-            .options(
-                selectinload(Registration.event)
-                    .selectinload(Event.activity_type),
-                selectinload(Registration.user),
-            )
         )
 
+        stmt = self._with_detail_graph(stmt)
         stmt = self._apply_filter(stmt, request)
         stmt = self._apply_sort(stmt, request.sort)
 
         return await self.paginate(stmt, request.pagination)
 
+    @staticmethod
+    def _with_summary_graph(stmt: Select[tuple[Any]]) -> Select[tuple[Registration]]:
+        return stmt.options(
+            selectinload(Registration.event).selectinload(Event.activity_type),
+            selectinload(Registration.event).selectinload(Event.status),
+            selectinload(Registration.user),
+        )
+
+    @staticmethod
+    def _with_detail_graph(stmt: Select[tuple[Any]]) -> Select[tuple[Registration]]:
+        return stmt.options(
+            selectinload(Registration.event).selectinload(Event.activity_type),
+            selectinload(Registration.event).selectinload(Event.status),
+            selectinload(Registration.user),
+        )
 
     @staticmethod
     def _apply_filter(
