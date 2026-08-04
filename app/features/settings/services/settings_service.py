@@ -21,8 +21,7 @@ class SettingsService(BaseService):
 
 
     async def get_settings(self):
-
-        return await self._repository.get_all()
+        return await self._cache.get_all()
 
 
     async def update_settings(self, request: SettingsUpdateRequest, principal: AuthenticatedPrincipal):
@@ -44,5 +43,6 @@ class SettingsService(BaseService):
     async def _persist(self, settings: Settings) -> Settings:
         await self._commit()
         await self._refresh(settings)
+        self._cache.clear()
 
         return settings
