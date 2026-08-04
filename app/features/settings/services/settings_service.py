@@ -1,9 +1,12 @@
+from typing import cast
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.services.base_service import BaseService
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.settings.cache.settings_cache import SettingsCache
 from app.features.settings.dto.settings_update_request import SettingsUpdateRequest
+from app.features.settings.enums.settings_type import SettingsType
 from app.features.settings.models.settings import Settings
 from app.features.settings.repositories.settings_repository import SettingsRepository
 
@@ -25,16 +28,15 @@ class SettingsService(BaseService):
 
 
     async def update_settings(self, request: SettingsUpdateRequest, principal: AuthenticatedPrincipal):
-        settings = await self._repository.get_by_key(request.key)
+        settings = await self._repository.required_by_key(request.key)
 
-        if settings.string_value is not None:
-            settings.string_value = request.string_value
-        elif settings.int_value is not None:
-            settings.int_value = request.int_value
-        elif settings.bool_value is not None:
-            settings.bool_value = request.bool_value
-        else:
-            raise ValueError("Invalid settings key")
+        match settings.value_type:
+            case SettingsType.STRING:
+                settings.string_value = cast(str, request.value)
+            case SettingsType.INTEGER:
+                settings.int_value = cast(int, request.value)
+            case SettingsType.BOOLEAN:
+                settings.bool_value = cast(bool, request.value)
 
         return self._persist(settings)
 
@@ -43,6 +45,6 @@ class SettingsService(BaseService):
     async def _persist(self, settings: Settings) -> Settings:
         await self._commit()
         await self._refresh(settings)
-        self._cache.clear()
+        await self._cache.reload()
 
         return settings
