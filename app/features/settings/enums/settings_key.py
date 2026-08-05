@@ -2,6 +2,10 @@ from enum import StrEnum
 
 
 class SettingsKey(StrEnum):
+    APPLICATION_NAME = "application_name"
+
+    APPLICATION_URL = "application_url"
+
     DEFAULT_PAGE_SIZE = "default_page_size"
 
     MAX_PAGE_SIZE = "max_page_size"
