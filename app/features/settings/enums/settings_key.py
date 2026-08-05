@@ -4,6 +4,10 @@ from enum import StrEnum
 class SettingsKey(StrEnum):
     APPLICATION_NAME = "application_name"
 
+    APPLICATION_LOGO = "application_logo"
+
+    APPLICATION_SUPPORT_EMAIL = "application_support_email"
+
     APPLICATION_URL = "application_url"
 
     DEFAULT_PAGE_SIZE = "default_page_size"

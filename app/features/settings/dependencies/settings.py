@@ -6,6 +6,7 @@ from fastapi import Depends
 from app.core.dependencies.database import SessionDep
 from app.features.settings.cache.settings_cache import SettingsCache
 from app.features.settings.repositories.settings_repository import SettingsRepository
+from app.features.settings.services.application_settings import ApplicationSettings
 from app.features.settings.services.settings_service import SettingsService
 
 
@@ -32,3 +33,14 @@ def get_settings_service(
 
 
 SettingsServiceDep = Annotated[SettingsService, Depends(get_settings_service)]
+
+
+@lru_cache
+def get_application_settings(cache: SettingsCacheDep) -> ApplicationSettings:
+    return ApplicationSettings(cache)
+
+
+ApplicationSettingsDep = Annotated[
+    ApplicationSettings,
+    Depends(get_application_settings),
+]

@@ -1,5 +1,6 @@
 from app.features.settings.cache.settings_cache import SettingsCache
 from app.features.settings.enums.settings_key import SettingsKey
+from app.features.storage.dto.general_settings import GeneralSettings
 
 
 class ApplicationSettings:
@@ -7,11 +8,14 @@ class ApplicationSettings:
     def __init__(self, cache: SettingsCache):
         self._cache = cache
 
-    async def application_name(self) -> str:
-        return await self._string(SettingsKey.APPLICATION_NAME)
-
-    async def application_url(self) -> str:
-        return await self._string(SettingsKey.APPLICATION_URL)
+    async def general(self) -> GeneralSettings:
+        general = GeneralSettings(
+            application_name=await self._string(SettingsKey.APPLICATION_NAME),
+            logo_url=await self._string(SettingsKey.APPLICATION_LOGO),
+            support_email=await self._string(SettingsKey.APPLICATION_SUPPORT_EMAIL),
+            maintenance_mode=await self._bool(SettingsKey.MAINTENANCE_MODE)
+        )
+        return general
 
     async def default_page_size(self) -> int:
         return await self._int(SettingsKey.DEFAULT_PAGE_SIZE)
@@ -28,8 +32,6 @@ class ApplicationSettings:
     async def registrations_enabled(self) -> bool:
         return await self._bool(SettingsKey.REGISTRATIONS_ENABLED)
 
-    async def maintenance_mode(self) -> bool:
-        return await self._bool(SettingsKey.MAINTENANCE_MODE)
 
     async def _int(self, key: SettingsKey) -> int:
         setting = await self._cache.get(key)

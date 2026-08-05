@@ -12,6 +12,7 @@ from app.features.events.dependencies.repositories import (
     EventStatusRepositoryDep
 )
 from app.features.events.services.event_service import EventService
+from app.features.settings.dependencies.settings import ApplicationSettingsDep
 
 
 def get_event_service(
@@ -22,7 +23,8 @@ def get_event_service(
         slug_service: SlugServiceDep,
         policy_service: EventPolicyDep,
         access_service: EventAccessFilterDep,
-        response_factory: EventResponseFactoryDep
+        response_factory: EventResponseFactoryDep,
+        application_settings: ApplicationSettingsDep
 ) -> EventService:
     return EventService(
         session=session,
@@ -33,6 +35,7 @@ def get_event_service(
         event_policy=policy_service,
         event_access=access_service,
         event_response=response_factory,
+        application_settings=application_settings
     )
 
 

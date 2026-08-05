@@ -22,6 +22,7 @@ from app.features.events.policies.event_policy import EventPolicy
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository
 from app.features.events.repositories.event_repository import EventRepository
 from app.features.events.repositories.event_status_repository import EventStatusRepository
+from app.features.settings.services.application_settings import ApplicationSettings
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ class EventService(BaseService):
             event_policy: EventPolicy,
             event_access: EventAccessFilter,
             event_response: EventResponseFactory,
+            application_settings: ApplicationSettings
     ):
         super().__init__(session)
         self._event_repo = event_repository
@@ -46,6 +48,7 @@ class EventService(BaseService):
         self._policy = event_policy
         self._access = event_access
         self._response = event_response
+        self._settings = application_settings
 
     async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         default_status = await self._event_status_repo.get_default()

@@ -27,6 +27,7 @@ from app.features.registrations.factories.registration_summary_response_factory 
 from app.features.registrations.models.registration import Registration
 from app.features.registrations.policies.registration_policy import RegistrationPolicy
 from app.features.registrations.repositories.registration_repository import RegistrationRepository
+from app.features.settings.services.application_settings import ApplicationSettings
 
 
 class RegistrationService(BaseService):
@@ -39,6 +40,7 @@ class RegistrationService(BaseService):
             registration_response: RegistrationResponseFactory,
             registration_summary_response: RegistrationSummaryResponseFactory,
             participant_response: ParticipantResponseFactory,
+            application_settings: ApplicationSettings
     ):
         super().__init__(session)
         self._registrations = registration_repository
@@ -47,6 +49,7 @@ class RegistrationService(BaseService):
         self._response = registration_response
         self._summary_response = registration_summary_response
         self._participant_response = participant_response
+        self._settings = application_settings
 
     async def register(self, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
         event = await self._events.get_required(request.event_id)
