@@ -47,9 +47,9 @@ class ApplicationSettings:
 
     async def email_settings(self):
         email_settings = EmailSettings(
-            enable=await self._bool(SettingsKey.EMAIL_ENABLE),
-            support_address=await self._string(SettingsKey.EMAIL_SUPPORT_ADDRESS),
-            reply_to=await self._string(SettingsKey.EMAIL_REPLY_TO),
+            enabled=await self._bool(SettingsKey.EMAIL_ENABLE),
+            support_email=await self._string(SettingsKey.EMAIL_SUPPORT_ADDRESS),
+            reply_to_email=await self._string(SettingsKey.EMAIL_REPLY_TO),
             send_registration_confirmation=await self._bool(SettingsKey.EMAIL_SEND_REGISTRATION_CONFIRMATION),
             send_cancellation_confirmation=await self._bool(SettingsKey.EMAIL_SEND_CANCELLATION_CONFIRMATION),
             send_event_reminders=await self._bool(SettingsKey.EMAIL_SEND_EVENT_REMINDERS),
