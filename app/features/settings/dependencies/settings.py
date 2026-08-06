@@ -25,17 +25,6 @@ def get_settings_cache(settings_repository: SettingsRepositoryDep) -> SettingsCa
 SettingsCacheDep = Annotated[SettingsCache, Depends(get_settings_cache)]
 
 
-def get_settings_service(
-        session: SessionDep,
-        settings_repository: SettingsRepositoryDep,
-        settings_cache: SettingsCacheDep
-) -> SettingsService:
-    return SettingsService(session, settings_repository, settings_cache)
-
-
-SettingsServiceDep = Annotated[SettingsService, Depends(get_settings_service)]
-
-
 @lru_cache
 def get_application_settings(cache: SettingsCacheDep) -> ApplicationSettings:
     return ApplicationSettings(cache)
@@ -45,3 +34,17 @@ ApplicationSettingsDep = Annotated[
     ApplicationSettings,
     Depends(get_application_settings),
 ]
+
+
+def get_settings_service(
+        session: SessionDep,
+        settings_repository: SettingsRepositoryDep,
+        settings_cache: SettingsCacheDep,
+        application_settings: ApplicationSettingsDep
+) -> SettingsService:
+    return SettingsService(session, settings_repository, settings_cache, application_settings)
+
+
+SettingsServiceDep = Annotated[SettingsService, Depends(get_settings_service)]
+
+

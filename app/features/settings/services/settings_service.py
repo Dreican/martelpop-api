@@ -9,6 +9,7 @@ from app.features.settings.dto.settings_update_request import SettingsUpdateRequ
 from app.features.settings.enums.settings_type import SettingsType
 from app.features.settings.models.settings import Settings
 from app.features.settings.repositories.settings_repository import SettingsRepository
+from app.features.settings.services.application_settings import ApplicationSettings
 
 
 class SettingsService(BaseService):
@@ -16,11 +17,13 @@ class SettingsService(BaseService):
             self,
             session: AsyncSession,
             settings_repository: SettingsRepository,
-            settings_cache: SettingsCache
+            settings_cache: SettingsCache,
+            application_settings: ApplicationSettings
     ):
         super().__init__(session)
         self._repository = settings_repository
         self._cache = settings_cache
+        self._application_settings = application_settings
 
     async def get_settings(self):
         return await self._cache.get_all()
@@ -42,5 +45,6 @@ class SettingsService(BaseService):
         await self._commit()
         await self._refresh(settings)
         await self._cache.reload()
+        await self._application_settings.reload()
 
         return settings
