@@ -1,6 +1,10 @@
 from app.features.settings.cache.settings_cache import SettingsCache
 from app.features.settings.enums.settings_key import SettingsKey
+from app.features.storage.dto.email_settings import EmailSettings
+from app.features.storage.dto.event_settings import EventSettings
 from app.features.storage.dto.general_settings import GeneralSettings
+from app.features.storage.dto.page_settings import PageSettings
+from app.features.storage.dto.registration_settings import RegistrationSettings
 
 
 class ApplicationSettings:
@@ -12,25 +16,46 @@ class ApplicationSettings:
         general = GeneralSettings(
             application_name=await self._string(SettingsKey.APPLICATION_NAME),
             logo_url=await self._string(SettingsKey.APPLICATION_LOGO),
-            support_email=await self._string(SettingsKey.APPLICATION_SUPPORT_EMAIL),
             maintenance_mode=await self._bool(SettingsKey.MAINTENANCE_MODE)
         )
         return general
 
-    async def default_page_size(self) -> int:
-        return await self._int(SettingsKey.DEFAULT_PAGE_SIZE)
+    async def page_settings(self) -> PageSettings:
+        pages = PageSettings(
+            page_size=await self._int(SettingsKey.DEFAULT_PAGE_SIZE),
+            max_page_size=await self._int(SettingsKey.MAX_PAGE_SIZE)
+        )
+        return pages
 
-    async def max_page_size(self) -> int:
-        return await self._int(SettingsKey.MAX_PAGE_SIZE)
 
-    async def default_event_location(self) -> str:
-        return await self._string(SettingsKey.DEFAULT_EVENT_LOCATION)
+    async def event_settings(self) -> EventSettings:
+        event_settings = EventSettings(
+            event_location=await self._string(SettingsKey.DEFAULT_EVENT_LOCATION),
+            event_capacity=await self._int(SettingsKey.DEFAULT_EVENT_CAPACITY),
+            duration=await self._int(SettingsKey.DEFAULT_EVENT_DURATION)
+        )
+        return event_settings
 
-    async def default_event_capacity(self) -> int:
-        return await self._int(SettingsKey.DEFAULT_EVENT_CAPACITY)
+    async def registration_settings(self) -> RegistrationSettings:
+        registration_settings = RegistrationSettings(
+            registrations_enabled=await self._bool(SettingsKey.REGISTRATIONS_ENABLED),
+            waitlist_enabled=await self._bool(SettingsKey.WAITLIST_ENABLED),
+            open_days_before=await self._int(SettingsKey.OPEN_DAYS_BEFORE),
+            close_hours_before=await self._int(SettingsKey.CLOSE_HOURS_BEFORE)
+        )
+        return registration_settings
 
-    async def registrations_enabled(self) -> bool:
-        return await self._bool(SettingsKey.REGISTRATIONS_ENABLED)
+    async def email_settings(self):
+        email_settings = EmailSettings(
+            enable=await self._bool(SettingsKey.EMAIL_ENABLE),
+            support_address=await self._string(SettingsKey.EMAIL_SUPPORT_ADDRESS),
+            reply_to=await self._string(SettingsKey.EMAIL_REPLY_TO),
+            send_registration_confirmation=await self._bool(SettingsKey.EMAIL_SEND_REGISTRATION_CONFIRMATION),
+            send_cancellation_confirmation=await self._bool(SettingsKey.EMAIL_SEND_CANCELLATION_CONFIRMATION),
+            send_event_reminders=await self._bool(SettingsKey.EMAIL_SEND_EVENT_REMINDERS),
+            reminder_days_before=await self._int(SettingsKey.EMAIL_REMINDER_DAYS_BEFORE)
+        )
+        return email_settings
 
 
     async def _int(self, key: SettingsKey) -> int:
