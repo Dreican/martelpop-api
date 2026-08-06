@@ -22,10 +22,8 @@ class SettingsService(BaseService):
         self._repository = settings_repository
         self._cache = settings_cache
 
-
     async def get_settings(self):
         return await self._cache.get_all()
-
 
     async def update_settings(self, request: SettingsUpdateRequest, principal: AuthenticatedPrincipal):
         settings = await self._repository.required_by_key(request.key)
@@ -39,8 +37,6 @@ class SettingsService(BaseService):
                 settings.bool_value = cast(bool, request.value)
 
         return self._persist(settings)
-
-
 
     async def _persist(self, settings: Settings) -> Settings:
         await self._commit()

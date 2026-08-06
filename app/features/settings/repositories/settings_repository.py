@@ -17,7 +17,6 @@ class SettingsRepository(BaseRepository):
 
         return list(await self._session.scalars(stmt))
 
-
     async def required_by_key(self, key: str) -> Settings:
         stmt = (
             select(Settings)

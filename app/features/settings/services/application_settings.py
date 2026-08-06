@@ -1,10 +1,10 @@
 from app.features.settings.cache.settings_cache import SettingsCache
+from app.features.settings.dto.email_settings import EmailSettings
+from app.features.settings.dto.event_settings import EventSettings
+from app.features.settings.dto.general_settings import GeneralSettings
+from app.features.settings.dto.page_settings import PageSettings
+from app.features.settings.dto.registration_settings import RegistrationSettings
 from app.features.settings.enums.settings_key import SettingsKey
-from app.features.storage.dto.email_settings import EmailSettings
-from app.features.storage.dto.event_settings import EventSettings
-from app.features.storage.dto.general_settings import GeneralSettings
-from app.features.storage.dto.page_settings import PageSettings
-from app.features.storage.dto.registration_settings import RegistrationSettings
 
 
 class ApplicationSettings:
@@ -26,7 +26,6 @@ class ApplicationSettings:
             max_page_size=await self._int(SettingsKey.MAX_PAGE_SIZE)
         )
         return pages
-
 
     async def event_settings(self) -> EventSettings:
         event_settings = EventSettings(
@@ -56,7 +55,6 @@ class ApplicationSettings:
             reminder_days_before=await self._int(SettingsKey.EMAIL_REMINDER_DAYS_BEFORE)
         )
         return email_settings
-
 
     async def _int(self, key: SettingsKey) -> int:
         setting = await self._cache.get(key)

@@ -5,6 +5,7 @@ from app.features.settings.repositories.settings_repository import SettingsRepos
 
 logger = logging.getLogger(__name__)
 
+
 class SettingsCache:
     def __init__(self, settings_repository: SettingsRepository):
         self._repository = settings_repository
@@ -14,7 +15,7 @@ class SettingsCache:
         self._cache = None
         await self._load()
 
-    async def get(self, key: str) ->  Settings:
+    async def get(self, key: str) -> Settings:
         await self._load()
         assert self._cache is not None
         return self._cache[key]
@@ -23,7 +24,6 @@ class SettingsCache:
         await self._load()
         assert self._cache is not None
         return list(self._cache.values())
-
 
     async def _load(self) -> None:
         if self._cache is None:

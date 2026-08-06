@@ -16,6 +16,7 @@ def get_settings_repository(session: SessionDep) -> SettingsRepository:
 
 SettingsRepositoryDep = Annotated[SettingsRepository, Depends(get_settings_repository)]
 
+
 @lru_cache
 def get_settings_cache(settings_repository: SettingsRepositoryDep) -> SettingsCache:
     return SettingsCache(settings_repository)

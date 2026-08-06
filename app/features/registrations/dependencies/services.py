@@ -9,7 +9,6 @@ from app.features.registrations.dependencies.policies import RegistrationPolicyD
 from app.features.registrations.dependencies.repositories import RegistrationRepositoryDep
 from app.features.registrations.services.registration_service import RegistrationService
 from app.features.settings.dependencies.settings import ApplicationSettingsDep
-from app.features.settings.services import application_settings
 
 
 def get_registration_service(
