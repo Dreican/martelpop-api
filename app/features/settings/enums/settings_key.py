@@ -1,13 +1,12 @@
 from enum import StrEnum
 
 
-class SettingsKey(StrEnum):
+class SettingsCode(StrEnum):
     MAINTENANCE_MODE = "maintenance_mode"
     APPLICATION_URL = "application_url"
     REPLY_TO_EMAIL = "email_reply_to"
     SUPPORT_EMAIL = "support_email"
     CONTACT_EMAIL = "contact_email"
-
 
     APPLICATION_NAME = "application_name"
     APPLICATION_LOGO = "application_logo"
@@ -27,7 +26,6 @@ class SettingsKey(StrEnum):
     CLOSE_HOURS_BEFORE = "close_hours_before"
 
     EMAIL_ENABLE = "email_enable"
-    EMAIL_SUPPORT_ADDRESS = "email_support_address"
     EMAIL_SEND_REGISTRATION_CONFIRMATION = "email_send_registration_confirmation"
     EMAIL_SEND_CANCELLATION_CONFIRMATION = "email_send_cancellation_confirmation"
     EMAIL_SEND_EVENT_REMINDERS = "email_send_event_reminders"

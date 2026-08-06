@@ -6,4 +6,3 @@ from app.core.services.base_service import BaseService
 class RoleService(BaseService):
     def __init__(self, session: AsyncSession):
         super().__init__(session)
-

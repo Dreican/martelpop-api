@@ -10,4 +10,3 @@ class EventStatusSummaryResponse(BaseModel):
     id: UUID
     code: EventStatusCode
     name: str
-

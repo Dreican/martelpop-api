@@ -16,15 +16,13 @@ class PermissionDependency:
         return principal
 
 
-
 class AuthenticatedPermissionDependency(PermissionDependency):
 
     async def __call__(
-        self,
-        principal: CurrentPrincipalDep,
-        authorization: AuthorizationServiceDep,
+            self,
+            principal: CurrentPrincipalDep,
+            authorization: AuthorizationServiceDep,
     ) -> AuthenticatedPrincipal:
-
         principal = await super().__call__(principal, authorization)
 
         if principal.user is None:
@@ -37,6 +35,7 @@ def permission(*permissions: PermissionCode):
     return Depends(
         PermissionDependency(*permissions)
     )
+
 
 def authenticated_permission(*permissions: PermissionCode):
     return Depends(

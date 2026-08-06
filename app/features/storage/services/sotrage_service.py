@@ -15,7 +15,6 @@ class StorageService(BaseService):
         super().__init__(session)
         self.storage_repository = storage_repository
 
-
     @staticmethod
     def public_url(file_id: UUID | None) -> str | None:
         if file_id is None:

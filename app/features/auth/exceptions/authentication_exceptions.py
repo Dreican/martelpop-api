@@ -44,6 +44,7 @@ class AuthenticationIdentityNotFoundError(NotFoundError):
     code = "authentication_identity_not_found"
     detail = "Authentication identity not found"
 
+
 class RefreshTokenNotFoundError(NotFoundError):
     status_code = status.HTTP_404_NOT_FOUND
     code = "refresh_token_not_found"

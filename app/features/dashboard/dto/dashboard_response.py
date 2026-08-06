@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 
 class DashboardResponse(BaseModel):
-
     total_events: int
 
     published_events: int

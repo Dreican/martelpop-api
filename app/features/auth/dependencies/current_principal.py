@@ -25,7 +25,6 @@ async def authenticate_user(
         jwt: JwtServiceDep,
         users: UserRepositoryDep
 ) -> User | None:
-
     if credentials is None:
         return None
 
@@ -37,13 +36,14 @@ async def authenticate_user(
     user = await users.get_by_id(payload.sub)
 
     if (
-        user is None
-        or not user.is_active
-        or user.is_deleted
+            user is None
+            or not user.is_active
+            or user.is_deleted
     ):
         return None
 
     return user
+
 
 async def get_current_principal(
         credential: Credentials,
@@ -71,7 +71,6 @@ CurrentPrincipalDep = Annotated[
 
 
 async def get_authenticated_principal(principal: CurrentPrincipalDep) -> AuthenticatedPrincipal:
-
     if principal.user is None:
         unauthorized("Not authenticated")
 

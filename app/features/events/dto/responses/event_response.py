@@ -5,7 +5,6 @@ from app.features.users.dto.user_summary_response import UserSummaryResponse
 
 
 class EventResponse(EventSummaryResponse):
-
     description: str | None
 
     capacity: int | None

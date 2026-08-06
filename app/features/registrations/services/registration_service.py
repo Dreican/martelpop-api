@@ -13,7 +13,6 @@ from app.features.registrations.dto.requests.registration_participant_request im
 from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
 from app.features.registrations.dto.requests.registration_update_request import RegistrationUpdateRequest
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
-from app.features.registrations.dto.responses.registration_summary_response import RegistrationSummaryResponse
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import (
     RegistrationClosedError,
@@ -91,7 +90,8 @@ class RegistrationService(BaseService):
 
         return await self._persist(registration)
 
-    async def update(self, request: RegistrationUpdateRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
+    async def update(self, request: RegistrationUpdateRequest,
+                     principal: AuthenticatedPrincipal) -> RegistrationResponse:
         registration = await self._registrations.get_required(request.registration_id)
 
         if not self._policy.can_update(registration, principal):
@@ -104,18 +104,17 @@ class RegistrationService(BaseService):
 
         return await self._persist(registration)
 
-    async def get_my_registrations(self, request: RegistrationSearchRequest, principal: AuthenticatedPrincipal) -> Page[RegistrationResponse]:
+    async def get_my_registrations(self, request: RegistrationSearchRequest, principal: AuthenticatedPrincipal) -> Page[
+        RegistrationResponse]:
         page = await self._registrations.search_by_user(request, principal.user.id)
 
         return self._response.create_page(page)
 
-    async def get_participant(self, request: RegistrationParticipantRequest, principal: AuthenticatedPrincipal) -> Page[RegistrationParticipantRequest]:
+    async def get_participant(self, request: RegistrationParticipantRequest, principal: AuthenticatedPrincipal) -> Page[
+        RegistrationParticipantRequest]:
         event = await self._events.get_required(request.event_id)
 
-
-
         return self._participant_response.create_page(page)
-
 
     async def _persist(self, registration: Registration) -> RegistrationResponse:
         await self._commit()

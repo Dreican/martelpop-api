@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from app.core.config.pagination import PaginationConfig
 from app.features.settings.cache.settings_cache import SettingsCache
 from app.features.settings.dto.branding_settings import BrandingSettings
 from app.features.settings.dto.email_settings import EmailSettings
@@ -8,102 +7,62 @@ from app.features.settings.dto.event_settings import EventSettings
 from app.features.settings.dto.general_settings import GeneralSettings
 from app.features.settings.dto.page_settings import PaginationSettings
 from app.features.settings.dto.registration_settings import RegistrationSettings
-from app.features.settings.enums.settings_key import SettingsKey
+from app.features.settings.enums.settings_key import SettingsCode
 
 
 class ApplicationSettings:
-    _general: GeneralSettings | None = None
-    _branding: BrandingSettings | None = None
-    _pagination: PaginationSettings | None = None
-    _event: EventSettings | None = None
-    _registration: RegistrationSettings | None = None
-    _email: EmailSettings | None = None
 
     def __init__(self, cache: SettingsCache):
         self._cache = cache
 
-    async def reload(self) -> None:
-        await self._cache.reload()
-
-        self._general = None
-        self._branding = None
-        self._pagination = None
-        self._event = None
-        self._registration = None
-        self._email = None
-
     async def general(self) -> GeneralSettings:
-        if self._general is None:
-            self._general = GeneralSettings(
-                maintenance_mode=await self._bool(SettingsKey.MAINTENANCE_MODE),
-                application_url=await self._string(SettingsKey.APPLICATION_URL),
-                support_email=await self._string(SettingsKey.SUPPORT_EMAIL),
-                contact_email=await self._string(SettingsKey.CONTACT_EMAIL),
-                reply_to_email=await self._string(SettingsKey.REPLY_TO_EMAIL)
-            )
-        assert self._general is not None
-        return self._general
+        return GeneralSettings(
+            maintenance_mode=await self._bool(SettingsCode.MAINTENANCE_MODE),
+            application_url=await self._string(SettingsCode.APPLICATION_URL),
+            support_email=await self._string(SettingsCode.SUPPORT_EMAIL),
+            contact_email=await self._string(SettingsCode.CONTACT_EMAIL),
+            reply_to_email=await self._string(SettingsCode.REPLY_TO_EMAIL)
+        )
 
     async def branding(self) -> BrandingSettings:
-        if self._branding is None:
-            self._branding = BrandingSettings(
-                application_name=await self._string(SettingsKey.APPLICATION_NAME),
-                logo_file_id=await self._uuid(SettingsKey.APPLICATION_LOGO),
-                favicon_file_id=await self._uuid(SettingsKey.APPLICATION_FAVICON),
-                footer_text=await self._string(SettingsKey.FOOTER_TEXT)
-            )
-
-        assert self._branding is not None
-        return self._branding
+        return BrandingSettings(
+            application_name=await self._string(SettingsCode.APPLICATION_NAME),
+            logo_file_id=await self._uuid(SettingsCode.APPLICATION_LOGO),
+            favicon_file_id=await self._uuid(SettingsCode.APPLICATION_FAVICON),
+            footer_text=await self._string(SettingsCode.FOOTER_TEXT)
+        )
 
     async def pagination(self) -> PaginationSettings:
-        if self._pagination is None:
-            self._pagination = PaginationSettings(
-                page_size=await self._int(SettingsKey.DEFAULT_PAGE_SIZE),
-                max_page_size=await self._int(SettingsKey.MAX_PAGE_SIZE)
-            )
-
-        assert self._pagination is not None
-        return self._pagination
+        return PaginationSettings(
+            page_size=await self._int(SettingsCode.DEFAULT_PAGE_SIZE),
+            max_page_size=await self._int(SettingsCode.MAX_PAGE_SIZE)
+        )
 
     async def events(self) -> EventSettings:
-        if self._event is None:
-            self._event = EventSettings(
-                event_location=await self._string(SettingsKey.DEFAULT_EVENT_LOCATION),
-                event_capacity=await self._int(SettingsKey.DEFAULT_EVENT_CAPACITY),
-                duration=await self._int(SettingsKey.DEFAULT_EVENT_DURATION)
-            )
-
-        assert self._event is not None
-        return self._event
+        return EventSettings(
+            event_location=await self._string(SettingsCode.DEFAULT_EVENT_LOCATION),
+            event_capacity=await self._int(SettingsCode.DEFAULT_EVENT_CAPACITY),
+            duration=await self._int(SettingsCode.DEFAULT_EVENT_DURATION)
+        )
 
     async def registrations(self) -> RegistrationSettings:
-        if self._registration is None:
-            self._registration = RegistrationSettings(
-                registrations_enabled=await self._bool(SettingsKey.REGISTRATIONS_ENABLED),
-                waitlist_enabled=await self._bool(SettingsKey.WAITLIST_ENABLED),
-                open_days_before=await self._int(SettingsKey.OPEN_DAYS_BEFORE),
-                close_hours_before=await self._int(SettingsKey.CLOSE_HOURS_BEFORE)
-            )
-
-        assert self._registration is not None
-        return self._registration
+        return RegistrationSettings(
+            registrations_enabled=await self._bool(SettingsCode.REGISTRATIONS_ENABLED),
+            waitlist_enabled=await self._bool(SettingsCode.WAITLIST_ENABLED),
+            open_days_before=await self._int(SettingsCode.OPEN_DAYS_BEFORE),
+            close_hours_before=await self._int(SettingsCode.CLOSE_HOURS_BEFORE)
+        )
 
     async def emails(self) -> EmailSettings:
-        if self._email is None:
-            self._email = EmailSettings(
-                enabled=await self._bool(SettingsKey.EMAIL_ENABLE),
-                support_email=await self._string(SettingsKey.EMAIL_SUPPORT_ADDRESS),
-                send_registration_confirmation=await self._bool(SettingsKey.EMAIL_SEND_REGISTRATION_CONFIRMATION),
-                send_cancellation_confirmation=await self._bool(SettingsKey.EMAIL_SEND_CANCELLATION_CONFIRMATION),
-                send_event_reminders=await self._bool(SettingsKey.EMAIL_SEND_EVENT_REMINDERS),
-                reminder_days_before=await self._int(SettingsKey.EMAIL_REMINDER_DAYS_BEFORE)
-            )
+        return EmailSettings(
+            enabled=await self._bool(SettingsCode.EMAIL_ENABLE),
+            send_registration_confirmation=await self._bool(SettingsCode.EMAIL_SEND_REGISTRATION_CONFIRMATION),
+            send_cancellation_confirmation=await self._bool(SettingsCode.EMAIL_SEND_CANCELLATION_CONFIRMATION),
+            send_event_reminders=await self._bool(SettingsCode.EMAIL_SEND_EVENT_REMINDERS),
+            reminder_days_before=await self._int(SettingsCode.EMAIL_REMINDER_DAYS_BEFORE)
+        )
 
-        assert self._email is not None
-        return self._email
-
-    async def _int(self, key: SettingsKey) -> int:
+    async def _int(self, key: SettingsCode) -> int:
         setting = await self._cache.get(key)
         if setting.int_value is None:
             raise RuntimeError(
@@ -112,7 +71,7 @@ class ApplicationSettings:
 
         return setting.int_value
 
-    async def _bool(self, key: SettingsKey) -> bool:
+    async def _bool(self, key: SettingsCode) -> bool:
         setting = await self._cache.get(key)
         if setting.bool_value is None:
             raise RuntimeError(
@@ -121,16 +80,15 @@ class ApplicationSettings:
 
         return setting.bool_value
 
-    async def _string(self, key: SettingsKey) -> str | None:
+    async def _string(self, key: SettingsCode) -> str | None:
         setting = await self._cache.get(key)
 
         return setting.string_value
 
-    async def _uuid(self, key: SettingsKey) -> UUID | None:
+    async def _uuid(self, key: SettingsCode) -> UUID | None:
         value = await self._string(key)
 
         if not value:
             return None
 
         return UUID(value)
-

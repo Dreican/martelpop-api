@@ -29,7 +29,7 @@ class SettingsService(BaseService):
         return await self._cache.get_all()
 
     async def update_settings(self, request: SettingsUpdateRequest, principal: AuthenticatedPrincipal):
-        settings = await self._repository.required_by_key(request.key)
+        settings = await self._repository.required_by_key(request.code)
 
         match settings.value_type:
             case SettingsType.STRING:
@@ -45,6 +45,5 @@ class SettingsService(BaseService):
         await self._commit()
         await self._refresh(settings)
         await self._cache.reload()
-        await self._application_settings.reload()
 
         return settings

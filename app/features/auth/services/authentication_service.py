@@ -2,13 +2,13 @@ import logging
 from datetime import datetime, UTC
 from uuid import UUID
 
-from app.features.auth.dto.requestes.login_request import LoginRequest
-from app.features.auth.dto.requestes.register_request import RegisterRequest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
+from app.features.auth.dto.requests.login_request import LoginRequest
+from app.features.auth.dto.requests.register_request import RegisterRequest
 from app.features.auth.dto.responses.token_response import TokenResponse
 from app.features.auth.dto.session_info import SessionInfo
 from app.features.auth.enums.auth_provider import AuthProvider

@@ -46,5 +46,3 @@ def get_settings_service(
 
 
 SettingsServiceDep = Annotated[SettingsService, Depends(get_settings_service)]
-
-

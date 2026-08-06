@@ -8,7 +8,6 @@ class UserResponseFactory(ResponseFactory[User, UserResponse]):
     def __init__(self, storage: StorageService):
         super().__init__(storage)
 
-
     def create(self, entity: User) -> UserResponse:
         response = UserResponse.model_validate(entity)
 

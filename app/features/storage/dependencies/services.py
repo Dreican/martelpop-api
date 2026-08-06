@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.dependencies.database import SessionDep
-from app.features.settings.services.application_settings import ApplicationSettings
 from app.features.storage.dependencies.repositories import StorageRepositoryDep
 from app.features.storage.services.sotrage_service import StorageService
 
@@ -19,4 +18,3 @@ def get_storage_service(
 
 
 StorageServiceDep = Annotated[StorageService, Depends(get_storage_service)]
-

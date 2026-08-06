@@ -6,6 +6,7 @@ from app.features.auth.repositories.authorization_repository import Authorizatio
 
 logger = logging.getLogger(__name__)
 
+
 class PermissionCache:
     def __init__(self, authorization_repository: AuthorizationRepository):
         self._authorization = authorization_repository
@@ -30,11 +31,10 @@ class PermissionCache:
             logger.debug("Permission cache hit for role %s", role.value)
             return permissions
 
-        logger.debug("Permission cache miss for role %s",role.value)
+        logger.debug("Permission cache miss for role %s", role.value)
 
         permissions = frozenset(await self._authorization.get_permission_codes(role))
 
         self._cache[role] = permissions
 
         return permissions
-

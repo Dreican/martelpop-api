@@ -14,7 +14,6 @@ class RegistrationPolicy:
 
         return True
 
-
     def can_cancel(self, registration: Registration, principal: AuthenticatedPrincipal) -> bool:
         return (
                 not registration.is_cancelled

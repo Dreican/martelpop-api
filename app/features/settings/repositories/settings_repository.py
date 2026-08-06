@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database.repositories.base_repository import BaseRepository
+from app.features.settings.enums.settings_key import SettingsCode
 from app.features.settings.exceptions.settings_exceptions import SettingsNotFoundError
 from app.features.settings.models.settings import Settings
 
@@ -17,10 +18,10 @@ class SettingsRepository(BaseRepository):
 
         return list(await self._session.scalars(stmt))
 
-    async def required_by_key(self, key: str) -> Settings:
+    async def required_by_key(self, key: SettingsCode) -> Settings:
         stmt = (
             select(Settings)
-            .where(Settings.key == key)
+            .where(Settings.code == key)
         )
 
         setting = await self._session.scalar(stmt)

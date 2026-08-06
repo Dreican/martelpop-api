@@ -1,6 +1,4 @@
 from app.core.factories.response_factory import ResponseFactory
-from app.features.events.dto.responses.event_summary_response import EventSummaryResponse
-from app.features.events.factories.event_response_factory import EventResponseFactory
 from app.features.events.factories.event_summary_response_factory import EventSummaryResponseFactory
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
 from app.features.registrations.models.registration import Registration

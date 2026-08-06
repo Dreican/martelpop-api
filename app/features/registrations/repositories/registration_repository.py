@@ -31,7 +31,6 @@ class RegistrationRepository(BaseRepository[Registration]):
 
         return registration
 
-
     async def get_by_status(self, registration_status: RegistrationStatus) -> list[Registration]:
         stmt = (
             select(Registration).where(Registration.status == registration_status)

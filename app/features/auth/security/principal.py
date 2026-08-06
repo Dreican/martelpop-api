@@ -34,7 +34,7 @@ class Principal:
         return self.user.display_name if self.user else "Anonymous"
 
     @property
-    def email(self) -> str :
+    def email(self) -> str:
         return self.user.email if self.user else "Anonymous"
 
     @property
