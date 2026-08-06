@@ -6,6 +6,7 @@ from app.features.events.factories.activity_type_response_factory import Activit
 from app.features.events.factories.activity_type_summary_response_factory import ActivityTypeSummaryResponseFactory
 from app.features.events.factories.event_response_factory import EventResponseFactory
 from app.features.events.factories.event_summary_response_factory import EventSummaryResponseFactory
+from app.features.registrations.factories.participant_response_factory import ParticipantResponseFactory
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
 from app.features.registrations.factories.registration_summary_response_factory import \
     RegistrationSummaryResponseFactory
@@ -71,7 +72,16 @@ def get_registration_summary_response_factory(
 ) -> RegistrationSummaryResponseFactory:
     return RegistrationSummaryResponseFactory(storage=storage)
 
+def get_participant_response_factory(
+        storage: StorageServiceDep,
+        event_factory: EventSummaryResponseFactoryDep,
+        user_factory: UserSummaryResponseFactoryDep
+) -> ParticipantResponseFactory:
+    return ParticipantResponseFactory(storage=storage, event_factory=event_factory, user_factory=user_factory)
+
 RegistrationResponseFactoryDep = Annotated[RegistrationResponseFactory, Depends(get_registration_response_factory)]
 RegistrationSummaryResponseFactoryDep = Annotated[RegistrationSummaryResponseFactory, Depends(get_registration_summary_response_factory)]
+ParticipantResponseFactoryDep = Annotated[ParticipantResponseFactory, Depends(get_participant_response_factory)]
+
 
 
