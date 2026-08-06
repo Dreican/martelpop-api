@@ -4,13 +4,12 @@ from fastapi import Response
 from app.features.auth.dependencies.current_principal import AuthenticatedPrincipalDep
 from app.features.auth.dependencies.services import AuthenticationServiceDep
 from app.features.auth.dependencies.session import SessionInfoDep
-from app.features.auth.dto.requestes.login_request import LoginRequest
-from app.features.auth.dto.requestes.logout_request import LogoutRequest
-from app.features.auth.dto.requestes.refresh_request import RefreshRequest
-from app.features.auth.dto.requestes.register_request import RegisterRequest
+from app.features.auth.dto.requests.login_request import LoginRequest
+from app.features.auth.dto.requests.logout_request import LogoutRequest
+from app.features.auth.dto.requests.refresh_request import RefreshRequest
+from app.features.auth.dto.requests.register_request import RegisterRequest
 from app.features.auth.dto.responses.token_response import TokenResponse
 from app.features.users.dto.user_response import UserResponse
-from app.features.users.mappers.user_mapper import UserMapper
 
 router = APIRouter(
     prefix="/auth",

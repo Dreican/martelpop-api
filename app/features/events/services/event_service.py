@@ -1,7 +1,6 @@
 import logging
 from uuid import UUID
 
-from app.features.events.mappers.event_mapper import EventMapper
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination.page import Page

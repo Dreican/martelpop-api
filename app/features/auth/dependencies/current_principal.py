@@ -36,9 +36,9 @@ async def authenticate_user(
     user = await users.get_by_id(payload.sub)
 
     if (
-            user is None
-            or not user.is_active
-            or user.is_deleted
+        user is None
+        or not user.is_active
+        or user.is_deleted
     ):
         return None
 
