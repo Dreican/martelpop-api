@@ -172,12 +172,12 @@ class EventService(BaseService):
         return await self._persist(event)
 
 
-    async def get_participant(
+    async def get_participants(
             self,
             request: EventParticipantRequest,
             principal: AuthenticatedPrincipal
     ) -> Page[ParticipantResponse]:
-        event = await self._event_repo.required_by_id_with_registration(request.event_id)
+        event = await self._event_repo.get_required(request.event_id)
 
         if not self._policy.can_view_participant(event, principal):
             raise PermissionDeniedError(permissions={PermissionCode.EVENT_READ}, user=principal.display_name)

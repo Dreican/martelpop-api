@@ -70,6 +70,7 @@ class RegistrationRepository(BaseRepository[Registration]):
     async def search_participants(self, request: EventParticipantRequest) -> Page[Registration]:
         stmt = (
             select(Registration)
+            .options(selectinload(Registration.user))
             .where(Registration.event_id == request.event_id)
         )
 
