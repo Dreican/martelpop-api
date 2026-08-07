@@ -40,5 +40,5 @@ class Waitlist(Base):
     )
 
     event: Mapped["Event"] = relationship(
-        back_populates="waitlist"
+        back_populates="waitlists"
     )

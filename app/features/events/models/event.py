@@ -95,7 +95,7 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         cascade="all, delete-orphan",
     )
 
-    waitlist: Mapped[list["Waitlist"]] = relationship(
+    waitlists: Mapped[list["Waitlist"]] = relationship(
         back_populates="event",
         cascade="all, delete-orphan",
     )
@@ -105,12 +105,15 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         return self.capacity is not None and (self.remaining_capacity <= 0)
 
     @property
-    def remaining_capacity(self) -> int:
+    def remaining_capacity(self) -> int | None:
+        if self.capacity is None:
+            return None
+
         return self.capacity - len(self.registrations)
 
     @property
     def is_waitlisted(self) -> bool:
-        return len(self.waitlist) > 0
+        return len(self.waitlists) > 0
 
     @property
     def is_cancelled(self) -> bool:
