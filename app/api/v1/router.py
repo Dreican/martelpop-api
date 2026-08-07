@@ -3,9 +3,12 @@ from fastapi import APIRouter, Depends
 from app.api.v1.admin_router import api_admin_router
 from app.api.v1.auth_router import auth_router
 from app.api.v1.routes import static, events
+from app.core.config.configuration import get_config
 from app.features.auth.dependencies.maintenance import require_not_in_maintenance
 
-api_router = APIRouter(prefix="/api/v1")
+config = get_config()
+
+api_router = APIRouter(prefix=config.app.api_prefix)
 
 protected_api_router = APIRouter(
     dependencies=[Depends(require_not_in_maintenance)]

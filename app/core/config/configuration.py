@@ -13,7 +13,7 @@ from .smtp import SMTPConfig
 from .storage import StorageConfig
 
 
-class Settings(BaseSettings):
+class Configuration(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -33,5 +33,5 @@ class Settings(BaseSettings):
 
 
 @lru_cache
-def get_settings() -> Settings:
-    return Settings()
+def get_config() -> Configuration:
+    return Configuration()

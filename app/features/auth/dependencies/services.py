@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.core.config.settings import get_settings
+from app.core.config.configuration import get_config
 from app.core.dependencies.database import SessionDep
 from app.core.dependencies.response_factories import UserResponseFactoryDep
 from app.core.dependencies.slug import SlugServiceDep
@@ -30,8 +30,8 @@ PasswordServiceDep = Annotated[PasswordService, Depends(get_password_service)]
 
 @lru_cache
 def get_jwt_service() -> JwtService:
-    settings = get_settings()
-    return JwtService(settings.jwt)
+    config = get_config()
+    return JwtService(config.jwt)
 
 
 JwtServiceDep = Annotated[JwtService, Depends(get_jwt_service)]
