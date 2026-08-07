@@ -4,24 +4,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database.repositories.base_repository import BaseRepository
 from app.features.settings.enums.settings_key import SettingsCode
 from app.features.settings.exceptions.settings_exceptions import SettingsNotFoundError
-from app.features.settings.models.settings import Settings
+from app.features.settings.models.setting import Setting
 
 
 class SettingsRepository(BaseRepository):
     def __init__(self, session: AsyncSession):
-        super().__init__(session, model=Settings, not_found_exception=SettingsNotFoundError)
+        super().__init__(session, model=Setting, not_found_exception=SettingsNotFoundError)
 
-    async def get_all(self) -> list[Settings]:
+    async def get_all(self) -> list[Setting]:
         stmt = (
-            select(Settings)
+            select(Setting)
         )
 
         return list(await self._session.scalars(stmt))
 
-    async def required_by_key(self, key: SettingsCode) -> Settings:
+    async def required_by_key(self, key: SettingsCode) -> Setting:
         stmt = (
-            select(Settings)
-            .where(Settings.code == key)
+            select(Setting)
+            .where(Setting.code == key)
         )
 
         setting = await self._session.scalar(stmt)

@@ -6,7 +6,7 @@ from app.features.settings.enums.settings_key import SettingsCode
 from app.features.settings.enums.settings_type import SettingsType
 
 
-class Settings(Base):
+class Setting(Base):
     __tablename__ = "settings"
 
     code: Mapped[SettingsCode] = mapped_column(

@@ -7,7 +7,7 @@ from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.settings.cache.settings_cache import SettingsCache
 from app.features.settings.dto.settings_update_request import SettingsUpdateRequest
 from app.features.settings.enums.settings_type import SettingsType
-from app.features.settings.models.settings import Settings
+from app.features.settings.models.setting import Setting
 from app.features.settings.repositories.settings_repository import SettingsRepository
 from app.features.settings.services.application_settings import ApplicationSettings
 
@@ -41,7 +41,7 @@ class SettingsService(BaseService):
 
         return self._persist(settings)
 
-    async def _persist(self, settings: Settings) -> Settings:
+    async def _persist(self, settings: Setting) -> Setting:
         await self._commit()
         await self._refresh(settings)
         await self._cache.reload()

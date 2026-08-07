@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.settings.enums.settings_key import SettingsCode
 from app.features.settings.enums.settings_type import SettingsType
-from app.features.settings.models.settings import Settings
+from app.features.settings.models.setting import Setting
 
 
 async def seed_settings(session: AsyncSession) -> None:
@@ -150,11 +150,11 @@ async def seed_settings(session: AsyncSession) -> None:
 
     for data in settings_seed:
         exists = await session.scalar(
-            select(Settings).where(Settings.code == data["code"])
+            select(Setting).where(Setting.code == data["code"])
         )
 
         if exists is None:
-            session.add(Settings(**data))
+            session.add(Setting(**data))
         # else:
         #     exists.name = data["name"]
         #     exists.description = data["description"]
