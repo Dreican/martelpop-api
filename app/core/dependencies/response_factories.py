@@ -18,6 +18,7 @@ from app.features.users.factories.user_summary_response_factory import UserSumma
 def get_user_response_factory(storage: StorageServiceDep) -> UserResponseFactory:
     return UserResponseFactory(storage=storage)
 
+
 def get_user_summary_response_factory(storage: StorageServiceDep) -> UserSummaryResponseFactory:
     return UserSummaryResponseFactory(storage=storage)
 
@@ -29,12 +30,14 @@ UserSummaryResponseFactoryDep = Annotated[UserSummaryResponseFactory, Depends(ge
 def get_activity_type_response_factory(storage: StorageServiceDep) -> ActivityTypeResponseFactory:
     return ActivityTypeResponseFactory(storage=storage)
 
+
 def get_activity_type_summary_response_factory(storage: StorageServiceDep) -> ActivityTypeSummaryResponseFactory:
     return ActivityTypeSummaryResponseFactory(storage=storage)
 
 
 ActivityTypeResponseFactoryDep = Annotated[ActivityTypeResponseFactory, Depends(get_activity_type_response_factory)]
-ActivityTypeSummaryResponseFactoryDep = Annotated[ActivityTypeSummaryResponseFactory, Depends(get_activity_type_summary_response_factory)]
+ActivityTypeSummaryResponseFactoryDep = Annotated[
+    ActivityTypeSummaryResponseFactory, Depends(get_activity_type_summary_response_factory)]
 
 
 def get_event_response_factory(
@@ -48,6 +51,7 @@ def get_event_response_factory(
         user_factory=user_factory
     )
 
+
 def get_event_summary_response_factory(
         storage: StorageServiceDep,
         activity_type_summary_factory: ActivityTypeSummaryResponseFactoryDep,
@@ -57,8 +61,10 @@ def get_event_summary_response_factory(
         activity_type_summary_factory=activity_type_summary_factory,
     )
 
+
 EventResponseFactoryDep = Annotated[EventResponseFactory, Depends(get_event_response_factory)]
 EventSummaryResponseFactoryDep = Annotated[EventSummaryResponseFactory, Depends(get_event_summary_response_factory)]
+
 
 def get_registration_response_factory(
         storage: StorageServiceDep,
@@ -67,10 +73,12 @@ def get_registration_response_factory(
 ) -> RegistrationResponseFactory:
     return RegistrationResponseFactory(storage=storage, event_factory=event_factory, user_factory=user_factory)
 
+
 def get_registration_summary_response_factory(
         storage: StorageServiceDep,
 ) -> RegistrationSummaryResponseFactory:
     return RegistrationSummaryResponseFactory(storage=storage)
+
 
 def get_participant_response_factory(
         storage: StorageServiceDep,
@@ -79,9 +87,8 @@ def get_participant_response_factory(
 ) -> ParticipantResponseFactory:
     return ParticipantResponseFactory(storage=storage, event_factory=event_factory, user_factory=user_factory)
 
+
 RegistrationResponseFactoryDep = Annotated[RegistrationResponseFactory, Depends(get_registration_response_factory)]
-RegistrationSummaryResponseFactoryDep = Annotated[RegistrationSummaryResponseFactory, Depends(get_registration_summary_response_factory)]
+RegistrationSummaryResponseFactoryDep = Annotated[
+    RegistrationSummaryResponseFactory, Depends(get_registration_summary_response_factory)]
 ParticipantResponseFactoryDep = Annotated[ParticipantResponseFactory, Depends(get_participant_response_factory)]
-
-
-

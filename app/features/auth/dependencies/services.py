@@ -12,7 +12,7 @@ from app.features.auth.dependencies.repositories import (
     AuthenticationIdentityRepositoryDep,
     RefreshTokenRepositoryDep
 )
-from app.features.auth.services.authentication_service import AuthenticationService
+from app.features.auth.services.auth_service import AuthService
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
 from app.features.users.dependencies.repositories import UserRepositoryDep
@@ -45,8 +45,8 @@ def get_authentication_service(
         jwt_service: JwtServiceDep,
         slug_service: SlugServiceDep,
         user_response_factory: UserResponseFactoryDep
-) -> AuthenticationService:
-    return AuthenticationService(
+) -> AuthService:
+    return AuthService(
         session=session,
         user_repository=user,
         role_repository=role,
@@ -59,4 +59,4 @@ def get_authentication_service(
     )
 
 
-AuthenticationServiceDep = Annotated[AuthenticationService, Depends(get_authentication_service)]
+AuthenticationServiceDep = Annotated[AuthService, Depends(get_authentication_service)]
