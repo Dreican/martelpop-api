@@ -23,7 +23,7 @@ class SettingsCode(StrEnum):
     REGISTRATIONS_ENABLED = "registrations_enabled"
     WAITLIST_ENABLED = "waitlist_enabled"
     OPEN_DAYS_BEFORE = "open_days_before"
-    CLOSE_HOURS_BEFORE = "close_hours_before"
+    CLOSE_MINUTES_BEFORE = "close_minutes_before"
 
     EMAIL_ENABLE = "email_enable"
     EMAIL_SEND_REGISTRATION_CONFIRMATION = "email_send_registration_confirmation"

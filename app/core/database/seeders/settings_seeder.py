@@ -40,7 +40,7 @@ async def seed_settings(session: AsyncSession) -> None:
         },
         {
             "code": SettingsCode.APPLICATION_NAME,
-            "string_value": "My Application",
+            "string_value": "Martel'Pop",
             "description": "Site Name",
             "value_type": SettingsType.STRING
         },
@@ -111,7 +111,7 @@ async def seed_settings(session: AsyncSession) -> None:
             "value_type": SettingsType.INTEGER
         },
         {
-            "code": SettingsCode.CLOSE_HOURS_BEFORE,
+            "code": SettingsCode.CLOSE_MINUTES_BEFORE,
             "int_value": 0,
             "description": "Close registration X minutes before event start date",
             "value_type": SettingsType.INTEGER

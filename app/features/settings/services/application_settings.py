@@ -50,7 +50,7 @@ class ApplicationSettings:
             registrations_enabled=await self._bool(SettingsCode.REGISTRATIONS_ENABLED),
             waitlist_enabled=await self._bool(SettingsCode.WAITLIST_ENABLED),
             open_days_before=await self._int(SettingsCode.OPEN_DAYS_BEFORE),
-            close_hours_before=await self._int(SettingsCode.CLOSE_HOURS_BEFORE)
+            close_hours_before=await self._int(SettingsCode.CLOSE_MINUTES_BEFORE)
         )
 
     async def emails(self) -> EmailSettings:
