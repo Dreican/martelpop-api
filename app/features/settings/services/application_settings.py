@@ -18,6 +18,7 @@ class ApplicationSettings:
     async def general(self) -> GeneralSettings:
         return GeneralSettings(
             maintenance_mode=await self._bool(SettingsCode.MAINTENANCE_MODE),
+            maintenance_message=await self._string(SettingsCode.MAINTENANCE_MESSAGE),
             application_url=await self._string(SettingsCode.APPLICATION_URL),
             support_email=await self._string(SettingsCode.SUPPORT_EMAIL),
             contact_email=await self._string(SettingsCode.CONTACT_EMAIL),
@@ -47,7 +48,7 @@ class ApplicationSettings:
 
     async def registrations(self) -> RegistrationSettings:
         return RegistrationSettings(
-            registrations_enabled=await self._bool(SettingsCode.REGISTRATIONS_ENABLED),
+            enabled=await self._bool(SettingsCode.REGISTRATIONS_ENABLED),
             waitlist_enabled=await self._bool(SettingsCode.WAITLIST_ENABLED),
             open_days_before=await self._int(SettingsCode.OPEN_DAYS_BEFORE),
             close_hours_before=await self._int(SettingsCode.CLOSE_MINUTES_BEFORE)

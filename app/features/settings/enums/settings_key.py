@@ -3,6 +3,7 @@ from enum import StrEnum
 
 class SettingsCode(StrEnum):
     MAINTENANCE_MODE = "maintenance_mode"
+    MAINTENANCE_MESSAGE = "maintenance_message"
     APPLICATION_URL = "application_url"
     REPLY_TO_EMAIL = "email_reply_to"
     SUPPORT_EMAIL = "support_email"

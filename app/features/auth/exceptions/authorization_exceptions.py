@@ -1,4 +1,5 @@
 from app.core.exceptions.forbidden import ForbiddenError
+from app.core.exceptions.not_found import NotFoundError
 from app.features.auth.enums.permission_code import PermissionCode
 
 
@@ -26,3 +27,8 @@ class RoleLockedError(ForbiddenError):
 
     def __init__(self, role_name: str):
         super().__init__(f"Role {role_name} cannot be modified.", role_name=role_name)
+
+
+class RolePermissionNotFoundError(NotFoundError):
+    code = "role_permission_not_found"
+    detail = "Role permission not found."

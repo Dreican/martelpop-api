@@ -1,28 +1,35 @@
 import logging
 from datetime import datetime, UTC
+from typing import cast
 from uuid import UUID
 
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
+from app.features.auth.cache.permission_cache import PermissionCache
+from app.features.auth.dependencies.current_principal import CredentialsDep
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.requests.login_request import LoginRequest
 from app.features.auth.dto.requests.register_request import RegisterRequest
 from app.features.auth.dto.responses.token_response import TokenResponse
 from app.features.auth.dto.session_info import SessionInfo
 from app.features.auth.enums.auth_provider import AuthProvider
+from app.features.auth.enums.role_code import RoleCode
 from app.features.auth.exceptions.authentication_exceptions import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
     RefreshTokenReuseDetected
 )
+from app.features.auth.exceptions.helper import unauthorized
+from app.features.auth.exceptions.jwt_exceptions import ExpiredTokenError, InvalidTokenError
 from app.features.auth.models.authentication_identity import AuthenticationIdentity
 from app.features.auth.models.refresh_token import RefreshToken
 from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
 from app.features.auth.repositories.refresh_token_repository import RefreshTokenRepository
 from app.features.auth.repositories.role_repository import RoleRepository
-from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
 from app.features.users.dto.user_response import UserResponse
@@ -46,6 +53,7 @@ class AuthenticationService(BaseService):
             jwt_service: JwtService,
             refresh_token_repository: RefreshTokenRepository,
             slug_service: SlugService,
+            permission_cache: PermissionCache,
             user_response_factory: UserResponseFactory
     ) -> None:
         super().__init__(session)
@@ -56,7 +64,68 @@ class AuthenticationService(BaseService):
         self._jwt = jwt_service
         self._refresh_tokens = refresh_token_repository
         self._slug = slug_service
+        self._cache = permission_cache
         self._user_response = user_response_factory
+
+
+    async def authenticate(self,  access_token: str | None) -> Principal:
+        user = await self._authenticate_user(access_token)
+
+        return await self._create_principal(user)
+
+    def extract_token(self, authorization: str | None) -> str | None:
+        if authorization is None:
+            return None
+
+        if not authorization.startswith("Bearer "):
+            return None
+
+        return authorization[7:]
+
+    async def _authenticate_user(self, access_token: str | None) -> User | None:
+        if access_token is None:
+            return None
+
+        try:
+            payload = self._jwt.decode_access_token(access_token)
+        except (ExpiredTokenError, InvalidTokenError):
+            return None
+
+        user = await self._users.get_by_id(payload.sub)
+
+        if (
+            user is None
+            or not user.is_active
+            or user.is_deleted
+        ):
+            return None
+
+        return user
+
+    async def _create_principal(self, user) -> Principal:
+        if user is None:
+            role = await self._roles.require_by_code(RoleCode.ANONYMOUS)
+        else:
+            role = user.role
+
+        permissions = await self._cache.get_permissions(role.code)
+
+        return Principal(
+            user=user,
+            role=role,
+            permissions=frozenset(permissions),
+        )
+
+    @staticmethod
+    def require_authenticated(principal: Principal) -> AuthenticatedPrincipal:
+        if principal.user is None:
+            unauthorized("Not authenticated.")
+
+        return AuthenticatedPrincipal(
+            user=principal.user,
+            role=principal.role,
+            permissions=principal.permissions,
+        )
 
     async def register(self, request: RegisterRequest, session: SessionInfo) -> TokenResponse:
         try:
@@ -222,3 +291,4 @@ class AuthenticationService(BaseService):
             provider=AuthProvider.LOCAL,
             password_hash=password_hash
         )
+

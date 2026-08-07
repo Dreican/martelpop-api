@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Protocol, TypeVar, Generic
+from typing import Protocol, TypeVar, Generic, cast
 
 from sqlalchemy import select
 
@@ -26,7 +26,7 @@ class CodableRepository(BaseRepository[EntityT], Generic[EntityT, CodeT]):
 
     async def require_by_code(self, code: CodeT) -> EntityT:
         stmt = select(self._model).where(self._model.code == code)
-        entity = await self._session.scalar(stmt)
+        entity = cast(EntityT | None, await self._session.scalar(stmt))
 
         if entity is None:
             raise self._not_found_exception(code=code)

@@ -18,7 +18,7 @@ from app.features.registrations.enums.registration_status import RegistrationSta
 from app.features.registrations.exceptions.registrations_exceptions import (
     RegistrationClosedError,
     EventFullError,
-    AlreadyRegisteredError
+    AlreadyRegisteredError, RegistrationsDisabledError
 )
 from app.features.registrations.factories.participant_response_factory import ParticipantResponseFactory
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
@@ -27,6 +27,7 @@ from app.features.registrations.factories.registration_summary_response_factory 
 from app.features.registrations.models.registration import Registration
 from app.features.registrations.policies.registration_policy import RegistrationPolicy
 from app.features.registrations.repositories.registration_repository import RegistrationRepository
+from app.features.settings.enums.settings_key import SettingsCode
 from app.features.settings.services.application_settings import ApplicationSettings
 
 
@@ -52,6 +53,13 @@ class RegistrationService(BaseService):
         self._settings = application_settings
 
     async def register(self, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
+        registration_settings = await self._settings.registrations()
+        if not registration_settings.enabled:
+            raise RegistrationsDisabledError(
+                settings_code={SettingsCode.REGISTRATIONS_ENABLED},
+                value=registration_settings.enabled
+            )
+
         event = await self._events.get_required(request.event_id)
 
         if event.is_full:

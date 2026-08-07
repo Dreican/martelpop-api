@@ -15,6 +15,12 @@ async def seed_settings(session: AsyncSession) -> None:
             "value_type": SettingsType.BOOLEAN
         },
         {
+            "code": SettingsCode.MAINTENANCE_MESSAGE,
+            "string_value": "MartelPop is currently undergoing maintenance. We'll be back shortly.",
+            "description": "Maintenance Message",
+            "value_type": SettingsType.STRING
+        },
+        {
             "code": SettingsCode.APPLICATION_URL,
             "string_value": "http://localhost/",
             "description": "Site URL",

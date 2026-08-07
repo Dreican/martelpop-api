@@ -25,7 +25,7 @@ class PermissionCache:
         self._cache.clear()
 
     async def get_permissions(self, role: RoleCode) -> frozenset[PermissionCode]:
-        permissions = self._cache.get(role)
+        permissions = self.get(role)
 
         if permissions is not None:
             logger.debug("Permission cache hit for role %s", role.value)

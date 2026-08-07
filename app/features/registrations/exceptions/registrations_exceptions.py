@@ -20,3 +20,8 @@ class AlreadyRegisteredError(ApplicationError):
 class EventFullError(ApplicationError):
     code = "event_full"
     detail = "Event is full."
+
+
+class RegistrationsDisabledError(ApplicationError):
+    code = "registrations_disabled"
+    detail = "Registrations are disabled."

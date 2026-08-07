@@ -1,16 +1,18 @@
 from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.database.repositories.base_repository import BaseRepository
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.enums.role_code import RoleCode
+from app.features.auth.exceptions.authorization_exceptions import RolePermissionNotFoundError
 from app.features.auth.models.permission import Permission
 from app.features.auth.models.role import Role
 from app.features.auth.models.role_permission import RolePermission
 
 
-class AuthorizationRepository:
+class AuthorizationRepository(BaseRepository):
     def __init__(self, session: AsyncSession):
-        self._session = session
+        super().__init__(session, model=RolePermission, not_found_exception=RolePermissionNotFoundError)
 
     async def get_permission_codes(self, role_code: RoleCode) -> set[PermissionCode]:
         stmt = (select(Permission.code)

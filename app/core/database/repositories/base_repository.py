@@ -14,8 +14,8 @@ T = TypeVar("T", bound=Base)
 
 class BaseRepository[T]:
     def __init__(self, session: AsyncSession, model: type[T], not_found_exception: type[ApplicationError]):
-        self._model = model
         self._session = session
+        self._model = model
         self._not_found_exception = not_found_exception
 
     async def add(self, entity: T) -> None:
