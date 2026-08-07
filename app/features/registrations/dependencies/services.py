@@ -19,7 +19,6 @@ def get_registration_service(
         registration_policy: RegistrationPolicyDep,
         response_factory: RegistrationResponseFactoryDep,
         response_summary_factory: RegistrationSummaryResponseFactoryDep,
-        participant_response: ParticipantResponseFactoryDep,
         application_settings: ApplicationSettingsDep
 ) -> RegistrationService:
     return RegistrationService(
@@ -29,7 +28,6 @@ def get_registration_service(
         registration_policy=registration_policy,
         registration_response=response_factory,
         registration_summary_response=response_summary_factory,
-        participant_response=participant_response,
         application_settings=application_settings
     )
 

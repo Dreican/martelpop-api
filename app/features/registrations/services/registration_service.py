@@ -9,18 +9,15 @@ from app.features.auth.exceptions.authorization_exceptions import PermissionDeni
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.events.repositories.event_repository import EventRepository
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
-from app.features.registrations.dto.requests.registration_participant_request import RegistrationParticipantRequest
 from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
 from app.features.registrations.dto.requests.registration_update_request import RegistrationUpdateRequest
-from app.features.registrations.dto.responses.participant_response import ParticipantResponse
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
-from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import (
     RegistrationClosedError,
     EventFullError,
     AlreadyRegisteredError, RegistrationsDisabledError
 )
-from app.features.registrations.factories.participant_response_factory import ParticipantResponseFactory
+from app.features.events.factories.participant_response_factory import ParticipantResponseFactory
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
 from app.features.registrations.factories.registration_summary_response_factory import \
     RegistrationSummaryResponseFactory
@@ -40,7 +37,6 @@ class RegistrationService(BaseService):
             registration_policy: RegistrationPolicy,
             registration_response: RegistrationResponseFactory,
             registration_summary_response: RegistrationSummaryResponseFactory,
-            participant_response: ParticipantResponseFactory,
             application_settings: ApplicationSettings
     ):
         super().__init__(session)
@@ -49,7 +45,6 @@ class RegistrationService(BaseService):
         self._events = event_repository
         self._response = registration_response
         self._summary_response = registration_summary_response
-        self._participant_response = participant_response
         self._settings = application_settings
 
     async def register(self, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
@@ -62,6 +57,10 @@ class RegistrationService(BaseService):
 
         event = await self._events.get_required(request.event_id)
 
+        if not self._policy.can_register(event, principal):
+            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_CREATE},
+                                        user=principal.user.display_name)
+
         if event.is_full:
             raise EventFullError(event_slug=event.slug)
 
@@ -71,16 +70,8 @@ class RegistrationService(BaseService):
         if await self._registrations.exists(event.id, principal.user.id):
             raise AlreadyRegisteredError(event_slug=event.slug, user_display_name=principal.user.display_name)
 
-        if not self._policy.can_register(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_CREATE},
-                                        user=principal.user.display_name)
+        registration = Registration.create(event=event, user=principal.user, note=request.note)
 
-        registration = Registration(
-            event=event,
-            user=principal.user,
-            note=request.note,
-            status=RegistrationStatus.REGISTERED
-        )
         await self._registrations.add(registration)
         await self._save(registration)
 
@@ -125,14 +116,6 @@ class RegistrationService(BaseService):
 
         return self._response.create_page(page)
 
-    async def get_participant(
-            self,
-            request: RegistrationParticipantRequest,
-            principal: AuthenticatedPrincipal
-    ) -> Page[ParticipantResponse]:
-        event = await self._events.get_required(request.event_id)
-
-        return self._participant_response.create_page(event)
 
     async def _persist(self, registration: Registration) -> RegistrationResponse:
         await self._commit()

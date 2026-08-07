@@ -76,3 +76,13 @@ class Registration(Base):
     def cancel(self):
         self.cancelled_at = datetime.now()
         self.status = RegistrationStatus.CANCELLED
+
+    @staticmethod
+    def create(event: Event, user: User, note: str | None):
+        registration = Registration(
+            event=event,
+            user=user,
+            note=note,
+            status=RegistrationStatus.REGISTERED
+        )
+        return registration

@@ -6,7 +6,7 @@ from app.features.events.factories.activity_type_response_factory import Activit
 from app.features.events.factories.activity_type_summary_response_factory import ActivityTypeSummaryResponseFactory
 from app.features.events.factories.event_response_factory import EventResponseFactory
 from app.features.events.factories.event_summary_response_factory import EventSummaryResponseFactory
-from app.features.registrations.factories.participant_response_factory import ParticipantResponseFactory
+from app.features.events.factories.participant_response_factory import ParticipantResponseFactory
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
 from app.features.registrations.factories.registration_summary_response_factory import \
     RegistrationSummaryResponseFactory

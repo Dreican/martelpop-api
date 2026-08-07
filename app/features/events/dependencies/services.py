@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.dependencies.database import SessionDep
-from app.core.dependencies.response_factories import EventResponseFactoryDep
+from app.core.dependencies.response_factories import EventResponseFactoryDep, ParticipantResponseFactoryDep
 from app.core.dependencies.slug import SlugServiceDep
 from app.features.events.dependencies.policies import EventPolicyDep, EventAccessFilterDep
 from app.features.events.dependencies.repositories import (
@@ -23,8 +23,10 @@ def get_event_service(
         slug_service: SlugServiceDep,
         policy_service: EventPolicyDep,
         access_service: EventAccessFilterDep,
+        application_settings: ApplicationSettingsDep,
         response_factory: EventResponseFactoryDep,
-        application_settings: ApplicationSettingsDep
+        participant_response: ParticipantResponseFactoryDep
+
 ) -> EventService:
     return EventService(
         session=session,
@@ -34,8 +36,9 @@ def get_event_service(
         slug_service=slug_service,
         event_policy=policy_service,
         event_access=access_service,
+        application_settings=application_settings,
         event_response=response_factory,
-        application_settings=application_settings
+        participant_response=participant_response
     )
 
 

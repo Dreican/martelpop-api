@@ -137,7 +137,7 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     @property
     def is_registration_open(self) -> bool:
-        return self.status.is_bookable and not self.is_full
+        return self.status.is_bookable
 
     @property
     def is_deleted(self) -> bool:

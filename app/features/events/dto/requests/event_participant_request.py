@@ -7,7 +7,7 @@ from app.features.registrations.enums.registration_sort import RegistrationSort
 from app.features.registrations.enums.registration_status import RegistrationStatus
 
 
-class RegistrationParticipantRequest(BaseModel):
+class EventParticipantRequest(BaseModel):
     pagination: PageRequest = PageRequest()
 
     event_id: UUID

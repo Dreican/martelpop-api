@@ -54,6 +54,22 @@ class EventPolicy:
                 and self._is_owner_or_admin(event, principal)
         )
 
+    def can_view_participant(self, event: Event, principal: AuthenticatedPrincipal) -> bool:
+
+        if self._is_owner_or_admin(event, principal):
+            return True
+
+        match event.audience:
+            case EventAudience.VIP:
+                return (
+                        principal.user is not None
+                        and principal.is_vip
+                )
+            case _:
+                return principal.user is not None
+
+
+
     @staticmethod
     def visible_statuses(principal: Principal) -> set[EventStatusCode]:
         if principal.user is None:

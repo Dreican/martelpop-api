@@ -10,17 +10,21 @@ from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 from app.features.events.dto.requests.event_create_request import EventCreateRequest
+from app.features.events.dto.requests.event_participant_request import EventParticipantRequest
 from app.features.events.dto.requests.event_search_request import EventSearchRequest
 from app.features.events.dto.requests.event_update_request import EventUpdateRequest
 from app.features.events.dto.responses.event_response import EventResponse
+from app.features.events.dto.responses.participant_response import ParticipantResponse
 from app.features.events.exceptions.event_exceptions import EventNotFoundError
 from app.features.events.factories.event_response_factory import EventResponseFactory
+from app.features.events.factories.participant_response_factory import ParticipantResponseFactory
 from app.features.events.filters.event_access_filter import EventAccessFilter
 from app.features.events.models.event import Event
 from app.features.events.policies.event_policy import EventPolicy
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository
 from app.features.events.repositories.event_repository import EventRepository
 from app.features.events.repositories.event_status_repository import EventStatusRepository
+from app.features.registrations.repositories.registration_repository import RegistrationRepository
 from app.features.settings.services.application_settings import ApplicationSettings
 
 logger = logging.getLogger(__name__)
@@ -33,21 +37,26 @@ class EventService(BaseService):
             event_repository: EventRepository,
             event_status_repository: EventStatusRepository,
             activity_type_repository: ActivityTypeRepository,
+            registrations_repository: RegistrationRepository,
             slug_service: SlugService,
             event_policy: EventPolicy,
             event_access: EventAccessFilter,
+            application_settings: ApplicationSettings,
             event_response: EventResponseFactory,
-            application_settings: ApplicationSettings
+            participant_response: ParticipantResponseFactory
     ):
         super().__init__(session)
         self._event_repo = event_repository
         self._event_status_repo = event_status_repository
         self._activity_type_repo = activity_type_repository
+        self._registrations = registrations_repository
         self._slug = slug_service
         self._policy = event_policy
         self._access = event_access
-        self._response = event_response
         self._settings = application_settings
+        self._response = event_response
+        self._participant_response = participant_response
+
 
     async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         default_status = await self._event_status_repo.get_default()
@@ -161,6 +170,21 @@ class EventService(BaseService):
         event.complete(status)
 
         return await self._persist(event)
+
+
+    async def get_participant(
+            self,
+            request: EventParticipantRequest,
+            principal: AuthenticatedPrincipal
+    ) -> Page[ParticipantResponse]:
+        event = await self._event_repo.required_by_id_with_registration(request.event_id)
+
+        if not self._policy.can_view_participant(event, principal):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_READ}, user=principal.display_name)
+
+        page = await self._registrations.search_participants(request)
+
+        return self._participant_response.create_page(page)
 
     async def _persist(self, event: Event) -> EventResponse:
         await self._commit()

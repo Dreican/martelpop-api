@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database.repositories.base_repository import BaseRepository
 from app.core.pagination.page import Page
+from app.features.events.dto.requests.event_participant_request import EventParticipantRequest
 from app.features.events.models.event import Event
 from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
 from app.features.registrations.enums.registration_sort import RegistrationSort
@@ -62,6 +63,23 @@ class RegistrationRepository(BaseRepository[Registration]):
         stmt = self._with_detail_graph(stmt)
         stmt = self._apply_filter(stmt, request)
         stmt = self._apply_sort(stmt, request.sort)
+
+        return await self.paginate(stmt, request.pagination)
+
+
+    async def search_participants(self, request: EventParticipantRequest) -> Page[Registration]:
+        stmt = (
+            select(Registration)
+            .where(Registration.event_id == request.event_id)
+        )
+
+        if not request.include_cancelled:
+            stmt = stmt.where(
+                Registration.status != RegistrationStatus.CANCELLED
+            )
+
+        stmt = self._apply_sort(stmt, request.sort)
+
 
         return await self.paginate(stmt, request.pagination)
 
