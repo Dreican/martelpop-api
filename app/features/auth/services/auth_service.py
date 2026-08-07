@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.features.auth.cache.permission_cache import PermissionCache
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.requests.login_request import LoginRequest
 from app.features.auth.dto.requests.register_request import RegisterRequest
@@ -47,7 +46,6 @@ class AuthService(BaseService):
             jwt_service: JwtService,
             refresh_token_repository: RefreshTokenRepository,
             slug_service: SlugService,
-            permission_cache: PermissionCache,
             user_response_factory: UserResponseFactory
     ) -> None:
         super().__init__(session)
@@ -58,7 +56,6 @@ class AuthService(BaseService):
         self._jwt = jwt_service
         self._refresh_tokens = refresh_token_repository
         self._slug = slug_service
-        self._cache = permission_cache
         self._user_response = user_response_factory
 
     async def register(self, request: RegisterRequest, session: SessionInfo) -> TokenResponse:

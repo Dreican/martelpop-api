@@ -2,9 +2,10 @@ import logging
 
 from app.features.auth.cache.permission_cache import PermissionCache
 from app.features.auth.enums.role_code import RoleCode
+from app.features.auth.exceptions.helper import unauthorized
 from app.features.auth.exceptions.jwt_exceptions import ExpiredTokenError, InvalidTokenError
 from app.features.auth.repositories.role_repository import RoleRepository
-from app.features.auth.security.principal import Principal
+from app.features.auth.security.principal import Principal, AuthenticatedPrincipal
 from app.features.auth.services.jwt_service import JwtService
 from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
@@ -31,14 +32,15 @@ class PrincipalService:
 
         return await self._create_principal(user)
 
-    def extract_token(self, authorization: str | None) -> str | None:
-        if authorization is None:
-            return None
+    def require_authenticated(self, principal: Principal) -> AuthenticatedPrincipal:
+        if principal.user is None:
+            unauthorized("Not authenticated.")
 
-        if not authorization.startswith("Bearer "):
-            return None
-
-        return authorization[7:]
+        return AuthenticatedPrincipal(
+            user=principal.user,
+            role=principal.role,
+            permissions=principal.permissions,
+        )
 
     async def _resolve_user(self, access_token: str | None) -> User | None:
         if access_token is None:

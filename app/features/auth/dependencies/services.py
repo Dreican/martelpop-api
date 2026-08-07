@@ -7,6 +7,7 @@ from app.core.config.settings import get_settings
 from app.core.dependencies.database import SessionDep
 from app.core.dependencies.response_factories import UserResponseFactoryDep
 from app.core.dependencies.slug import SlugServiceDep
+from app.features.auth.dependencies.authorization import PermissionCacheDep
 from app.features.auth.dependencies.repositories import (
     RoleRepositoryDep,
     AuthenticationIdentityRepositoryDep,
@@ -15,6 +16,7 @@ from app.features.auth.dependencies.repositories import (
 from app.features.auth.services.auth_service import AuthService
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
+from app.features.auth.services.principal_service import PrincipalService
 from app.features.users.dependencies.repositories import UserRepositoryDep
 
 
@@ -34,8 +36,19 @@ def get_jwt_service() -> JwtService:
 
 JwtServiceDep = Annotated[JwtService, Depends(get_jwt_service)]
 
+def get_principal_service(
+        user_repository: UserRepositoryDep,
+        role_repository: RoleRepositoryDep,
+        jwt_service: JwtService,
+        permission_cache: PermissionCacheDep
+) -> PrincipalService:
+    return PrincipalService(user_repository=user_repository, role_repository=role_repository, jwt_service=jwt_service, permission_cache=permission_cache)
 
-def get_authentication_service(
+
+PrincipalServiceDep = Annotated[PrincipalService, Depends(get_principal_service)]
+
+
+def get_auth_service(
         session: SessionDep,
         user: UserRepositoryDep,
         role: RoleRepositoryDep,
@@ -59,4 +72,4 @@ def get_authentication_service(
     )
 
 
-AuthenticationServiceDep = Annotated[AuthService, Depends(get_authentication_service)]
+AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
