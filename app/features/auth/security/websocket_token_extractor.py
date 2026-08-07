@@ -1,4 +1,3 @@
-from app.features.auth.security.authentication_token_extractor import AuthenticationTokenExtractor
 from fastapi import WebSocket
 
 

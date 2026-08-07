@@ -39,7 +39,7 @@ JwtServiceDep = Annotated[JwtService, Depends(get_jwt_service)]
 def get_principal_service(
         user_repository: UserRepositoryDep,
         role_repository: RoleRepositoryDep,
-        jwt_service: JwtService,
+        jwt_service: JwtServiceDep,
         permission_cache: PermissionCacheDep
 ) -> PrincipalService:
     return PrincipalService(user_repository=user_repository, role_repository=role_repository, jwt_service=jwt_service, permission_cache=permission_cache)

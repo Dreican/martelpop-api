@@ -32,7 +32,8 @@ class PrincipalService:
 
         return await self._create_principal(user)
 
-    def require_authenticated(self, principal: Principal) -> AuthenticatedPrincipal:
+    @staticmethod
+    def require_authenticated(principal: Principal) -> AuthenticatedPrincipal:
         if principal.user is None:
             unauthorized("Not authenticated.")
 

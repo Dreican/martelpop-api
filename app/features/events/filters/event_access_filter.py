@@ -6,7 +6,8 @@ from app.features.events.filters.event_access import EventAccess
 
 class EventAccessFilter:
 
-    def build(self, principal: Principal) -> EventAccess:
+    @staticmethod
+    def build(principal: Principal) -> EventAccess:
         if principal.user is None:
             return EventAccess(
                 statuses=(
