@@ -1,8 +1,8 @@
 """Init
 
-Revision ID: d9b9424fd53a
+Revision ID: aa00cdef2c7f
 Revises: 
-Create Date: 2026-08-06 22:54:39.239344
+Create Date: 2026-08-07 00:05:58.739532
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd9b9424fd53a'
+revision: str = 'aa00cdef2c7f'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -60,6 +60,19 @@ def upgrade() -> None:
     sa.UniqueConstraint('name', name='uq_roles_name')
     )
     op.create_index(op.f('ix_roles_name'), 'roles', ['name'], unique=True)
+    op.create_table('settings',
+    sa.Column('code', sa.Enum('maintenance_mode', 'application_url', 'email_reply_to', 'support_email', 'contact_email', 'application_name', 'application_logo', 'application_favicon', 'footer_text', 'default_page_size', 'max_page_size', 'default_event_location', 'default_event_capacity', 'default_event_duration', 'registrations_enabled', 'waitlist_enabled', 'open_days_before', 'close_hours_before', 'email_enable', 'email_send_registration_confirmation', 'email_send_cancellation_confirmation', 'email_send_event_reminders', 'email_reminder_days_before', name='settingscode', native_enum=False), nullable=False),
+    sa.Column('string_value', sa.String(), nullable=True),
+    sa.Column('int_value', sa.Integer(), nullable=True),
+    sa.Column('bool_value', sa.Boolean(), nullable=True),
+    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('value_type', sa.Enum('string', 'integer', 'boolean', name='settingstype', native_enum=False), nullable=False),
+    sa.Column('id', sa.Uuid(), nullable=False),
+    sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('code')
+    )
     op.create_table('role_permissions',
     sa.Column('role_id', sa.Uuid(), nullable=False),
     sa.Column('permission_id', sa.Uuid(), nullable=False),
@@ -253,6 +266,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     op.drop_table('role_permissions')
+    op.drop_table('settings')
     op.drop_index(op.f('ix_roles_name'), table_name='roles')
     op.drop_table('roles')
     op.drop_index(op.f('ix_permissions_name'), table_name='permissions')
