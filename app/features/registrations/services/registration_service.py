@@ -47,7 +47,7 @@ class RegistrationService(BaseService):
         self._summary_response = registration_summary_response
         self._settings = application_settings
 
-    async def register(self, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
+    async def register(self, event_slug: str, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
         registration_settings = await self._settings.registrations()
         if not registration_settings.enabled:
             raise RegistrationsDisabledError(
@@ -55,11 +55,13 @@ class RegistrationService(BaseService):
                 value=registration_settings.enabled
             )
 
-        event = await self._events.get_required(request.event_id)
+        event = await self._events.required_by_slug(event_slug)
 
         if not self._policy.can_register(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.REGISTRATION_CREATE},
-                                        user=principal.user.display_name)
+            raise PermissionDeniedError(
+                permissions={PermissionCode.REGISTRATION_CREATE},
+                user=principal.user.display_name
+            )
 
         if event.is_full:
             raise EventFullError(event_slug=event.slug)
@@ -86,16 +88,17 @@ class RegistrationService(BaseService):
                 user=principal.user.display_name
             )
 
-        registration.cancel()
+        registration.cancel(principal.user)
 
         return await self._persist(registration)
 
     async def update(
             self,
+            registration_id: UUID,
             request: RegistrationUpdateRequest,
             principal: AuthenticatedPrincipal
     ) -> RegistrationResponse:
-        registration = await self._registrations.get_required(request.registration_id)
+        registration = await self._registrations.get_required(registration_id)
 
         if not self._policy.can_update(registration, principal):
             raise PermissionDeniedError(

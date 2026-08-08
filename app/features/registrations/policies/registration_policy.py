@@ -35,12 +35,8 @@ class RegistrationPolicy:
     @staticmethod
     def can_register(event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
-                event.status.is_bookable
-                and not event.is_full
-                and (
-                        not event.is_vip_event
-                        or principal.is_vip
-                )
+                not event.is_vip_event
+                or principal.is_vip
         )
 
     @staticmethod

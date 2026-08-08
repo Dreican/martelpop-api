@@ -10,11 +10,9 @@ class ParticipantResponseFactory(ResponseFactory[Registration, ParticipantRespon
     def __init__(
             self,
             storage: StorageService,
-            event_factory: EventSummaryResponseFactory,
             user_factory: UserSummaryResponseFactory
     ):
         super().__init__(storage)
-        self._events = event_factory
         self._users = user_factory
 
     def create(self, entity: Registration) -> ParticipantResponse:

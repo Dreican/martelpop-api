@@ -42,6 +42,17 @@ class Registration(Base):
     )
 
     cancelled_at: Mapped[datetime | None]
+    cancelled_by_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey(
+            "users.id",
+            name="fk_registrations_cancelled_by",
+        ),
+    )
+
+    cancelled_by: Mapped["User | None"] = relationship(
+        "User",
+        foreign_keys=[cancelled_by_id],
+    )
 
     checked_in: Mapped[bool] = mapped_column(
         default=False
@@ -73,8 +84,9 @@ class Registration(Base):
     def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
         return self.user_id == principal.user.id
 
-    def cancel(self):
+    def cancel(self, user: User):
         self.cancelled_at = datetime.now()
+        self.cancelled_by = user
         self.status = RegistrationStatus.CANCELLED
 
     @staticmethod
