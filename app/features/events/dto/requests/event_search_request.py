@@ -10,7 +10,7 @@ from app.features.events.enums.event_status_code import EventStatusCode
 class EventSearchRequest(BaseModel):
     pagination: PageRequest = PageRequest()
 
-    search: str | None
+    query: str | None
     activity_type_id: str | None
     starts_after: datetime | None
     ends_before: datetime | None

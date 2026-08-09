@@ -98,11 +98,11 @@ class EventRepository(SluggableRepository[Event]):
 
     @staticmethod
     def _apply_filters(stmt: Select[tuple[Any]], request: EventSearchRequest) -> Select[tuple[Any]]:
-        if request.search:
+        if request.query:
             stmt = stmt.where(
                 or_(
-                    Event.title.ilike(f"%{request.search}%"),
-                    Event.description.ilike(f"%{request.search}%")
+                    Event.title.ilike(f"%{request.query}%"),
+                    Event.description.ilike(f"%{request.query}%")
                 )
             )
 
