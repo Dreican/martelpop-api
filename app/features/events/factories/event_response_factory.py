@@ -22,5 +22,6 @@ class EventResponseFactory(ResponseFactory[Event, EventResponse]):
 
         response.banner_url = self._storage.public_url(entity.banner_file_id)
         response.activity_type = self._activity_type_factory.create(entity.activity_type)
+        response.creator = self._users.create(entity.creator)
 
         return response

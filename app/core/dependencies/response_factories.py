@@ -2,6 +2,9 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from app.features.auth.factories.permission_summary_response_factory import PermissionSummaryResponseFactory
+from app.features.auth.factories.role_response_factory import RoleResponseFactory
+from app.features.auth.factories.role_summary_response_factory import RoleSummaryResponseFactory
 from app.features.events.factories.activity_type_response_factory import ActivityTypeResponseFactory
 from app.features.events.factories.activity_type_summary_response_factory import ActivityTypeSummaryResponseFactory
 from app.features.events.factories.event_response_factory import EventResponseFactory
@@ -14,10 +17,23 @@ from app.features.storage.dependencies.services import StorageServiceDep
 from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.factories.user_summary_response_factory import UserSummaryResponseFactory
 
+def get_permission_summary_response_factory(storage: StorageServiceDep) -> PermissionSummaryResponseFactory:
+    return PermissionSummaryResponseFactory(storage=storage)
 
-def get_user_response_factory(storage: StorageServiceDep) -> UserResponseFactory:
-    return UserResponseFactory(storage=storage)
+PermissionSummaryResponseFactoryDep = Annotated[PermissionSummaryResponseFactory, Depends(get_permission_summary_response_factory)]
 
+
+def get_role_response_factory(storage: StorageServiceDep, permission: PermissionSummaryResponseFactoryDep) -> RoleResponseFactory:
+    return RoleResponseFactory(storage=storage, permission=permission)
+
+def get_role_summary_response_factory(storage: StorageServiceDep) -> RoleSummaryResponseFactory:
+    return RoleSummaryResponseFactory(storage=storage)
+
+RoleResponseFactoryDep = Annotated[RoleResponseFactory, Depends(get_role_response_factory)]
+RoleSummaryResponseFactoryDep = Annotated[RoleSummaryResponseFactory, Depends(get_role_summary_response_factory)]
+
+def get_user_response_factory(storage: StorageServiceDep, role: RoleSummaryResponseFactoryDep) -> UserResponseFactory:
+    return UserResponseFactory(storage=storage, role=role)
 
 def get_user_summary_response_factory(storage: StorageServiceDep) -> UserSummaryResponseFactory:
     return UserSummaryResponseFactory(storage=storage)

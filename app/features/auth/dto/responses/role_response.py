@@ -4,4 +4,4 @@ from app.features.auth.dto.responses.role_summary_response import RoleSummaryRes
 
 class RoleResponse(RoleSummaryResponse):
     description: str
-    permission: list[PermissionSummaryResponse]
+    permissions: list[PermissionSummaryResponse]
