@@ -38,6 +38,15 @@ async def cancel(
     return await registration_service.cancel(registration_id, principal)
 
 
+@router.get("/{registration_id}/undo", response_model=RegistrationResponse, status_code=status.HTTP_200_OK)
+async def uncancel(
+        registration_id: UUID,
+        registration_service: RegistrationServiceDep,
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.REGISTRATION_CANCEL)
+):
+    return await registration_service.uncancel(registration_id, principal)
+
+
 @router.patch("/{registration_id}", response_model=RegistrationResponse, status_code=status.HTTP_200_OK)
 async def update(
         registration_id: UUID,

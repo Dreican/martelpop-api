@@ -26,6 +26,8 @@ from app.features.registrations.policies.registration_policy import Registration
 from app.features.registrations.repositories.registration_repository import RegistrationRepository
 from app.features.settings.enums.settings_key import SettingsCode
 from app.features.settings.services.application_settings import ApplicationSettings
+from app.features.users.exceptions.user_exceptions import UserInactiveError
+from app.features.users.repositories.user_repository import UserRepository
 
 
 class RegistrationService(BaseService):
@@ -34,6 +36,7 @@ class RegistrationService(BaseService):
             session: AsyncSession,
             registration_repository: RegistrationRepository,
             event_repository: EventRepository,
+            user_repository: UserRepository,
             registration_policy: RegistrationPolicy,
             registration_response: RegistrationResponseFactory,
             registration_summary_response: RegistrationSummaryResponseFactory,
@@ -43,11 +46,15 @@ class RegistrationService(BaseService):
         self._registrations = registration_repository
         self._policy = registration_policy
         self._events = event_repository
+        self._users = user_repository
         self._response = registration_response
         self._summary_response = registration_summary_response
         self._settings = application_settings
 
     async def register(self, event_slug: str, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
+        return await self.register_user(event_slug, principal.user.id, request, principal)
+
+    async def register_user(self, event_slug: str, user_id: UUID, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
         registration_settings = await self._settings.registrations()
         if not registration_settings.enabled:
             raise RegistrationsDisabledError(
@@ -55,9 +62,16 @@ class RegistrationService(BaseService):
                 value=registration_settings.enabled
             )
 
+        user = principal.user
+        if user_id != principal.id:
+            user = await self._users.get_required(user_id)
+
+        if not user.is_active:
+            raise UserInactiveError(user_display_name=user.display_name)
+
         event = await self._events.required_by_slug(event_slug)
 
-        if not self._policy.can_register(event, principal):
+        if not self._policy.can_manage(event, principal):
             raise PermissionDeniedError(
                 permissions={PermissionCode.REGISTRATION_CREATE},
                 user=principal.user.display_name
@@ -70,9 +84,9 @@ class RegistrationService(BaseService):
             raise RegistrationClosedError(event_slug=event.slug)
 
         if await self._registrations.exists(event.id, principal.user.id):
-            raise AlreadyRegisteredError(event_slug=event.slug, user_display_name=principal.user.display_name)
+            raise AlreadyRegisteredError(event_slug=event.slug, admin=principal.user.display_name, user=user.display_name)
 
-        registration = Registration.create(event=event, user=principal.user, note=request.note)
+        registration = Registration.create(event=event, user=user, note=request.note)
 
         await self._registrations.add(registration)
         await self._save(registration)
@@ -89,6 +103,21 @@ class RegistrationService(BaseService):
             )
 
         registration.cancel(principal.user)
+
+        return await self._persist(registration)
+
+
+    async def uncancel(self, registration_id: UUID, principal: AuthenticatedPrincipal) -> RegistrationResponse:
+        registration = await self._registrations.get_required(registration_id)
+        event = registration.event
+
+        if not self._policy.can_register(event, principal):
+            raise PermissionDeniedError(
+                permissions={PermissionCode.REGISTRATION_CANCEL},
+                user=principal.user.display_name
+            )
+
+        registration.uncancel()
 
         return await self._persist(registration)
 

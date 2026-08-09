@@ -51,7 +51,8 @@ class RegistrationRepository(BaseRepository[Registration]):
 
         return bool(already_registered)
 
-    async def cancel(self, registration: Registration) -> None:
+    @staticmethod
+    async def cancel(registration: Registration) -> None:
         registration.status = RegistrationStatus.CANCELLED
 
     async def search_by_user(self, request: RegistrationSearchRequest, user_id: UUID) -> Page[Registration]:

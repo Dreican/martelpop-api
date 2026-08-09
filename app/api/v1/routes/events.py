@@ -29,7 +29,7 @@ async def get_event(event_slug: str, event_service: EventServiceDep,
     return await event_service.get_event_by_slug(event_slug, principal)
 
 
-@router.post("/{event_slug}/registrations", response_model=RegistrationResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/{event_slug}/register", response_model=RegistrationResponse, status_code=status.HTTP_201_CREATED)
 async def register(
         event_slug: str,
         request: RegistrationRequest,

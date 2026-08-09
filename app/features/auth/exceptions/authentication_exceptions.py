@@ -16,12 +16,6 @@ class InvalidCredentialsError(ApplicationError):
     detail = "Invalid credentials"
 
 
-class UserNotFoundError(ApplicationError):
-    status_code = status.HTTP_404_NOT_FOUND
-    code = "user_not_found"
-    detail = "User not found"
-
-
 class RoleNotFoundError(NotFoundError):
     code = "role_not_found"
     detail = "Role not found"

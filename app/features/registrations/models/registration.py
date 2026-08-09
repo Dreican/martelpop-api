@@ -89,6 +89,11 @@ class Registration(Base):
         self.cancelled_by = user
         self.status = RegistrationStatus.CANCELLED
 
+    def uncancel(self):
+        self.cancelled_at = None
+        self.cancelled_by = None
+        self.status = RegistrationStatus.REGISTERED
+
     @staticmethod
     def create(event: Event, user: User, note: str | None):
         registration = Registration(
