@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -10,6 +11,7 @@ from app.core.database.constraints import USERS_EMAIL_UNIQUE, USERS_SLUG_UNIQUE
 from app.core.database.mixin.slug import SlugMixin
 from app.core.database.mixin.soft_delete import SoftDeleteMixin
 from app.features.auth.enums.role_code import RoleCode
+from app.features.users.dto.user_update_request import UserUpdateRequest
 from app.features.users.enums.user_status import UserStatus
 
 if TYPE_CHECKING:
@@ -130,3 +132,13 @@ class User(Base, SoftDeleteMixin, SlugMixin):
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"
+
+    def update(self, request: UserUpdateRequest):
+        self.firstname = request.firstname
+        self.lastname = request.lastname
+        self.email = request.email
+        self.display_name = request.display_name
+        self.status = request.status
+
+    def delete(self):
+        self.deleted_at = datetime.now(UTC)

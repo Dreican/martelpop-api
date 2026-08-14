@@ -77,8 +77,7 @@ class EventService(BaseService):
         )
 
         await self._event_repo.add(event)
-        await self._flush()
-        await self._refresh(event)
+        await self._save(event)
         return self._response.create(event)
 
     async def get_event(self, event_id: UUID, principal: Principal) -> EventResponse:
