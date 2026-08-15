@@ -1,5 +1,4 @@
 from app.core.factories.response_factory import ResponseFactory
-from app.features.auth.dto.responses.role_summary_response import RoleSummaryResponse
 from app.features.auth.factories.role_summary_response_factory import RoleSummaryResponseFactory
 from app.features.storage.services.sotrage_service import StorageService
 from app.features.users.dto.user_response import UserResponse

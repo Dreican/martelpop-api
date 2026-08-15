@@ -39,8 +39,8 @@ def get_user_response_factory(storage: StorageServiceDep, role: RoleSummaryRespo
 def get_user_summary_response_factory(storage: StorageServiceDep) -> UserSummaryResponseFactory:
     return UserSummaryResponseFactory(storage=storage)
 
-def get_user_admin_response_factory(storage: StorageServiceDep) -> UserAdminResponseFactory:
-    return UserAdminResponseFactory(storage=storage)
+def get_user_admin_response_factory(storage: StorageServiceDep, role: RoleSummaryResponseFactoryDep) -> UserAdminResponseFactory:
+    return UserAdminResponseFactory(storage=storage, role=role)
 
 
 UserResponseFactoryDep = Annotated[UserResponseFactory, Depends(get_user_response_factory)]

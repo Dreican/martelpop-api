@@ -6,7 +6,6 @@ from app.features.users.enums.user_status import UserStatus
 
 
 class UserUpdateRequest(BaseModel):
-    id: UUID = Field(..., description="The user's id")
     email: str = Field(..., description="The user's email address")
     display_name: str = Field(..., description="The user's display name")
     firstname: str = Field(..., description="The user's first name")

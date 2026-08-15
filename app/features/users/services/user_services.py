@@ -9,11 +9,11 @@ from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.repositories.role_repository import RoleRepository
 from app.features.auth.security.principal import AuthenticatedPrincipal
-from app.features.users.dto import user_admin_response
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
 from app.features.users.dto.user_search_request import UserSearchRequest
 from app.features.users.dto.user_update_request import UserUpdateRequest
+from app.features.users.factories.user_admin_response_factory import UserAdminResponseFactory
 from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
@@ -27,7 +27,7 @@ class UserService(BaseService):
             role_repository: RoleRepository,
             slug_service: SlugService,
             user_response: UserResponseFactory,
-            user_admin_response: UserAdminResponse
+            user_admin_response: UserAdminResponseFactory
     ):
         super().__init__(session)
         self._users = user_repository
@@ -42,11 +42,11 @@ class UserService(BaseService):
     async def get_user(self, user_id: UUID) -> UserAdminResponse:
         return self._user_admin_response.create(await self._users.get_required(user_id))
 
-    async def update(self, request: UserUpdateRequest, principal: AuthenticatedPrincipal) -> UserResponse:
-        if not self._can_manage_user(principal, request.id):
+    async def update(self, user_id: UUID, request: UserUpdateRequest, principal: AuthenticatedPrincipal) -> UserResponse:
+        if not self._can_manage_user(principal, user_id):
             raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
 
-        user = await self._users.get_required(request.id)
+        user = await self._users.get_required(user_id)
 
         user.update(request)
 
