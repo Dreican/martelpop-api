@@ -4,7 +4,7 @@ from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.models.user import User
 
 
-class UserResponseFactory(ResponseFactory[User, UserAdminResponse]):
+class UserAdminResponseFactory(ResponseFactory[User, UserAdminResponse]):
     def __init__(self, storage: StorageService):
         super().__init__(storage)
 

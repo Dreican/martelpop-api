@@ -14,6 +14,7 @@ from app.features.registrations.factories.registration_response_factory import R
 from app.features.registrations.factories.registration_summary_response_factory import \
     RegistrationSummaryResponseFactory
 from app.features.storage.dependencies.services import StorageServiceDep
+from app.features.users.factories.user_admin_response_factory import UserAdminResponseFactory
 from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.factories.user_summary_response_factory import UserSummaryResponseFactory
 
@@ -37,6 +38,9 @@ def get_user_response_factory(storage: StorageServiceDep, role: RoleSummaryRespo
 
 def get_user_summary_response_factory(storage: StorageServiceDep) -> UserSummaryResponseFactory:
     return UserSummaryResponseFactory(storage=storage)
+
+def get_user_admin_response_factory(storage: StorageServiceDep) -> UserAdminResponseFactory:
+    return UserAdminResponseFactory(storage=storage)
 
 
 UserResponseFactoryDep = Annotated[UserResponseFactory, Depends(get_user_response_factory)]
