@@ -50,7 +50,7 @@ class JwtService:
             payload.role = role.code
 
         logger.debug("Token created")
-        return jwt.encode(payload.model_dump(mode="json"), self._signing_key, algorithm=self._config.algorithm)
+        return jwt.encode(payload.to_jwt_payload(), self._signing_key, algorithm=self._config.algorithm)
 
     def _decode(self, token: str, expected_type: TokenType) -> TokenPayload:
         try:

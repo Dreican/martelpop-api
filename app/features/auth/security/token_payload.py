@@ -19,3 +19,16 @@ class TokenPayload(BaseModel):
     exp: datetime
     jti: UUID
     nbf: datetime
+
+
+
+    def to_jwt_payload(self) -> dict:
+        payload = self.model_dump(mode="json")
+
+        payload["sub"] = str(self.sub)
+        payload["jti"] = str(self.jti)
+        payload["iat"] = int(self.iat.timestamp())
+        payload["exp"] = int(self.exp.timestamp())
+        payload["nbf"] = int(self.nbf.timestamp())
+
+        return payload
