@@ -6,6 +6,7 @@ from app.core.pagination.page import Page
 from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.users.dependencies.routes import UserSearchRequestDep
 from app.features.users.dependencies.services import UserServiceDep
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/users", tags=["Admin Users"])
 
 @router.get("/search", response_model=Page[UserResponse], status_code=status.HTTP_200_OK)
 async def get_users(
-        request: UserSearchRequest,
+        request: UserSearchRequestDep,
         user_service: UserServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.USER_READ)
 ):

@@ -45,6 +45,7 @@ def get_user_admin_response_factory(storage: StorageServiceDep, role: RoleSummar
 
 UserResponseFactoryDep = Annotated[UserResponseFactory, Depends(get_user_response_factory)]
 UserSummaryResponseFactoryDep = Annotated[UserSummaryResponseFactory, Depends(get_user_summary_response_factory)]
+UserAdminResponseFactoryDep = Annotated[UserAdminResponseFactory, Depends(get_user_admin_response_factory)]
 
 
 def get_activity_type_response_factory(storage: StorageServiceDep) -> ActivityTypeResponseFactory:

@@ -81,8 +81,8 @@ class UserRepository(SluggableRepository[User]):
         if request.role:
             stmt = stmt.where(Role.code.in_(request.role))
 
-        if request.status:
-            stmt = stmt.where(User.status.in_(request.status))
+        if request.statuses:
+            stmt = stmt.where(User.status.in_(request.statuses))
 
 
         return stmt

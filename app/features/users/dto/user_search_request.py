@@ -9,8 +9,8 @@ from app.features.users.enums.user_status import UserStatus
 class UserSearchRequest(BaseModel):
     pagination: PageRequest = PageRequest()
 
-    query: str
-    status: set[UserStatus] | None
+    query: str | None
+    statuses: set[UserStatus] | None
     role: set[RoleCode] | None
 
     sort: UserSort = UserSort.CREATED_AT_DESC
