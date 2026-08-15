@@ -177,8 +177,10 @@ class AuthService(BaseService):
 
     async def _create_user(self, request: RegisterRequest) -> User:
         default_role = await self._roles.get_default_role()
-        slug = await self._slug.create_unique(request.firstname, request.lastname,
-                                              slug_exists=self._users.exists_by_slug)
+        slug = await self._slug.create_unique(
+            request.display_name,
+            slug_exists=self._users.exists_by_slug,
+        )
 
         logger.info("User created", extra={"email": request.email, "role": default_role.name})
 
@@ -186,6 +188,7 @@ class AuthService(BaseService):
             email=request.email,
             firstname=request.firstname,
             lastname=request.lastname,
+            display_name=request.display_name,
             slug=slug,
             status=UserStatus.ACTIVE,
             role=default_role
