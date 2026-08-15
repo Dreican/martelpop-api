@@ -7,6 +7,5 @@ from app.features.users.dto.user_summary_response import UserSummaryResponse
 
 
 class UserResponse(UserSummaryResponse):
-    email: str
     is_active: bool
     role: RoleSummaryResponse

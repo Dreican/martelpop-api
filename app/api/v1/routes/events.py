@@ -21,7 +21,7 @@ router = APIRouter(
 async def search_events(
         request: EventSearchRequest, event_service: EventServiceDep,
         principal: Principal = permission(PermissionCode.EVENT_READ)
-        ):
+):
     return await event_service.list_events(request, principal)
 
 
@@ -29,7 +29,7 @@ async def search_events(
 async def get_event(
         event_slug: str, event_service: EventServiceDep,
         principal: Principal = permission(PermissionCode.EVENT_READ)
-        ):
+):
     return await event_service.get_event_by_slug(event_slug, principal)
 
 

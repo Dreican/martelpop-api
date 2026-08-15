@@ -4,7 +4,9 @@ from app.features.users.dto.user_response import UserResponse
 
 
 class UserAdminResponse(UserResponse):
-    is_active: bool
+    email: str
+    firstname: str
+    lastname: str
     deleted_at: datetime | None
     created_at: datetime
     updated_at: datetime

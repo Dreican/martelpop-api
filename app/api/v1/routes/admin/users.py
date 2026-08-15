@@ -32,20 +32,28 @@ async def get_user(
     return await user_service.get_user(user_id)
 
 
-@router.patch("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.patch(
+    "/{user_id}",
+    response_model=UserAdminResponse,
+    status_code=status.HTTP_200_OK
+)
 async def update_user(
         user_id: UUID,
         request: UserUpdateRequest,
         user_service: UserServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.USER_UPDATE)
-) -> UserResponse:
+) -> UserAdminResponse:
     return await user_service.update(user_id, request, principal)
 
 
-@router.delete("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/{user_id}",
+    response_model=UserAdminResponse,
+    status_code=status.HTTP_200_OK
+)
 async def delete_user(
         user_id: UUID,
         user_service: UserServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.USER_DELETE)
-) -> UserResponse:
+) -> UserAdminResponse:
     return await user_service.delete(user_id, principal)

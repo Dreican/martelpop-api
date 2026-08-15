@@ -20,7 +20,7 @@ router = APIRouter(
     "/register",
     response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
-    responses = {
+    responses={
         409: {"description": "Email already exists"},
     }
 )

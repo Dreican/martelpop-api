@@ -36,14 +36,17 @@ class UserService(BaseService):
         self._user_response = user_response
         self._user_admin_response = user_admin_response
 
-    async def me(self, principal: AuthenticatedPrincipal) -> UserResponse:
-        return self._user_response.create(principal.user)
+    async def me(self, principal: AuthenticatedPrincipal) -> UserAdminResponse:
+        return self._user_admin_response.create(principal.user)
 
     async def search(self, request: UserSearchRequest) -> Page[UserResponse]:
         return self._user_response.create_page(await self._users.search(request))
 
     async def get_user(self, user_id: UUID) -> UserAdminResponse:
         return self._user_admin_response.create(await self._users.get_required(user_id))
+
+    async def get_user_slug(self, user_slug: str) -> UserResponse:
+        return self._user_response.create(await self._users.required_by_slug(user_slug))
 
     async def update(
             self,
@@ -60,9 +63,9 @@ class UserService(BaseService):
 
         await self._update_slug_if_needed(user, old_display_name)
 
-        return await self._persist_admin(user)
+        return await self._persist(user)
 
-    async def update_me(self, request: UserUpdateRequest, principal: AuthenticatedPrincipal) -> UserResponse:
+    async def update_me(self, request: UserUpdateRequest, principal: AuthenticatedPrincipal) -> UserAdminResponse:
         if not self._can_manage_user(principal, principal.user.id):
             raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
 
@@ -89,9 +92,9 @@ class UserService(BaseService):
 
         user.delete()
 
-        return await self._persist_admin(user)
+        return await self._persist(user)
 
-    async def delete_me(self, principal: AuthenticatedPrincipal) -> UserResponse:
+    async def delete_me(self, principal: AuthenticatedPrincipal) -> UserAdminResponse:
         if not self._can_manage_user(principal, principal.user.id):
             raise PermissionDeniedError(permissions={PermissionCode.USER_DELETE}, user=principal.user.display_name)
 
@@ -105,13 +108,7 @@ class UserService(BaseService):
     def _can_manage_user(principal: AuthenticatedPrincipal, user_id: UUID) -> bool:
         return principal.is_admin or principal.user.id == user_id
 
-    async def _persist(self, user: User) -> UserResponse:
-        await self._commit()
-        await self._refresh(user)
-
-        return self._user_response.create(user)
-
-    async def _persist_admin(self, user: User) -> UserAdminResponse:
+    async def _persist(self, user: User) -> UserAdminResponse:
         await self._commit()
         await self._refresh(user)
 
