@@ -15,10 +15,11 @@ class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
     __table_args__ = (
-        Index("ix_refresh_tokens_user_active",
-              "user_id",
-              "revoked_at",
-              ),
+        Index(
+            "ix_refresh_tokens_user_active",
+            "user_id",
+            "revoked_at",
+            ),
 
     )
 

@@ -26,12 +26,14 @@ class JwtService:
     def _signing_key(self) -> str:
         return self._config.secret_key.get_secret_value()
 
-    def _create_token(self, *, user_id: UUID,
-                      token_type: TokenType,
-                      issued_at: datetime,
-                      expires_at: datetime,
-                      jti: UUID,
-                      role: Role | None = None) -> str:
+    def _create_token(
+            self, *, user_id: UUID,
+            token_type: TokenType,
+            issued_at: datetime,
+            expires_at: datetime,
+            jti: UUID,
+            role: Role | None = None
+            ) -> str:
 
         payload = TokenPayload(
             sub=user_id,

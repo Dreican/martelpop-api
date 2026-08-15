@@ -22,10 +22,8 @@ from app.features.auth.models.refresh_token import RefreshToken
 from app.features.auth.repositories.authentication_identity_repository import AuthenticationIdentityRepository
 from app.features.auth.repositories.refresh_token_repository import RefreshTokenRepository
 from app.features.auth.repositories.role_repository import RoleRepository
-from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
-from app.features.users.dto.user_response import UserResponse
 from app.features.users.enums.user_status import UserStatus
 from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.models.user import User

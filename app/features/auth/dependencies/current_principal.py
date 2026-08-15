@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials
 
-from app.features.auth.dependencies.services import AuthServiceDep, PrincipalServiceDep
+from app.features.auth.dependencies.services import PrincipalServiceDep
 from app.features.auth.security.bearer import bearer_scheme
 from app.features.auth.security.principal import Principal, AuthenticatedPrincipal
 
