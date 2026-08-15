@@ -22,8 +22,7 @@ class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
             .options(selectinload(AuthenticationIdentity.user))
             .where(AuthenticationIdentity.id == entity_id)
         )
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
 
     async def get_by_provider(self, provider: AuthProvider, provider_subject: str) -> AuthenticationIdentity | None:
         stmt = (
@@ -33,16 +32,14 @@ class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
                 AuthenticationIdentity.provider == provider,
                 AuthenticationIdentity.provider_user_id == provider_subject)
         )
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
 
     async def get_by_user_id(self, user_id: UUID) -> list[AuthenticationIdentity]:
         stmt = (
             select(AuthenticationIdentity)
             .where(AuthenticationIdentity.user_id == user_id)
         )
-        result = await self._session.execute(stmt)
-        return list(result.scalars().all())
+        return list(await self._session.scalars(stmt))
 
     async def get_by_user_email(self, email: str) -> AuthenticationIdentity | None:
         stmt = (
@@ -54,5 +51,4 @@ class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
                 User.email == email
             )
         )
-        result = await self._session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._session.scalar(stmt)
