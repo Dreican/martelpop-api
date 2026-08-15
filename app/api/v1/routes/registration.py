@@ -6,8 +6,8 @@ from app.core.pagination.page import Page
 from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.registrations.dependencies.routes import RegistrationSearchRequestDep
 from app.features.registrations.dependencies.services import RegistrationServiceDep
-from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
 from app.features.registrations.dto.requests.registration_update_request import RegistrationUpdateRequest
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
 
@@ -19,7 +19,7 @@ router = APIRouter(
 
 @router.get("/me", response_model=Page[RegistrationResponse], status_code=status.HTTP_200_OK)
 async def search_events(
-        request: RegistrationSearchRequest,
+        request: RegistrationSearchRequestDep,
         registration_service: RegistrationServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission()
 ):

@@ -6,7 +6,6 @@ from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import Principal, AuthenticatedPrincipal
 from app.features.events.dependencies.routes import EventSearchRequestDep
 from app.features.events.dependencies.services import EventServiceDep
-from app.features.events.dto.requests.event_search_request import EventSearchRequest
 from app.features.events.dto.responses.event_response import EventResponse
 from app.features.registrations.dependencies.services import RegistrationServiceDep
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest

@@ -10,12 +10,14 @@ from app.features.registrations.dependencies.policies import RegistrationPolicyD
 from app.features.registrations.dependencies.repositories import RegistrationRepositoryDep
 from app.features.registrations.services.registration_service import RegistrationService
 from app.features.settings.dependencies.settings import ApplicationSettingsDep
+from app.features.users.dependencies.repositories import UserRepositoryDep
 
 
 def get_registration_service(
         session: SessionDep,
         registration_repository: RegistrationRepositoryDep,
         event_repository: EventRepositoryDep,
+        user_repository: UserRepositoryDep,
         registration_policy: RegistrationPolicyDep,
         response_factory: RegistrationResponseFactoryDep,
         response_summary_factory: RegistrationSummaryResponseFactoryDep,
@@ -25,6 +27,7 @@ def get_registration_service(
         session=session,
         registration_repository=registration_repository,
         event_repository=event_repository,
+        user_repository=user_repository,
         registration_policy=registration_policy,
         registration_response=response_factory,
         registration_summary_response=response_summary_factory,

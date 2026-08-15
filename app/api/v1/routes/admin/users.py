@@ -10,7 +10,6 @@ from app.features.users.dependencies.routes import UserSearchRequestDep
 from app.features.users.dependencies.services import UserServiceDep
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
-from app.features.users.dto.user_search_request import UserSearchRequest
 from app.features.users.dto.user_update_request import UserUpdateRequest
 
 router = APIRouter(prefix="/users", tags=["Admin Users"])
