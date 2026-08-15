@@ -54,7 +54,11 @@ class UserService(BaseService):
         if not self._can_manage_user(principal, user_id):
             raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
 
-        user = await self._update_user(request, user_id)
+        user = await self._users.get_required(user_id)
+        old_display_name = user.display_name
+        user.update_admin(request)
+
+        await self._update_slug_if_needed(user, old_display_name)
 
         return await self._persist_admin(user)
 
@@ -62,21 +66,20 @@ class UserService(BaseService):
         if not self._can_manage_user(principal, principal.user.id):
             raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
 
-        user = await self._update_user(request, principal.user.id)
+        user = principal.user
+        old_display_name = user.display_name
+        user.update(request)
+
+        await self._update_slug_if_needed(user, old_display_name)
 
         return await self._persist(user)
 
-    async def _update_user(self, request: UserUpdateRequest, user_id: UUID) -> User:
-        user = await self._users.get_required(user_id)
-        slug = await self._slug.create_unique(
-            request.firstname,
-            request.lastname,
-            slug_exists=self._users.exists_by_slug
-        )
-
-        user.update(request, slug)
-
-        return user
+    async def _update_slug_if_needed(self, user: User, old_display_name: str) -> None:
+        if user.display_name != old_display_name:
+            user.slug = await self._slug.create_unique(
+                user.display_name,
+                slug_exists=self._users.exists_by_slug,
+            )
 
     async def delete(self, user_id: UUID, principal: AuthenticatedPrincipal) -> UserAdminResponse:
         if not self._can_manage_user(principal, user_id):

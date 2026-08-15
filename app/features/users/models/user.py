@@ -133,13 +133,12 @@ class User(Base, SoftDeleteMixin, SlugMixin):
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"
 
-    def update(self, request: UserUpdateRequest, slug: str):
+    def update(self, request: UserUpdateRequest):
         self.firstname = request.firstname
         self.lastname = request.lastname
         self.email = request.email
         self.display_name = request.display_name
         self.status = request.status
-        self.slug = slug
 
     def delete(self):
         self.deleted_at = datetime.now(UTC)
