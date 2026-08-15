@@ -12,6 +12,7 @@ from app.features.events.dependencies.repositories import (
     EventStatusRepositoryDep
 )
 from app.features.events.services.event_service import EventService
+from app.features.registrations.dependencies.repositories import RegistrationRepositoryDep
 from app.features.settings.dependencies.settings import ApplicationSettingsDep
 
 
@@ -20,6 +21,7 @@ def get_event_service(
         event_repository: EventRepositoryDep,
         event_status_repository: EventStatusRepositoryDep,
         activity_type_repository: ActivityTypeRepositoryDep,
+        registrations_repository: RegistrationRepositoryDep,
         slug_service: SlugServiceDep,
         policy_service: EventPolicyDep,
         access_service: EventAccessFilterDep,
@@ -33,6 +35,7 @@ def get_event_service(
         event_repository=event_repository,
         event_status_repository=event_status_repository,
         activity_type_repository=activity_type_repository,
+        registrations_repository=registrations_repository,
         slug_service=slug_service,
         event_policy=policy_service,
         event_access=access_service,

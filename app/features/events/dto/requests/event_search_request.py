@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -11,7 +12,7 @@ class EventSearchRequest(BaseModel):
     pagination: PageRequest = PageRequest()
 
     query: str | None
-    activity_type_id: str | None
+    activity_type_id: UUID | None
     starts_after: datetime | None
     ends_before: datetime | None
     statuses: set[EventStatusCode] | None

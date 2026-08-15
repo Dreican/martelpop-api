@@ -4,6 +4,7 @@ from app.core.pagination.page import Page
 from app.features.auth.dependencies.require_permissions import permission, authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import Principal, AuthenticatedPrincipal
+from app.features.events.dependencies.search import EventSearchRequestDep
 from app.features.events.dependencies.services import EventServiceDep
 from app.features.events.dto.requests.event_search_request import EventSearchRequest
 from app.features.events.dto.responses.event_response import EventResponse
@@ -19,7 +20,8 @@ router = APIRouter(
 
 @router.get("/search", response_model=Page[EventResponse], status_code=status.HTTP_200_OK)
 async def search_events(
-        request: EventSearchRequest, event_service: EventServiceDep,
+        request: EventSearchRequestDep,
+        event_service: EventServiceDep,
         principal: Principal = permission(PermissionCode.EVENT_READ)
 ):
     return await event_service.list_events(request, principal)

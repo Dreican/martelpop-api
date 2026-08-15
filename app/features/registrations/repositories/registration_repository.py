@@ -55,7 +55,7 @@ class RegistrationRepository(BaseRepository[Registration]):
     async def cancel(registration: Registration) -> None:
         registration.status = RegistrationStatus.CANCELLED
 
-    async def search_by_user(self, request: RegistrationSearch1Request, user_id: UUID) -> Page[Registration]:
+    async def search_by_user(self, request: RegistrationSearchRequest, user_id: UUID) -> Page[Registration]:
         stmt = (
             select(Registration)
             .where(Registration.user_id == user_id)

@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
+from app.core.pagination.page import Page
 from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
@@ -14,7 +15,7 @@ from app.features.users.dto.user_update_request import UserUpdateRequest
 router = APIRouter(prefix="/users", tags=["Admin Users"])
 
 
-@router.get("/search", response_model=list(UserResponse), status_code=status.HTTP_200_OK)
+@router.get("/search", response_model=Page[UserResponse], status_code=status.HTTP_200_OK)
 async def get_users(
         request: UserSearchRequest,
         user_service: UserServiceDep,
