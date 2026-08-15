@@ -19,7 +19,10 @@ router = APIRouter(
 @router.post(
     "/register",
     response_model=TokenResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    responses = {
+        409: {"description": "Email already exists"},
+    }
 )
 async def register(request: RegisterRequest, auth: AuthServiceDep, session: SessionInfoDep) -> TokenResponse:
     return await auth.register(request, session)
@@ -33,7 +36,6 @@ async def register(request: RegisterRequest, auth: AuthServiceDep, session: Sess
     description="Authenticates a user and returns an access token and refresh token.",
     responses={
         401: {"description": "Invalid credentials"},
-        409: {"description": "Email already exists"},
     }
 )
 async def login(request: LoginRequest, auth: AuthServiceDep, session: SessionInfoDep) -> TokenResponse:

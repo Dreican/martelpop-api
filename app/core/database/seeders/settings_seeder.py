@@ -70,13 +70,13 @@ async def seed_settings(session: AsyncSession) -> None:
         },
         {
             "code": SettingsCode.DEFAULT_PAGE_SIZE,
-            "int_value": 10,
+            "int_value": 50,
             "description": "Default Page Size",
             "value_type": SettingsType.INTEGER
         },
         {
             "code": SettingsCode.MAX_PAGE_SIZE,
-            "int_value": 100,
+            "int_value": 200,
             "description": "Max Page Size",
             "value_type": SettingsType.INTEGER
         },

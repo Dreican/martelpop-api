@@ -46,7 +46,10 @@ class UserService(BaseService):
         return self._user_admin_response.create(await self._users.get_required(user_id))
 
     async def update(
-            self, user_id: UUID, request: UserUpdateRequest, principal: AuthenticatedPrincipal
+            self,
+            user_id: UUID,
+            request: UserUpdateRequest,
+            principal: AuthenticatedPrincipal
     ) -> UserAdminResponse:
         if not self._can_manage_user(principal, user_id):
             raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
@@ -72,8 +75,6 @@ class UserService(BaseService):
         )
 
         user.update(request, slug)
-
-        user.update(request)
 
         return user
 
