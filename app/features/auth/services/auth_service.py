@@ -169,9 +169,6 @@ class AuthService(BaseService):
             extra={"user_id": user_id},
         )
 
-    async def me(self, principal: AuthenticatedPrincipal) -> UserResponse:
-        return self._user_response.create(principal.user)
-
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)
         if existing is not None:

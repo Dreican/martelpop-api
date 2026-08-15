@@ -10,8 +10,6 @@ from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
 from app.features.users.dto.user_search_request import UserSearchRequest
 from app.features.users.dto.user_update_request import UserUpdateRequest
-from app.features.users.factories.user_admin_response_factory import UserAdminResponseFactory
-from app.features.users.factories.user_response_factory import UserResponseFactory
 
 router = APIRouter(prefix="/users", tags=["Admin Users"])
 
@@ -51,5 +49,3 @@ async def delete_user(
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.USER_DELETE)
 ) -> UserResponse:
     return await user_service.delete(user_id, principal)
-
-

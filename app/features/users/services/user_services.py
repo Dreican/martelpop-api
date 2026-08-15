@@ -36,27 +36,62 @@ class UserService(BaseService):
         self._user_response = user_response
         self._user_admin_response = user_admin_response
 
+    async def me(self, principal: AuthenticatedPrincipal) -> UserResponse:
+        return self._user_response.create(principal.user)
+
     async def search(self, request: UserSearchRequest) -> Page[UserResponse]:
         return self._user_response.create_page(await self._users.search(request))
 
     async def get_user(self, user_id: UUID) -> UserAdminResponse:
         return self._user_admin_response.create(await self._users.get_required(user_id))
 
-    async def update(self, user_id: UUID, request: UserUpdateRequest, principal: AuthenticatedPrincipal) -> UserResponse:
+    async def update(
+            self, user_id: UUID, request: UserUpdateRequest, principal: AuthenticatedPrincipal
+    ) -> UserAdminResponse:
         if not self._can_manage_user(principal, user_id):
             raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
 
-        user = await self._users.get_required(user_id)
+        user = await self._update_user(request, user_id)
 
-        user.update(request)
+        return await self._persist_admin(user)
+
+    async def update_me(self, request: UserUpdateRequest, principal: AuthenticatedPrincipal) -> UserResponse:
+        if not self._can_manage_user(principal, principal.user.id):
+            raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
+
+        user = await self._update_user(request, principal.user.id)
 
         return await self._persist(user)
 
-    async def delete(self, user_id: UUID, principal: AuthenticatedPrincipal) -> UserResponse:
+    async def _update_user(self, request: UserUpdateRequest, user_id: UUID) -> User:
+        user = await self._users.get_required(user_id)
+        slug = await self._slug.create_unique(
+            request.firstname,
+            request.lastname,
+            slug_exists=self._users.exists_by_slug
+        )
+
+        user.update(request, slug)
+
+        user.update(request)
+
+        return user
+
+    async def delete(self, user_id: UUID, principal: AuthenticatedPrincipal) -> UserAdminResponse:
         if not self._can_manage_user(principal, user_id):
             raise PermissionDeniedError(permissions={PermissionCode.USER_DELETE}, user=principal.user.display_name)
 
         user = await self._users.get_required(user_id)
+
+        user.delete()
+
+        return await self._persist_admin(user)
+
+    async def delete_me(self, principal: AuthenticatedPrincipal) -> UserResponse:
+        if not self._can_manage_user(principal, principal.user.id):
+            raise PermissionDeniedError(permissions={PermissionCode.USER_DELETE}, user=principal.user.display_name)
+
+        user = await self._users.get_required(principal.user.id)
 
         user.delete()
 
@@ -71,3 +106,9 @@ class UserService(BaseService):
         await self._refresh(user)
 
         return self._user_response.create(user)
+
+    async def _persist_admin(self, user: User) -> UserAdminResponse:
+        await self._commit()
+        await self._refresh(user)
+
+        return self._user_admin_response.create(user)

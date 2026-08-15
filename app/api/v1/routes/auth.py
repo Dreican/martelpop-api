@@ -9,7 +9,6 @@ from app.features.auth.dto.requests.logout_request import LogoutRequest
 from app.features.auth.dto.requests.refresh_request import RefreshRequest
 from app.features.auth.dto.requests.register_request import RegisterRequest
 from app.features.auth.dto.responses.token_response import TokenResponse
-from app.features.users.dto.user_response import UserResponse
 
 router = APIRouter(
     prefix="/auth",
@@ -66,12 +65,3 @@ async def logout(request: LogoutRequest, auth: AuthServiceDep) -> Response:
 async def logout_all(principal: AuthenticatedPrincipalDep, auth: AuthServiceDep) -> Response:
     await auth.logout_all(principal.user.id)
     return Response()
-
-
-@router.get(
-    "/me",
-    status_code=status.HTTP_200_OK,
-    response_model=UserResponse
-)
-async def me(principal: AuthenticatedPrincipalDep, auth: AuthServiceDep) -> UserResponse:
-    return await auth.me(principal)

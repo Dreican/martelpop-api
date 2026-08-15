@@ -3,12 +3,9 @@ from uuid import UUID
 from fastapi import APIRouter, status
 
 from app.core.pagination.page import Page
-from app.features.auth.dependencies.require_permissions import permission, authenticated_permission
-from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
+from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
-from app.features.auth.security.principal import Principal, AuthenticatedPrincipal
-from app.features.events.dependencies.services import EventServiceDep
-from app.features.events.dto.responses.event_response import EventResponse
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.registrations.dependencies.services import RegistrationServiceDep
 from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
 from app.features.registrations.dto.requests.registration_update_request import RegistrationUpdateRequest
@@ -55,5 +52,3 @@ async def update(
         principal: AuthenticatedPrincipal = authenticated_permission()
 ):
     return await registration_service.update(registration_id, request, principal)
-
-
