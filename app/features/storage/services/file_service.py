@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 from fastapi import UploadFile
 
 from app.features.storage.interface.storage import Storage
+from app.features.storage.models import stored_file
 from app.features.storage.models.stored_file import StoredFile
 from app.features.storage.repositories.storage_repository import StorageRepository
 from app.features.storage.validator.file_validator import FileValidator
@@ -76,3 +77,9 @@ class FileService:
             raise
 
         return stored_file
+
+
+    async def download(self, file_id: UUID) -> tuple[StoredFile, AsyncIterator[bytes]]:
+        file = await self._repository.get_required(file_id)
+        content = await self._storage.read(key=file.storage_key)
+        return file, content
