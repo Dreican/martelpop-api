@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.auth.enums.permission_code import PermissionCode
-from app.features.auth.enums.role_code import RolesCode
+from app.features.auth.enums.role_code import RoleCode
 from app.features.auth.models.permission import Permission
 from app.features.auth.models.role import Role
 from app.features.auth.models.role_permission import RolePermission
@@ -10,32 +10,44 @@ from app.features.auth.models.role_permission import RolePermission
 
 async def seed_role_permissions(session: AsyncSession) -> None:
     role_permissions_seed = {
-        RolesCode.ADMIN: {
+        RoleCode.ADMIN: {
             PermissionCode.EVENT_READ,
             PermissionCode.EVENT_CREATE,
             PermissionCode.EVENT_UPDATE,
             PermissionCode.EVENT_DELETE,
             PermissionCode.EVENT_PUBLISH,
+            PermissionCode.EVENT_CANCEL,
             PermissionCode.REGISTRATION_MANAGE,
             PermissionCode.ROLE_UPDATE,
+            PermissionCode.ACTIVITY_TYPE_MANAGE,
         },
-        RolesCode.ORGANIZER: {
+        RoleCode.ORGANIZER: {
             PermissionCode.EVENT_READ,
             PermissionCode.EVENT_CREATE,
             PermissionCode.EVENT_UPDATE,
             PermissionCode.EVENT_DELETE,
             PermissionCode.EVENT_PUBLISH,
+            PermissionCode.EVENT_CANCEL,
+            PermissionCode.REGISTRATION_CREATE,
+            PermissionCode.REGISTRATION_CANCEL,
+            PermissionCode.ACTIVITY_TYPE_READ,
         },
-        RolesCode.VIP: {
+        RoleCode.VIP: {
             PermissionCode.EVENT_READ,
             PermissionCode.REGISTRATION_CREATE,
-            PermissionCode.REGISTRATION_CANCEL
+            PermissionCode.REGISTRATION_CANCEL,
+            PermissionCode.ACTIVITY_TYPE_READ,
         },
-        RolesCode.USER: {
+        RoleCode.USER: {
             PermissionCode.EVENT_READ,
             PermissionCode.REGISTRATION_CREATE,
-            PermissionCode.REGISTRATION_CANCEL
+            PermissionCode.REGISTRATION_CANCEL,
+            PermissionCode.ACTIVITY_TYPE_READ,
         },
+        RoleCode.ANONYMOUS: {
+            PermissionCode.EVENT_READ,
+            PermissionCode.ACTIVITY_TYPE_READ
+        }
     }
 
     roles = {

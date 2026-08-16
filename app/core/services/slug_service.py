@@ -5,11 +5,12 @@ from slugify import slugify
 
 class SlugService:
 
-    def create(*parts: str) -> str:
+    @staticmethod
+    def _create(*parts: str) -> str:
         return slugify("-".join(parts))
 
-    async def create_unique(*parts: str, slug_exists: Callable[[str], Awaitable[bool]]) -> str:
-        base = SlugService.create(*parts)
+    async def create_unique(self, *parts: str, slug_exists: Callable[[str], Awaitable[bool]]) -> str:
+        base = SlugService._create(*parts)
         slug = base
         counter = 2
 

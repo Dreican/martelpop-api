@@ -2,6 +2,6 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.core.config.settings import Settings, get_settings
+from app.core.config.configuration import Configuration, get_config
 
-SettingsDep = Annotated[Settings, Depends(get_settings)]
+ConfigDep = Annotated[Configuration, Depends(get_config)]

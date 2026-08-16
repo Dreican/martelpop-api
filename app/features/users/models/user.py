@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -9,6 +10,8 @@ from app.core.database.base import Base
 from app.core.database.constraints import USERS_EMAIL_UNIQUE, USERS_SLUG_UNIQUE
 from app.core.database.mixin.slug import SlugMixin
 from app.core.database.mixin.soft_delete import SoftDeleteMixin
+from app.features.auth.enums.role_code import RoleCode
+from app.features.users.dto.user_update_request import UserUpdateRequest
 from app.features.users.enums.user_status import UserStatus
 
 if TYPE_CHECKING:
@@ -34,6 +37,7 @@ class User(Base, SoftDeleteMixin, SlugMixin):
         index=True
     )
 
+    display_name: Mapped[str] = mapped_column(String(100))
     firstname: Mapped[str] = mapped_column(String(100))
     lastname: Mapped[str] = mapped_column(String(100))
 
@@ -114,5 +118,27 @@ class User(Base, SoftDeleteMixin, SlugMixin):
     def is_deleted(self) -> bool:
         return self.deleted_at is not None
 
+    @property
+    def is_admin(self) -> bool:
+        return self.role.code == RoleCode.ADMIN
+
+    @property
+    def is_vip(self):
+        return self.role.code == RoleCode.VIP
+
+    @property
+    def is_organizer(self):
+        return self.role.code == RoleCode.ORGANIZER
+
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, firstname={self.firstname!r}, lastname={self.lastname!r})"
+
+    def update(self, request: UserUpdateRequest):
+        self.firstname = request.firstname
+        self.lastname = request.lastname
+        self.email = request.email
+        self.display_name = request.display_name
+        self.status = request.status
+
+    def delete(self):
+        self.deleted_at = datetime.now(UTC)

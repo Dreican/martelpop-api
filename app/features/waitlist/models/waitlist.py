@@ -31,6 +31,7 @@ class Waitlist(Base):
         ForeignKey("events.id"),
         nullable=False
     )
+
     position: Mapped[int]
     promoted_at: Mapped[datetime | None]
 
@@ -39,5 +40,5 @@ class Waitlist(Base):
     )
 
     event: Mapped["Event"] = relationship(
-        back_populates="waitlist"
+        back_populates="waitlists"
     )

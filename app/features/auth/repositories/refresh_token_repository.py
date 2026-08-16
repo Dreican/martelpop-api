@@ -3,18 +3,25 @@ from uuid import UUID
 
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.database.repositories.base_repository import BaseRepository
+from app.features.auth.exceptions.authentication_exceptions import RefreshTokenNotFoundError
 from app.features.auth.models.refresh_token import RefreshToken
+from app.features.users.models.user import User
 
 
 class RefreshTokenRepository(BaseRepository[RefreshToken]):
     def __init__(self, session: AsyncSession):
-        super().__init__(session, model=RefreshToken)
+        super().__init__(session, model=RefreshToken, not_found_exception=RefreshTokenNotFoundError)
 
     async def get_by_jti(self, jti: UUID) -> RefreshToken | None:
         stmt = (
-            select(RefreshToken).where(RefreshToken.jti == jti)
+            select(RefreshToken)
+            .where(RefreshToken.jti == jti)
+            .options(selectinload(RefreshToken.user)
+                     .selectinload(User.role)
+            )
         )
 
         return await self._session.scalar(stmt)
@@ -28,20 +35,25 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
                 RefreshToken.revoked_at.is_(None),
                 RefreshToken.expires_at > now
             )
+            .options(selectinload(RefreshToken.user))
         )
 
         return await self._session.scalar(stmt)
 
     async def get_by_token_hash(self, token_hash: str) -> RefreshToken | None:
         stmt = (
-            select(RefreshToken).where(RefreshToken.token_hash == token_hash)
+            select(RefreshToken)
+            .where(RefreshToken.token_hash == token_hash)
+            .options(selectinload(RefreshToken.user))
         )
 
         return await self._session.scalar(stmt)
 
     async def get_by_user(self, user_id: UUID) -> list[RefreshToken]:
         stmt = (
-            select(RefreshToken).where(RefreshToken.user_id == user_id)
+            select(RefreshToken)
+            .where(RefreshToken.user_id == user_id)
+            .options(selectinload(RefreshToken.user))
         )
 
         return list(await self._session.scalars(stmt))
@@ -55,6 +67,7 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
                 RefreshToken.revoked_at.is_(None),
                 RefreshToken.expires_at > now
             )
+            .options(selectinload(RefreshToken.user))
         )
 
         return list(await self._session.scalars(stmt))

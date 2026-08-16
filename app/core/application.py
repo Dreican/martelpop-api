@@ -4,8 +4,9 @@ from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 
 from app.api.v1.router import api_router
+from app.core.exceptions.handler import register_exception_handlers
 from app.middleware import configure_cors, configure_trusted_hosts, RequestLoggingMiddleware, RequestContextMiddleware
-from app.middleware.error_handling import register_exception_handlers
+
 
 logger = logging.getLogger(__name__)
 

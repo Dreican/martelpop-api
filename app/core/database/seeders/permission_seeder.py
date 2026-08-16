@@ -63,9 +63,24 @@ async def seed_permissions(session: AsyncSession) -> None:
             "description": "Can update events status (draft/published/cancelled/completed)",
         },
         {
+            "code": PermissionCode.EVENT_CANCEL,
+            "name": "Cancel event",
+            "description": "Can cancel events",
+        },
+        {
             "code": PermissionCode.EVENT_READ,
             "name": "Read event",
             "description": "Can read events",
+        },
+        {
+            "code": PermissionCode.ACTIVITY_TYPE_READ,
+            "name": "Read activity type",
+            "description": "Can read activity types",
+        },
+        {
+            "code": PermissionCode.ACTIVITY_TYPE_MANAGE,
+            "name": "Manage activity type",
+            "description": "Can manage activity types",
         },
         {
             "code": PermissionCode.REGISTRATION_CREATE,

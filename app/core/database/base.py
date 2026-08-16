@@ -13,5 +13,3 @@ class Base(IdMixin, TimestampMixin, DeclarativeBase):
         UUID: Uuid,
         datetime: TIMESTAMP(timezone=True),
     }
-
-from app.core.database import models

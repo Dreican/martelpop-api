@@ -2,4 +2,4 @@ from pydantic import BaseModel
 
 
 class CORSConfig(BaseModel):
-    allowed_origins: list[str] = []
+    backend_cors_origins: list[str] = []

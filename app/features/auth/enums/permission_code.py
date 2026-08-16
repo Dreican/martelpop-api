@@ -18,7 +18,11 @@ class PermissionCode(StrEnum):
     EVENT_READ = "event.read"
     EVENT_UPDATE = "event.update"
     EVENT_DELETE = "event.delete"
+    EVENT_CANCEL = "event.cancel"
     EVENT_PUBLISH = "event.publish"
+
+    ACTIVITY_TYPE_READ = "activity_type.read"
+    ACTIVITY_TYPE_MANAGE = "activity_type.manage"
 
     REGISTRATION_CREATE = "registration.create"
     REGISTRATION_CANCEL = "registration.cancel"

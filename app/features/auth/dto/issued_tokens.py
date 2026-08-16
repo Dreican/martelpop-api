@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from app.features.auth.dto.token_response import TokenResponse
+from app.features.auth.dto.responses.token_response import TokenResponse
 
 
 @dataclass(slots=True)

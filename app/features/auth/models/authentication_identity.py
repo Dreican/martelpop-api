@@ -6,6 +6,7 @@ from sqlalchemy import UniqueConstraint, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
+from app.core.database.helpers import Helper
 from app.features.auth.enums.auth_provider import AuthProvider
 
 if TYPE_CHECKING:
@@ -31,7 +32,10 @@ class AuthenticationIdentity(Base):
     password_hash: Mapped[str | None]
 
     provider_user_id: Mapped[str | None] = mapped_column(String(255))
-    provider: Mapped[AuthProvider] = mapped_column(index=True)
+    provider: Mapped[AuthProvider] = mapped_column(
+        Helper.enum_column(AuthProvider),
+        index=True
+    )
 
     last_login_at: Mapped[datetime | None]
 

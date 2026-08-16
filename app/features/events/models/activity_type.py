@@ -48,6 +48,8 @@ class ActivityType(Base, SoftDeleteMixin, SlugMixin):
     default_capacity: Mapped[int | None]
     default_duration_minutes: Mapped[int | None]
 
+    is_default: Mapped[bool] = mapped_column(default=False)
+
     events: Mapped[list["Event"]] = relationship(
         back_populates="activity_type",
     )

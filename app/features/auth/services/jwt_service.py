@@ -26,12 +26,14 @@ class JwtService:
     def _signing_key(self) -> str:
         return self._config.secret_key.get_secret_value()
 
-    def _create_token(self, *, user_id: UUID,
-                      token_type: TokenType,
-                      issued_at: datetime,
-                      expires_at: datetime,
-                      jti: UUID,
-                      role: Role | None = None) -> str:
+    def _create_token(
+            self, *, user_id: UUID,
+            token_type: TokenType,
+            issued_at: datetime,
+            expires_at: datetime,
+            jti: UUID,
+            role: Role | None = None
+            ) -> str:
 
         payload = TokenPayload(
             sub=user_id,
@@ -48,7 +50,7 @@ class JwtService:
             payload.role = role.code
 
         logger.debug("Token created")
-        return jwt.encode(payload.model_dump(mode="json"), self._signing_key, algorithm=self._config.algorithm)
+        return jwt.encode(payload.to_jwt_payload(), self._signing_key, algorithm=self._config.algorithm)
 
     def _decode(self, token: str, expected_type: TokenType) -> TokenPayload:
         try:
@@ -99,7 +101,6 @@ class JwtService:
             token_type=TokenType.REFRESH,
             issued_at=now,
             expires_at=refresh_expires_at,
-            role=user.role,
             jti=refresh_jti,
         )
 

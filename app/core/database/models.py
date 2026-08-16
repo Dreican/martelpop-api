@@ -1,3 +1,6 @@
+# Settings
+from app.features.settings.models.setting import Setting
+
 # users
 from app.features.users.models.user import User
 
@@ -23,6 +26,7 @@ from app.features.storage.models.stored_file import StoredFile
 from app.features.waitlist.models.waitlist import Waitlist
 
 __all__ = [
+    "Setting",
     "User",
     "Role",
     "RolePermission",

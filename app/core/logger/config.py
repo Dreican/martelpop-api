@@ -1,12 +1,12 @@
 import logging.config
 from pathlib import Path
 
-from app.core.config.settings import get_settings
+from app.core.config.configuration import get_config
 
 
 def setup_logging():
-    settings = get_settings()
-    log_dir = Path(settings.log.dir)
+    config = get_config()
+    log_dir = Path(config.log.dir)
     log_dir.mkdir(parents=True, exist_ok=True)
 
     logging.config.dictConfig(
@@ -16,30 +16,30 @@ def setup_logging():
 
             "formatters": {
                 "default": {
-                    "format": settings.log.format
+                    "format": config.log.format
                 }
             },
             "handlers": {
                 "console": {
                     "class": "logging.StreamHandler",
                     "formatter": "default",
-                    "level": settings.log.level
+                    "level": config.log.level
                 },
 
                 "file": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "formatter": "default",
-                    "filename": str(log_dir / settings.log.file),
+                    "filename": str(log_dir / config.log.file),
                     "maxBytes": 10 * 1024 * 1024,
                     "backupCount": 5,
                     "encoding": "utf-8",
-                    "level": settings.log.level
+                    "level": config.log.level
                 },
 
                 "error_file": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "formatter": "default",
-                    "filename": str(log_dir / settings.log.error_file),
+                    "filename": str(log_dir / config.log.error_file),
                     "maxBytes": 10 * 1024 * 1024,
                     "backupCount": 5,
                     "encoding": "utf-8",
@@ -75,7 +75,7 @@ def setup_logging():
 
             "root": {
                 "handlers": ["console", "file", "error_file"],
-                "level": settings.log.level
+                "level": config.log.level
             }
         }
     )

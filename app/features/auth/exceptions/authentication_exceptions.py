@@ -1,6 +1,7 @@
 from fastapi import status
 
 from app.core.exceptions.base import ApplicationError
+from app.core.exceptions.not_found import NotFoundError
 
 
 class EmailAlreadyExistsError(ApplicationError):
@@ -15,10 +16,9 @@ class InvalidCredentialsError(ApplicationError):
     detail = "Invalid credentials"
 
 
-class UserNotFoundError(ApplicationError):
-    status_code = status.HTTP_404_NOT_FOUND
-    code = "user_not_found"
-    detail = "User not found"
+class RoleNotFoundError(NotFoundError):
+    code = "role_not_found"
+    detail = "Role not found"
 
 
 class DefaultRoleNotFoundError(ApplicationError):
@@ -31,3 +31,15 @@ class RefreshTokenReuseDetected(ApplicationError):
     status_code = status.HTTP_400_BAD_REQUEST
     code = "refresh_token_reuse_detected"
     detail = "Refresh token reuse detected"
+
+
+class AuthenticationIdentityNotFoundError(NotFoundError):
+    status_code = status.HTTP_404_NOT_FOUND
+    code = "authentication_identity_not_found"
+    detail = "Authentication identity not found"
+
+
+class RefreshTokenNotFoundError(NotFoundError):
+    status_code = status.HTTP_404_NOT_FOUND
+    code = "refresh_token_not_found"
+    detail = "Refresh token not found"

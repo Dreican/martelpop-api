@@ -1,6 +1,6 @@
 alembic==1.18.5
-annotated-doc==0.0.4
-annotated-types==0.7.0
+annotated-doc==0.0.5
+annotated-types==0.8.0
 anyio==4.14.2
 argon2-cffi==25.1.0
 argon2-cffi-bindings==25.1.0
@@ -14,9 +14,9 @@ detect-installer==0.1.0
 dnspython==2.8.0
 ecdsa==0.19.2
 email-validator==2.3.0
-fastapi==0.139.2
+fastapi==0.141.1
 fastapi-cli==0.0.32
-fastapi-cloud-cli==0.22.2
+fastapi-cloud-cli==0.23.0
 fastar==0.11.0
 greenlet==3.5.4
 h11==0.16.0
@@ -65,6 +65,6 @@ typing-inspection==0.4.2
 typing_extensions==4.16.0
 tzdata==2026.3
 urllib3==2.7.0
-uvicorn==0.51.0
+uvicorn==0.52.0
 watchfiles==1.2.0
-websockets==16.1.1
+websockets==17.0

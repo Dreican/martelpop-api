@@ -1,8 +1,9 @@
 from enum import StrEnum
 
 
-class RolesCode(StrEnum):
+class RoleCode(StrEnum):
     ADMIN = "admin"
     ORGANIZER = "organizer"
     VIP = "vip"
     USER = "user"
+    ANONYMOUS = "anonymous"

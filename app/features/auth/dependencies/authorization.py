@@ -10,8 +10,8 @@ from app.features.auth.services.authorization_service import AuthorizationServic
 
 
 @lru_cache
-def get_permission_cache() -> PermissionCache:
-    return PermissionCache()
+def get_permission_cache(authorization_repository: AuthorizationRepositoryDep) -> PermissionCache:
+    return PermissionCache(authorization_repository)
 
 
 PermissionCacheDep = Annotated[PermissionCache, Depends(get_permission_cache)]
@@ -24,9 +24,8 @@ def get_authorization_repository(session: SessionDep) -> AuthorizationRepository
 AuthorizationRepositoryDep = Annotated[AuthorizationRepository, Depends(get_authorization_repository)]
 
 
-def get_authorization_service(repository: AuthorizationRepositoryDep,
-                              cache: PermissionCacheDep, ) -> AuthorizationService:
-    return AuthorizationService(authorization_repository=repository, permission_cache=cache)
+def get_authorization_service() -> AuthorizationService:
+    return AuthorizationService()
 
 
 AuthorizationServiceDep = Annotated[AuthorizationService, Depends(get_authorization_service)]

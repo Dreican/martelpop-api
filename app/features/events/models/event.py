@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -8,8 +8,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.constraints import EVENTS_SLUG_UNIQUE
+from app.core.database.helpers import Helper
 from app.core.database.mixin.slug import SlugMixin
 from app.core.database.mixin.soft_delete import SoftDeleteMixin
+from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.events.enums.event_audience import EventAudience
+from app.features.events.enums.event_status_code import EventStatusCode
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User
@@ -50,6 +54,16 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     capacity: Mapped[int | None]
 
+    published_at: Mapped[datetime | None]
+    cancelled_at: Mapped[datetime | None]
+    completed_at: Mapped[datetime | None]
+
+    audience: Mapped[EventAudience] = mapped_column(
+        Helper.enum_column(EventAudience),
+        nullable=False,
+        default=EventAudience.PUBLIC,
+    )
+
     banner_file_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("stored_files.id"),
     )
@@ -81,7 +95,83 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         cascade="all, delete-orphan",
     )
 
-    waitlist: Mapped[list["Waitlist"]] = relationship(
+    waitlists: Mapped[list["Waitlist"]] = relationship(
         back_populates="event",
         cascade="all, delete-orphan",
     )
+
+    @property
+    def is_full(self) -> bool:
+        return self.capacity is not None and (self.remaining_capacity <= 0)
+
+    @property
+    def remaining_capacity(self) -> int | None:
+        if self.capacity is None:
+            return None
+
+        return self.capacity - len(self.registrations)
+
+    @property
+    def is_waitlisted(self) -> bool:
+        return len(self.waitlists) > 0
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.status.code == EventStatusCode.CANCELLED
+
+    @property
+    def is_draft(self) -> bool:
+        return self.status.code == EventStatusCode.DRAFT
+
+    @property
+    def is_published(self) -> bool:
+        return self.status.code == EventStatusCode.PUBLISHED
+
+    @property
+    def is_completed(self) -> bool:
+        return self.status.code == EventStatusCode.COMPLETED
+
+    @property
+    def is_vip_event(self) -> bool:
+        return self.audience == EventAudience.VIP
+
+    @property
+    def is_registration_open(self) -> bool:
+        return self.status.is_bookable
+
+    @property
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None
+
+    def update(self, title: str, description: str, location: str, start_at: datetime, end_at: datetime, capacity: int):
+        self.title = title
+        self.description = description
+        self.location = location
+        self.start_at = start_at
+        self.end_at = end_at
+        self.capacity = capacity
+
+    def publish(self, event_status: EventStatus) -> None:
+        self.status = event_status
+        self.published_at = datetime.now(UTC)
+
+    def cancel(self, event_status: EventStatus) -> None:
+        self.status = event_status
+        self.cancelled_at = datetime.now(UTC)
+
+    def complete(self, event_status: EventStatus) -> None:
+        self.status = event_status
+        self.completed_at = datetime.now(UTC)
+
+    def unpublish(self, event_status: EventStatus) -> None:
+        self.status = event_status
+        self.published_at = None
+        self.cancelled_at = None
+        self.completed_at = None
+
+    def delete(self, event_status: EventStatus) -> None:
+        self.cancel(event_status)
+        self.deleted_at = datetime.now(UTC)
+
+    def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
+        return self.created_by == principal.user.id

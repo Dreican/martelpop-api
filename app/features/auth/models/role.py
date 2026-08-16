@@ -1,12 +1,13 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, UniqueConstraint, Enum
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.constraints import ROLES_NAME_UNIQUE
-from app.features.auth.enums.role_code import RolesCode
+from app.core.database.helpers import Helper
+from app.features.auth.enums.role_code import RoleCode
 
 if TYPE_CHECKING:
     from app.features.auth.models.role_permission import RolePermission
@@ -19,21 +20,18 @@ class Role(Base):
         UniqueConstraint("name", name=ROLES_NAME_UNIQUE),
     )
 
-    code: Mapped[RolesCode] = mapped_column(
-        Enum(
-            RolesCode,
-            values_callable=lambda e: [item.value for item in e],
-            native_enum=False,
-            name="role_code",
-        ),
+    code: Mapped[RoleCode] = mapped_column(
+        Helper.enum_column(RoleCode),
         unique=True,
         nullable=False,
     )
+
     name: Mapped[str] = mapped_column(
         String(50),
         unique=True,
         index=True,
     )
+
     description: Mapped[str | None]
 
     is_default: Mapped[bool] = mapped_column(default=False)
