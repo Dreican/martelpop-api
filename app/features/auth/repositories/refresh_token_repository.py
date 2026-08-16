@@ -8,6 +8,7 @@ from sqlalchemy.orm import selectinload
 from app.core.database.repositories.base_repository import BaseRepository
 from app.features.auth.exceptions.authentication_exceptions import RefreshTokenNotFoundError
 from app.features.auth.models.refresh_token import RefreshToken
+from app.features.users.models.user import User
 
 
 class RefreshTokenRepository(BaseRepository[RefreshToken]):
@@ -18,7 +19,9 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
         stmt = (
             select(RefreshToken)
             .where(RefreshToken.jti == jti)
-            .options(selectinload(RefreshToken.user))
+            .options(selectinload(RefreshToken.user)
+                     .selectinload(User.role)
+            )
         )
 
         return await self._session.scalar(stmt)

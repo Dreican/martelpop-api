@@ -46,7 +46,9 @@ class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
         stmt = (
             select(AuthenticationIdentity)
             .join(AuthenticationIdentity.user)
-            .options(selectinload(AuthenticationIdentity.user))
+            .options(selectinload(AuthenticationIdentity.user)
+                     .selectinload(User.role)
+            )
             .where(
                 AuthenticationIdentity.provider == AuthProvider.LOCAL,
                 User.email == email

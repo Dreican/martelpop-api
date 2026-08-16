@@ -101,7 +101,6 @@ class JwtService:
             token_type=TokenType.REFRESH,
             issued_at=now,
             expires_at=refresh_expires_at,
-            role=user.role,
             jti=refresh_jti,
         )
 

@@ -80,25 +80,26 @@ class AuthService(BaseService):
         return tokens.response
 
     async def login(self, request: LoginRequest, session: SessionInfo) -> TokenResponse:
-        identity = await self._identities.get_by_user_email(request.email)
-
-        if identity is None:
-            logger.warning("User doesn't exist", extra={"email": request.email})
-            raise InvalidCredentialsError(email=request.email)
-
-        if identity.password_hash is None:
-            logger.error("User has no password", extra={"user_id": identity.user.id, "email": request.email})
-            raise InvalidCredentialsError(email=request.email)
-
-        if not identity.user.is_active:
-            logger.warning("User is inactive", extra={"user_id": identity.user.id, "email": request.email})
-            raise InvalidCredentialsError(email=request.email)
-
-        if not self._password.verify_password(request.password, identity.password_hash):
-            logger.warning("Invalid credentials", extra={"email": request.email})
-            raise InvalidCredentialsError(email=request.email)
-
         async with self._session.begin():
+            identity = await self._identities.get_by_user_email(request.email)
+
+            if identity is None:
+                logger.warning("User doesn't exist", extra={"email": request.email})
+                raise InvalidCredentialsError(email=request.email)
+
+            if identity.password_hash is None:
+                logger.error("User has no password", extra={"user_id": identity.user.id, "email": request.email})
+                raise InvalidCredentialsError(email=request.email)
+
+            if not identity.user.is_active:
+                logger.warning("User is inactive", extra={"user_id": identity.user.id, "email": request.email})
+                raise InvalidCredentialsError(email=request.email)
+
+            if not self._password.verify_password(request.password, identity.password_hash):
+                logger.warning("Invalid credentials", extra={"email": request.email})
+                raise InvalidCredentialsError(email=request.email)
+
+
             identity.last_login_at = datetime.now(UTC)
             tokens = await self._issue_tokens(identity.user, session)
             await self._refresh_tokens.add(tokens.refresh_token)
@@ -118,8 +119,7 @@ class AuthService(BaseService):
 
             if stored.is_revoked:
                 logger.warning("Refresh token is revoked", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
-                async with self._session.begin():
-                    await self._refresh_tokens.revoke_all_for_user(stored.user_id)
+                await self._refresh_tokens.revoke_all_for_user(stored.user_id)
 
                 raise RefreshTokenReuseDetected(user_id=payload.sub)
 
