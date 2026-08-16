@@ -18,11 +18,8 @@ class StoredFile(Base):
         unique=True
     )
     original_filename: Mapped[str] = mapped_column(String(255))
+    storage_key: Mapped[str] = mapped_column(String(500), unique=True)
     mime_type: Mapped[str] = mapped_column(String(100))
-    storage_path: Mapped[str] = mapped_column(
-        String(500),
-        unique=True,
-    )
 
     size: Mapped[int]
     checksum: Mapped[str] = mapped_column(
