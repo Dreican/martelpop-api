@@ -2,6 +2,7 @@ import asyncio
 from collections.abc import AsyncIterator
 from pathlib import Path
 
+from app.features.storage.exceptions.storage_exceptions import FilePathError
 from app.features.storage.interface.storage import Storage
 
 
@@ -16,14 +17,18 @@ class LocalStorage(Storage):
         path = (self._base_path / key).resolve()
 
         if not path.is_relative_to(self._base_path.resolve()):
-            raise ValueError(f"Path {path} is not within {self._base_path}")
+            raise FilePathError(f"Path {path} is not within {self._base_path}")
 
         return path
 
     async def save(self, file: AsyncIterator[bytes], *, key: str) -> None:
         path = self._resolve_path(key)
 
-        path.parent.mkdir(parents=True, exist_ok=True)
+        await asyncio.to_thread(
+            path.parent.mkdir,
+            parents=True,
+            exist_ok=True
+        )
 
         temporary_path = path.with_name(
             f".{path.name}.tmp"
@@ -64,14 +69,17 @@ class LocalStorage(Storage):
     async def read(self, *, key: str) -> AsyncIterator[bytes]:
         path = self._resolve_path(key)
 
-        with path.open("rb") as source:
-            while True:
-                chunk = await asyncio.to_thread(
-                    source.read,
-                    self._chunk_size,
-                )
+        async def stream() -> AsyncIterator[bytes]:
+            with path.open("rb") as source:
+                while True:
+                    chunk = await asyncio.to_thread(
+                        source.read,
+                        self._chunk_size,
+                    )
 
-                if not chunk:
-                    break
+                    if not chunk:
+                        break
 
-                yield chunk
+                    yield chunk
+
+        return stream()

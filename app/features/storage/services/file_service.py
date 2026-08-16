@@ -42,11 +42,8 @@ class FileService:
             try:
                 while chunk := await file.read(self.CHUNK_SIZE):
                     size += len(chunk)
-
                     self._validator.validate_size(size)
-
                     hasher.update(chunk)
-
                     yield chunk
             finally:
                 await file.close()
