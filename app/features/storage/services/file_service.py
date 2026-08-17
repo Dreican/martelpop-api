@@ -4,8 +4,8 @@ from uuid import UUID, uuid4
 
 from fastapi import UploadFile
 
+from app.features.storage.exceptions.storage_exceptions import StorageFileNotFoundError
 from app.features.storage.interface.storage import Storage
-from app.features.storage.models import stored_file
 from app.features.storage.models.stored_file import StoredFile
 from app.features.storage.repositories.storage_repository import StorageRepository
 from app.features.storage.validator.file_validator import FileValidator
@@ -80,6 +80,25 @@ class FileService:
 
 
     async def download(self, file_id: UUID) -> tuple[StoredFile, AsyncIterator[bytes]]:
-        file = await self._repository.get_required(file_id)
-        content = await self._storage.read(key=file.storage_key)
-        return file, content
+        stored_file = await self._repository.get_required(file_id)
+        content = await self._storage.read(key=stored_file.storage_key)
+        return stored_file, content
+
+
+    async def delete(self, file_id: UUID) -> None:
+        stored_file = await self._repository.get_required(file_id)
+        await self._repository.delete(stored_file)
+        await self._storage.delete(stored_file.storage_key)
+
+    async def get(self, file_id: UUID) -> StoredFile:
+        return await self._repository.get_required(file_id)
+
+    async def exists(self, file_id: UUID) -> bool:
+        try:
+            stored_file = await self._repository.get_required(file_id)
+        except StorageFileNotFoundError:
+            return False
+
+        return await self._storage.exist(
+            stored_file.storage_key,
+        )
