@@ -78,12 +78,10 @@ class FileService:
 
         return stored_file
 
-
     async def download(self, file_id: UUID) -> tuple[StoredFile, AsyncIterator[bytes]]:
         stored_file = await self._repository.get_required(file_id)
         content = await self._storage.read(key=stored_file.storage_key)
         return stored_file, content
-
 
     async def delete(self, file_id: UUID) -> None:
         stored_file = await self._repository.get_required(file_id)

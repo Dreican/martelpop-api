@@ -1,0 +1,17 @@
+from app.core.factories.response_factory import ResponseFactory
+from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.models.stored_file import StoredFile
+from app.features.storage.services.sotrage_service import StorageService
+
+
+class StoredFileResponseFactory(ResponseFactory[StoredFile, StoredFileResponse]):
+    def __init__(
+            self,
+            storage: StorageService,
+    ):
+        super().__init__(storage)
+
+    def create(self, entity: StoredFile) -> StoredFileResponse:
+        response: StoredFileResponse = super().create(entity)
+
+        return response

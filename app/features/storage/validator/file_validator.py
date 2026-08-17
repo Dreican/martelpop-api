@@ -1,4 +1,3 @@
-from app.core.config.configuration import get_config
 from app.core.config.storage import StorageConfig
 from app.features.storage.exceptions.storage_exceptions import FileTooLargeError, InvalidFileTypeError
 
@@ -14,6 +13,6 @@ class FileValidator:
 
     def validate_size(self, size: int) -> None:
         if size > self._storage_config.max_upload_size:
-            raise FileTooLargeError(f"File size exceeds the limit: "f"{size / 1024 / 1024:.2f} MB"
-            )
-
+            raise FileTooLargeError(
+                f"File size exceeds the limit: "f"{size / 1024 / 1024:.2f} MB"
+                )

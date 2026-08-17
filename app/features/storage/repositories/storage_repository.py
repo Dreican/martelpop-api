@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database.repositories.base_repository import BaseRepository
