@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from pydantic import BaseModel, Field
 
 from app.features.users.enums.user_status import UserStatus

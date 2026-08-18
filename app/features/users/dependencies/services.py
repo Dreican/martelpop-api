@@ -7,7 +7,6 @@ from app.core.dependencies.response_factories import UserResponseFactoryDep, Use
 from app.core.dependencies.slug import SlugServiceDep
 from app.features.auth.dependencies.repositories import RoleRepositoryDep
 from app.features.users.dependencies.repositories import UserRepositoryDep
-from app.features.users.factories.user_admin_response_factory import UserAdminResponseFactory
 from app.features.users.services.user_services import UserService
 
 

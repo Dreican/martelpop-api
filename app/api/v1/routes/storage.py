@@ -7,6 +7,7 @@ from app.features.auth.dependencies.require_permissions import authenticated_per
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.dependencies.services import FileServiceDep
 from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.helpers.helpers import content_disposition_filename
 
 router = APIRouter(prefix="/files", tags=["Storage"])
 
@@ -23,7 +24,7 @@ async def download_file(file_id: UUID, service: FileServiceDep, principal: Authe
         content,
         media_type=stored_file.mime_type,
         headers={
-            "Content-Disposition": f"attachment; filename={stored_file.original_filename}",
+            "Content-Disposition": content_disposition_filename(stored_file.original_filename),
             "Content-Length": str(stored_file.size)
         }
     )

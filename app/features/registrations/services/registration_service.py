@@ -17,7 +17,6 @@ from app.features.registrations.exceptions.registrations_exceptions import (
     EventFullError,
     AlreadyRegisteredError, RegistrationsDisabledError
 )
-from app.features.events.factories.participant_response_factory import ParticipantResponseFactory
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
 from app.features.registrations.factories.registration_summary_response_factory import \
     RegistrationSummaryResponseFactory

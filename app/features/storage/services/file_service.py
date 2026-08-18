@@ -80,6 +80,12 @@ class FileService:
 
     async def download(self, file_id: UUID) -> tuple[StoredFile, AsyncIterator[bytes]]:
         stored_file = await self._repository.get_required(file_id)
+
+        if not await self._storage.exist(stored_file.storage_key):
+            raise StorageFileNotFoundError(
+                f"Storage file not found: {stored_file.storage_key}"
+            )
+
         content = await self._storage.read(key=stored_file.storage_key)
         return stored_file, content
 

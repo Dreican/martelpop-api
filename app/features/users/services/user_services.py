@@ -59,7 +59,7 @@ class UserService(BaseService):
 
         user = await self._users.get_required(user_id)
         old_display_name = user.display_name
-        user.update_admin(request)
+        user.update(request)
 
         await self._update_slug_if_needed(user, old_display_name)
 
