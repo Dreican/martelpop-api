@@ -29,6 +29,7 @@ from app.features.events.repositories.event_status_repository import EventStatus
 from app.features.registrations.repositories.registration_repository import RegistrationRepository
 from app.features.settings.services.application_settings import ApplicationSettings
 from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.factories.stored_file_response_factory import StoredFileResponseFactory
 from app.features.storage.services.file_service import FileService
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,8 @@ class EventService(BaseService):
             event_access: EventAccessFilter,
             application_settings: ApplicationSettings,
             event_response: EventResponseFactory,
-            participant_response: ParticipantResponseFactory
+            participant_response: ParticipantResponseFactory,
+            stored_file_response: StoredFileResponseFactory,
     ):
         super().__init__(session)
         self._event_repo = event_repository
@@ -62,7 +64,7 @@ class EventService(BaseService):
         self._settings = application_settings
         self._response = event_response
         self._participant_response = participant_response
-
+        self._stored_file_response = stored_file_response
 
 
     async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
@@ -214,7 +216,7 @@ class EventService(BaseService):
             await self._file.delete(old_banner_file_id)
             await self._flush()
 
-        return StoredFileResponse.model_validate(stored_file)
+        return self._stored_file_response.create(stored_file)
 
     async def delete_banner(self, event_id: UUID, principal: AuthenticatedPrincipal) -> None:
         event = await self._event_repo.get_required(event_id)

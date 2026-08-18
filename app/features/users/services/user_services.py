@@ -12,6 +12,7 @@ from app.features.auth.exceptions.authorization_exceptions import PermissionDeni
 from app.features.auth.repositories.role_repository import RoleRepository
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.factories.stored_file_response_factory import StoredFileResponseFactory
 from app.features.storage.services.file_service import FileService
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
@@ -32,7 +33,8 @@ class UserService(BaseService):
             slug_service: SlugService,
             file_service: FileService,
             user_response: UserResponseFactory,
-            user_admin_response: UserAdminResponseFactory
+            user_admin_response: UserAdminResponseFactory,
+            store_file_response: StoredFileResponseFactory
     ):
         super().__init__(session)
         self._users = user_repository
@@ -41,6 +43,7 @@ class UserService(BaseService):
         self._file = file_service
         self._user_response = user_response
         self._user_admin_response = user_admin_response
+        self._store_file_response = store_file_response
 
     async def me(self, principal: AuthenticatedPrincipal) -> UserAdminResponse:
         return self._user_admin_response.create(principal.user)
@@ -131,7 +134,7 @@ class UserService(BaseService):
             await self._file.delete(old_file_id)
             await self._flush()
 
-        return StoredFileResponse.model_validate(avatar)
+        return self._store_file_response.create(avatar)
 
     async def delete_avatar(self, principal: AuthenticatedPrincipal) -> None:
         user = await self._users.get_required(principal.user.id)

@@ -13,9 +13,18 @@ from app.features.events.factories.participant_response_factory import Participa
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
 from app.features.registrations.factories.registration_summary_response_factory import \
     RegistrationSummaryResponseFactory
+from app.features.storage.factories.stored_file_response_factory import StoredFileResponseFactory
 from app.features.users.factories.user_admin_response_factory import UserAdminResponseFactory
 from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.factories.user_summary_response_factory import UserSummaryResponseFactory
+
+
+def get_stored_file_response_factory() -> StoredFileResponseFactory:
+    return StoredFileResponseFactory()
+
+
+StoredFileResponseFactoryDep = Annotated[
+    StoredFileResponseFactory, Depends(get_stored_file_response_factory)]
 
 
 def get_permission_summary_response_factory() -> PermissionSummaryResponseFactory:

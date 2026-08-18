@@ -9,5 +9,6 @@ class StoredFileResponseFactory(ResponseFactory[StoredFile, StoredFileResponse])
 
     def create(self, entity: StoredFile) -> StoredFileResponse:
         response: StoredFileResponse = super().create(entity)
+        response.url = self.file_url(entity.id)
 
         return response
