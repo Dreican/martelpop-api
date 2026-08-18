@@ -4,6 +4,7 @@ from fastapi import APIRouter, status, UploadFile, File
 from starlette.responses import StreamingResponse
 
 from app.features.auth.dependencies.require_permissions import authenticated_permission
+from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.dependencies.services import FileServiceDep
 from app.features.storage.dto.stored_file_response import StoredFileResponse
@@ -20,8 +21,7 @@ async def upload_file(service: FileServiceDep, file: UploadFile = File(...),
 
 
 @router.get("/{file_id}")
-async def download_file(file_id: UUID, service: FileServiceDep,
-                        principal: AuthenticatedPrincipal = authenticated_permission()) -> StreamingResponse:
+async def download_file(file_id: UUID, service: FileServiceDep) -> StreamingResponse:
     stored_file, content = await service.download(file_id)
     return StreamingResponse(
         content,
@@ -35,5 +35,5 @@ async def download_file(file_id: UUID, service: FileServiceDep,
 
 @router.delete("/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_file(file_id: UUID, service: FileServiceDep,
-                      principal: AuthenticatedPrincipal = authenticated_permission()) -> None:
-    await service.delete(file_id)
+                      principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.STORAGE_MANAGE)) -> None:
+    await service.delete(file_id, principal)

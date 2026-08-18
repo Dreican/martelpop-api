@@ -4,6 +4,9 @@ from uuid import UUID, uuid4
 
 from fastapi import UploadFile
 
+from app.features.auth.enums.permission_code import PermissionCode
+from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.exceptions.storage_exceptions import StorageFileNotFoundError
 from app.features.storage.interface.storage import Storage
 from app.features.storage.models.stored_file import StoredFile
@@ -82,15 +85,16 @@ class FileService:
         stored_file = await self._repository.get_required(file_id)
 
         if not await self._storage.exist(stored_file.storage_key):
-            raise StorageFileNotFoundError(
-                f"Storage file not found: {stored_file.storage_key}"
-            )
+            raise StorageFileNotFoundError(f"Storage file not found: {stored_file.storage_key}")
 
         content = await self._storage.read(key=stored_file.storage_key)
         return stored_file, content
 
-    async def delete(self, file_id: UUID) -> None:
+    async def delete(self, file_id: UUID, principal: AuthenticatedPrincipal) -> None:
         stored_file = await self._repository.get_required(file_id)
+        if not PermissionCode.STORAGE_MANAGE in principal.permissions or principal.user.id == stored_file.uploaded_by_id:
+            raise PermissionDeniedError(permissions={PermissionCode.STORAGE_MANAGE}, user=principal.display_name)
+
         await self._repository.delete(stored_file)
         await self._storage.delete(stored_file.storage_key)
 

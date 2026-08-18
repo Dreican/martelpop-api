@@ -29,3 +29,5 @@ class PermissionCode(StrEnum):
     REGISTRATION_MANAGE = "registration.manage"
 
     WAITLIST_MANAGE = "waitlist.manage"
+
+    STORAGE_MANAGE = "storage.manage"

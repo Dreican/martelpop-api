@@ -153,7 +153,7 @@ class EventService(BaseService):
         event = await self._event_repo.get_required(event_id)
 
         if not self._policy.can_cancel(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.display_name)
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_CANCEL}, user=principal.display_name)
 
         status = await self._event_status_repo.get_cancelled()
         event.cancel(status)
