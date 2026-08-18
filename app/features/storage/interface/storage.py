@@ -13,7 +13,7 @@ class Storage(ABC):
         ...
 
     @abstractmethod
-    async def exist(self, key: str) -> bool:
+    async def exists(self, key: str) -> bool:
         ...
 
     @abstractmethod

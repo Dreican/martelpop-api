@@ -1,5 +1,6 @@
 import hashlib
 from collections.abc import AsyncIterator
+from pathlib import Path
 from uuid import UUID, uuid4
 
 from fastapi import UploadFile
@@ -34,7 +35,8 @@ class FileService:
 
         file_id = uuid4()
         original_filename = file.filename or "unknown"
-        filename = f"{file_id}.{original_filename.split('.')[-1]}"
+        extension = Path(original_filename).suffix
+        filename = f"{file_id}{extension}"
         storage_key = f"{category}/{filename}"
 
         hasher = hashlib.sha256()
@@ -53,38 +55,30 @@ class FileService:
                 await file.close()
 
         try:
-            await self._storage.save(
-                content(),
-                key=storage_key,
+            await self._storage.save(content(), key=storage_key)
+
+            stored_file = StoredFile(
+                id=file_id,
+                filename=filename,
+                original_filename=original_filename,
+                storage_key=storage_key,
+                mime_type=content_type,
+                size=size,
+                checksum=hasher.hexdigest(),
+                uploaded_by_id=uploaded_by_id
             )
-        except Exception:
-            raise
 
-        stored_file = StoredFile(
-            id=file_id,
-            filename=filename,
-            original_filename=original_filename,
-            storage_key=storage_key,
-            mime_type=content_type,
-            size=size,
-            checksum=hasher.hexdigest(),
-            uploaded_by_id=uploaded_by_id
-        )
-
-        await self._storage.save(content(), key=storage_key)
-
-        try:
             await self._repository.add(stored_file)
+            return stored_file
+
         except Exception:
             await self._storage.delete(storage_key)
             raise
 
-        return stored_file
-
     async def download(self, file_id: UUID) -> tuple[StoredFile, AsyncIterator[bytes]]:
         stored_file = await self._repository.get_required(file_id)
 
-        if not await self._storage.exist(stored_file.storage_key):
+        if not await self._storage.exists(stored_file.storage_key):
             raise StorageFileNotFoundError(f"Storage file not found: {stored_file.storage_key}")
 
         content = await self._storage.read(key=stored_file.storage_key)
@@ -104,10 +98,27 @@ class FileService:
         except StorageFileNotFoundError:
             return False
 
-        return await self._storage.exist(
+        return await self._storage.exists(
             stored_file.storage_key,
         )
 
+    async def verify(self, file_id: UUID) -> bool:
+        stored_file = await self._repository.get(file_id)
+
+        if not await self._storage.exists(stored_file.storage_key):
+            return False
+
+        hasher = hashlib.sha256()
+        size = 0
+
+        async for chunk in await self._storage.read(key=stored_file.storage_key):
+            hasher.update(chunk)
+            size += len(chunk)
+
+        return (
+            size == stored_file.size
+            and hasher.hexdigest() == stored_file.checksum
+        )
 
     async def replace(
         self,

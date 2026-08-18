@@ -100,7 +100,7 @@ async def register_user(
     return await registration_service.register_user(event_slug, user_id, request, principal)
 
 
-@router.post("/{event_id}/upload-banner", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/{event_id}/banner", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
 async def upload_event_banner(
         event_id: UUID,
         file: UploadFile = File(...),
@@ -109,3 +109,11 @@ async def upload_event_banner(
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.EVENT_UPDATE)
 ):
     return await event_service.upload_banner(event_id, principal, file)
+
+@router.delete("/{event_id}/banner", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_event_banner(
+        event_id: UUID,
+        event_service: EventServiceDep,
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.EVENT_UPDATE)
+):
+    return await event_service.delete_banner(event_id, principal)

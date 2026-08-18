@@ -202,16 +202,34 @@ class EventService(BaseService):
 
         stored_file = await self._file.upload(file, uploaded_by_id=principal.user.id, category=FileCategory.EVENT_BANNER)
 
-        event.banner_file_id = stored_file.id
-
-        await self._flush()
-        await self._refresh(event)
+        try:
+            event.banner_file_id = stored_file.id
+            await self._flush()
+            await self._refresh(event)
+        except Exception:
+            await self._file.delete(stored_file.id)
+            raise
 
         if old_banner_file_id is not None:
             await self._file.delete(old_banner_file_id)
             await self._flush()
 
         return StoredFileResponse.model_validate(stored_file)
+
+    async def delete_banner(self, event_id: UUID, principal: AuthenticatedPrincipal) -> None:
+        event = await self._event_repo.get_required(event_id)
+
+        if not self._policy.can_edit(event, principal):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.display_name)
+
+        old_file_id = event.banner_file_id
+
+        if old_file_id is None:
+            return
+
+        event.banner_file_id = None
+        await self._session.flush()
+        await self._file.delete(old_file_id)
 
     async def _persist(self, event: Event) -> EventResponse:
         await self._commit()

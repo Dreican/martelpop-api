@@ -1,9 +1,10 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, UploadFile, File
 
 from app.features.auth.dependencies.current_principal import AuthenticatedPrincipalDep
 from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.storage.dto.stored_file_response import StoredFileResponse
 from app.features.users.dependencies.services import UserServiceDep
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
     status_code=status.HTTP_200_OK,
     response_model=UserAdminResponse
 )
-async def me(principal: AuthenticatedPrincipalDep, user_service: UserServiceDep) -> UserAdminResponse:
+async def me(user_service: UserServiceDep, principal: AuthenticatedPrincipal = authenticated_permission()) -> UserAdminResponse:
     return await user_service.me(principal)
 
 
@@ -42,7 +43,7 @@ async def get_user(
 async def update_user(
         request: UserUpdateRequest,
         user_service: UserServiceDep,
-        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.USER_UPDATE)
+        principal: AuthenticatedPrincipal = authenticated_permission()
 ) -> UserAdminResponse:
     return await user_service.update_me(request, principal)
 
@@ -54,6 +55,23 @@ async def update_user(
 )
 async def delete_user(
         user_service: UserServiceDep,
-        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.USER_DELETE)
+        principal: AuthenticatedPrincipal = authenticated_permission()
 ) -> UserAdminResponse:
     return await user_service.delete_me(principal)
+
+@router.post("/me/avatar", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
+async def update_user_avatar(
+        file: UploadFile = File(...),
+        *,
+        user_service: UserServiceDep,
+        principal: AuthenticatedPrincipal = authenticated_permission()
+) -> StoredFileResponse:
+    return await user_service.upload_avatar(principal, file)
+
+
+@router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user_avatar(
+        user_service: UserServiceDep,
+        principal: AuthenticatedPrincipal = authenticated_permission()
+) -> None:
+    return await user_service.delete_avatar(principal)
