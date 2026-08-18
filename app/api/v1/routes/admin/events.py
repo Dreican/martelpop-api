@@ -103,9 +103,8 @@ async def register_user(
 @router.post("/{event_id}/banner", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
 async def upload_event_banner(
         event_id: UUID,
-        file: UploadFile = File(...),
-        *,
         event_service: EventServiceDep,
+        file: UploadFile = File(...),
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.EVENT_UPDATE)
 ):
     return await event_service.upload_banner(event_id, principal, file)

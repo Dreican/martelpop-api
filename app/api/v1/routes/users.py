@@ -61,9 +61,8 @@ async def delete_user(
 
 @router.post("/me/avatar", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
 async def update_user_avatar(
-        file: UploadFile = File(...),
-        *,
         user_service: UserServiceDep,
+        file: UploadFile = File(...),
         principal: AuthenticatedPrincipal = authenticated_permission()
 ) -> StoredFileResponse:
     return await user_service.upload_avatar(principal, file)
