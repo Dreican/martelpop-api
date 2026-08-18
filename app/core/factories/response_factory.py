@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 from app.core.pagination.page import Page
 from app.features.storage.helpers.helpers import public_file_url
-from app.features.storage.services.sotrage_service import StorageService
 
 EntityT = TypeVar("EntityT")
 ResponseT = TypeVar("ResponseT", bound=BaseModel)

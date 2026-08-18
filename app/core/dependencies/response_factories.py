@@ -13,31 +13,38 @@ from app.features.events.factories.participant_response_factory import Participa
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
 from app.features.registrations.factories.registration_summary_response_factory import \
     RegistrationSummaryResponseFactory
-from app.features.storage.dependencies.services import StorageServiceDep
 from app.features.users.factories.user_admin_response_factory import UserAdminResponseFactory
 from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.factories.user_summary_response_factory import UserSummaryResponseFactory
 
+
 def get_permission_summary_response_factory() -> PermissionSummaryResponseFactory:
     return PermissionSummaryResponseFactory()
 
-PermissionSummaryResponseFactoryDep = Annotated[PermissionSummaryResponseFactory, Depends(get_permission_summary_response_factory)]
+
+PermissionSummaryResponseFactoryDep = Annotated[
+    PermissionSummaryResponseFactory, Depends(get_permission_summary_response_factory)]
 
 
 def get_role_response_factory(permission: PermissionSummaryResponseFactoryDep) -> RoleResponseFactory:
     return RoleResponseFactory(permission=permission)
 
+
 def get_role_summary_response_factory() -> RoleSummaryResponseFactory:
     return RoleSummaryResponseFactory()
+
 
 RoleResponseFactoryDep = Annotated[RoleResponseFactory, Depends(get_role_response_factory)]
 RoleSummaryResponseFactoryDep = Annotated[RoleSummaryResponseFactory, Depends(get_role_summary_response_factory)]
 
+
 def get_user_response_factory(role: RoleSummaryResponseFactoryDep) -> UserResponseFactory:
     return UserResponseFactory(role=role)
 
+
 def get_user_summary_response_factory() -> UserSummaryResponseFactory:
     return UserSummaryResponseFactory()
+
 
 def get_user_admin_response_factory(role: RoleSummaryResponseFactoryDep) -> UserAdminResponseFactory:
     return UserAdminResponseFactory(role=role)

@@ -15,4 +15,4 @@ class FileValidator:
         if size > self._storage_config.max_upload_size:
             raise FileTooLargeError(
                 f"File size exceeds the limit: "f"{size / 1024 / 1024:.2f} MB"
-                )
+            )
