@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, status, UploadFile, File
 from starlette.responses import StreamingResponse
 
+from app.core.storage.file_categories import FileCategory
 from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
@@ -16,7 +17,7 @@ router = APIRouter(prefix="/files", tags=["Storage"])
 @router.post("", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
 async def upload_file(service: FileServiceDep, file: UploadFile = File(...),
                       principal: AuthenticatedPrincipal = authenticated_permission()) -> StoredFileResponse:
-    stored_file = await service.upload(file, uploaded_by_id=principal.user.id, category="uploads")
+    stored_file = await service.upload(file, uploaded_by_id=principal.user.id, category=FileCategory.GENERAL)
     return StoredFileResponse.model_validate(stored_file)
 
 

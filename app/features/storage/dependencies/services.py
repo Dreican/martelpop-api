@@ -10,20 +10,6 @@ from app.features.storage.dependencies.validators import FileValidatorDep
 from app.features.storage.interface.storage import Storage
 from app.features.storage.services.file_service import FileService
 from app.features.storage.services.local_storage import LocalStorage
-from app.features.storage.services.sotrage_service import StorageService
-
-
-def get_storage_service(
-        session: SessionDep,
-        storage_repository: StorageRepositoryDep,
-) -> StorageService:
-    return StorageService(
-        session=session,
-        storage_repository=storage_repository,
-    )
-
-
-StorageServiceDep = Annotated[StorageService, Depends(get_storage_service)]
 
 
 @lru_cache
@@ -33,9 +19,7 @@ def get_storage() -> Storage:
         base_path=config.storage.base_path
     )
 
-
 StorageDep = Annotated[Storage, Depends(get_storage)]
-
 
 def get_file_service(
         storage: StorageDep,
@@ -47,6 +31,5 @@ def get_file_service(
         repository=storage_repository,
         validator=storage_validator,
     )
-
 
 FileServiceDep = Annotated[FileService, Depends(get_file_service)]

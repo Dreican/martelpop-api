@@ -11,4 +11,3 @@ class StoredFileResponse(BaseModel):
     original_filename: str
     mime_type: str
     size: int
-    checksum: str

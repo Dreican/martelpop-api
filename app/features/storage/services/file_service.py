@@ -90,11 +90,8 @@ class FileService:
         content = await self._storage.read(key=stored_file.storage_key)
         return stored_file, content
 
-    async def delete(self, file_id: UUID, principal: AuthenticatedPrincipal) -> None:
+    async def delete(self, file_id: UUID) -> None:
         stored_file = await self._repository.get_required(file_id)
-        if not PermissionCode.STORAGE_MANAGE in principal.permissions or principal.user.id == stored_file.uploaded_by_id:
-            raise PermissionDeniedError(permissions={PermissionCode.STORAGE_MANAGE}, user=principal.display_name)
-
         await self._repository.delete(stored_file)
         await self._storage.delete(stored_file.storage_key)
 
@@ -110,3 +107,23 @@ class FileService:
         return await self._storage.exist(
             stored_file.storage_key,
         )
+
+
+    async def replace(
+        self,
+        old_file_id: UUID | None,
+        new_file: UploadFile,
+        *,
+        uploaded_by_id: UUID,
+        category: str,
+    ) -> StoredFile:
+        new_stored_file = await self.upload(
+            new_file,
+            uploaded_by_id=uploaded_by_id,
+            category=category,
+        )
+
+        if old_file_id is not None:
+            await self.delete(old_file_id)
+
+        return new_stored_file

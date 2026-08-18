@@ -1,11 +1,13 @@
 import logging
 from uuid import UUID
 
+from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
+from app.core.storage.file_categories import FileCategory
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
@@ -26,6 +28,8 @@ from app.features.events.repositories.event_repository import EventRepository
 from app.features.events.repositories.event_status_repository import EventStatusRepository
 from app.features.registrations.repositories.registration_repository import RegistrationRepository
 from app.features.settings.services.application_settings import ApplicationSettings
+from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.services.file_service import FileService
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +43,7 @@ class EventService(BaseService):
             activity_type_repository: ActivityTypeRepository,
             registrations_repository: RegistrationRepository,
             slug_service: SlugService,
+            file_service: FileService,
             event_policy: EventPolicy,
             event_access: EventAccessFilter,
             application_settings: ApplicationSettings,
@@ -51,11 +56,13 @@ class EventService(BaseService):
         self._activity_type_repo = activity_type_repository
         self._registrations = registrations_repository
         self._slug = slug_service
+        self._file = file_service
         self._policy = event_policy
         self._access = event_access
         self._settings = application_settings
         self._response = event_response
         self._participant_response = participant_response
+
 
 
     async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
@@ -184,6 +191,27 @@ class EventService(BaseService):
         page = await self._registrations.search_participants(request)
 
         return self._participant_response.create_page(page)
+
+    async def upload_banner(self, event_id: UUID, principal: AuthenticatedPrincipal, file: UploadFile) -> StoredFileResponse:
+        event = await self._event_repo.get_required(event_id)
+
+        if not self._policy.can_edit(event, principal):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.display_name)
+
+        old_banner_file_id = event.banner_file_id
+
+        stored_file = await self._file.upload(file, uploaded_by_id=principal.user.id, category=FileCategory.EVENT_BANNER)
+
+        event.banner_file_id = stored_file.id
+
+        await self._flush()
+        await self._refresh(event)
+
+        if old_banner_file_id is not None:
+            await self._file.delete(old_banner_file_id)
+            await self._flush()
+
+        return StoredFileResponse.model_validate(stored_file)
 
     async def _persist(self, event: Event) -> EventResponse:
         await self._commit()
