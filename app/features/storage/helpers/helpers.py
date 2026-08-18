@@ -9,7 +9,13 @@ config = get_config()
 FILE_URL_PREFIX = f"{config.app.api_prefix}/files"
 
 
-def content_disposition_filename(filename: str) -> str:
+def content_disposition_attachment(filename: str) -> str:
+    return f'attachment; {_content_disposition(filename)}'
+
+def content_disposition_inline(filename: str) -> str:
+    return f'inline; {_content_disposition(filename)}'
+
+def _content_disposition(filename: str) -> str:
     filename = normalize("NFC", filename)
 
     fallback = (
@@ -27,7 +33,10 @@ def content_disposition_filename(filename: str) -> str:
         safe="!#$&+-.^_`|~",
     )
 
-    return f'attachment; filename="{fallback}"; filename*=UTF-8''{encoded}'
+    return (
+        f'filename="{fallback}"; '
+        f"filename*=UTF-8''{encoded}"
+    )
 
 
 def public_file_url(file_id: UUID | None) -> str | None:
