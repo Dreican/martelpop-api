@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.core.storage.file_categories import FileCategory
+from app.features.storage.enums.storage_categories import StorageCategory
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
@@ -200,7 +200,7 @@ class EventService(BaseService):
 
         old_banner_file_id = event.banner_file_id
 
-        stored_file = await self._file.upload(file, uploaded_by_id=principal.user.id, category=FileCategory.EVENT_BANNER)
+        stored_file = await self._file.upload(file, uploaded_by_id=principal.user.id, category=StorageCategory.EVENTS_BANNER)
 
         try:
             event.banner_file_id = stored_file.id

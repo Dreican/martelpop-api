@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
+from app.core.database.helpers import Helper
+from app.features.storage.enums.storage_categories import StorageCategory
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User
@@ -25,6 +27,12 @@ class StoredFile(Base):
     checksum: Mapped[str] = mapped_column(
         String(64),
         unique=True,
+    )
+
+    category: Mapped[StorageCategory] = mapped_column(
+        Helper.enum_column(StorageCategory),
+        name="storage_category",
+        nullable=False,
     )
 
     uploaded_by_id: Mapped[UUID] = mapped_column(

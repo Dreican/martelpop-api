@@ -6,13 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.core.storage.file_categories import FileCategory
+from app.features.storage.enums.storage_categories import StorageCategory
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.repositories.role_repository import RoleRepository
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.dto.stored_file_response import StoredFileResponse
-from app.features.storage.models.stored_file import StoredFile
 from app.features.storage.services.file_service import FileService
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
@@ -118,7 +117,7 @@ class UserService(BaseService):
         user = await self._users.get_required(principal.user.id)
         old_file_id = user.avatar_file_id
 
-        avatar = await self._file.upload(file, uploaded_by_id=principal.user.id, category=FileCategory.USER_AVATAR)
+        avatar = await self._file.upload(file, uploaded_by_id=principal.user.id, category=StorageCategory.USER_AVATARS)
 
         try:
             user.avatar_file_id = avatar.id

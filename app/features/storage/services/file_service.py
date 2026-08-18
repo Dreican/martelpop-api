@@ -8,6 +8,7 @@ from fastapi import UploadFile
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.storage.enums.storage_categories import StorageCategory
 from app.features.storage.exceptions.storage_exceptions import StorageFileNotFoundError
 from app.features.storage.interface.storage import Storage
 from app.features.storage.models.stored_file import StoredFile
@@ -28,16 +29,16 @@ class FileService:
         self._repository = repository
         self._validator = validator
 
-    async def upload(self, file: UploadFile, *, uploaded_by_id: UUID, category: str) -> StoredFile:
+    async def upload(self, file: UploadFile, *, uploaded_by_id: UUID, category: StorageCategory) -> StoredFile:
         content_type = file.content_type or "application/octet-stream"
 
         self._validator.validate_content_type(content_type)
 
         file_id = uuid4()
         original_filename = file.filename or "unknown"
-        extension = Path(original_filename).suffix
+        extension = Path(original_filename).suffix.lower()
         filename = f"{file_id}{extension}"
-        storage_key = f"{category}/{filename}"
+        storage_key = f"{category.value}/{filename}"
 
         hasher = hashlib.sha256()
         size = 0
@@ -65,7 +66,8 @@ class FileService:
                 mime_type=content_type,
                 size=size,
                 checksum=hasher.hexdigest(),
-                uploaded_by_id=uploaded_by_id
+                uploaded_by_id=uploaded_by_id,
+                category=category
             )
 
             await self._repository.add(stored_file)
