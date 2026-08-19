@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends
 
 from app.api.v1.admin_router import api_admin_router
 from app.api.v1.auth_router import auth_router
-from app.api.v1.routes import static, events, registration, users, storage
+from app.api.v1.routes import static, events, registration, users
+from app.api.v1.routes.admin import storage
 from app.core.config.configuration import get_config
 from app.features.auth.dependencies.maintenance import require_not_in_maintenance
 
@@ -20,7 +21,6 @@ api_router.include_router(static.router)
 protected_api_router.include_router(events.router)
 protected_api_router.include_router(users.router)
 protected_api_router.include_router(registration.router)
-protected_api_router.include_router(storage.router)
 protected_api_router.include_router(api_admin_router)
 
 api_router.include_router(protected_api_router)

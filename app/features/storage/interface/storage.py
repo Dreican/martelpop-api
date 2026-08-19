@@ -19,3 +19,7 @@ class Storage(ABC):
     @abstractmethod
     async def read(self, *, key: str) -> AsyncIterator[bytes]:
         ...
+
+    @abstractmethod
+    async def list(self, *, prefix: str | None = None) -> AsyncIterator[str]:
+        ...

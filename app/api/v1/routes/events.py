@@ -29,34 +29,6 @@ async def search_events(
     return await event_service.list_events(request, principal)
 
 
-@router.get("/{event_slug}/banner", response_model=StoredFileResponse, status_code=status.HTTP_200_OK)
-async def get_banner(
-        event_slug: str,
-        event_service: EventServiceDep,
-        principal: Principal = permission(PermissionCode.EVENT_READ)
-) -> StreamingResponse:
-    file_download = await event_service.get_banner(event_slug, principal)
-
-    headers = {
-        "Content-Disposition": content_disposition_inline(file_download.file.original_filename),
-        "Content-Length": str(file_download.file.size),
-        "ETag": f'"{file_download.file.checksum}"'
-    }
-
-    if file_download.is_public:
-        headers["Cache-Control"] = (
-            "public, max-age=31536000, immutable"
-        )
-    else:
-        headers["Cache-Control"] = "private, no-cache"
-
-    return StreamingResponse(
-        file_download.content,
-        media_type=file_download.file.mime_type,
-        headers=headers
-    )
-
-
 @router.get("/{event_slug}", response_model=EventResponse, status_code=status.HTTP_200_OK)
 async def get_event(
         event_slug: str, event_service: EventServiceDep,
@@ -73,3 +45,27 @@ async def register(
 ):
     return await registration_service.register(event_slug, request, principal)
 
+@router.get("/{event_slug}/banner")
+async def get_banner(
+        event_slug: str,
+        event_service: EventServiceDep,
+        principal: Principal = permission(PermissionCode.EVENT_READ)
+) -> StreamingResponse:
+    file_download = await event_service.get_banner(event_slug, principal)
+
+    headers = {
+        "Content-Disposition": content_disposition_inline(file_download.file.original_filename),
+        "Content-Length": str(file_download.file.size),
+        "ETag": f'"{file_download.file.checksum}"',
+        "Cache-Control": (
+            "public, max-age=31536000, immutable"
+            if file_download.is_public
+            else "private, no-cache"
+        )
+    }
+
+    return StreamingResponse(
+        file_download.content,
+        media_type=file_download.file.mime_type,
+        headers=headers
+    )

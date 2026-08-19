@@ -18,14 +18,18 @@ router = APIRouter(prefix="/files", tags=["Storage"])
 async def upload_file(
         service: FileServiceDep,
         file: UploadFile = File(...),
-        principal: AuthenticatedPrincipal = authenticated_permission()
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.STORAGE_MANAGE)
 ) -> StoredFileResponse:
     stored_file = await service.upload(file, uploaded_by_id=principal.user.id, category=StorageCategory.GENERAL)
     return StoredFileResponse.model_validate(stored_file)
 
 
 @router.get("/{file_id}/download")
-async def download_file(file_id: UUID, service: FileServiceDep, principal: AuthenticatedPrincipal = authenticated_permission()) -> StreamingResponse:
+async def download_file(
+        file_id: UUID,
+        service: FileServiceDep,
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.STORAGE_MANAGE)
+) -> StreamingResponse:
     stored_file, content = await service.download(file_id)
     return StreamingResponse(
         content,
@@ -37,7 +41,12 @@ async def download_file(file_id: UUID, service: FileServiceDep, principal: Authe
     )
 
 @router.get("/{file_id}")
-async def get_file(file_id: UUID, service: FileServiceDep, if_none_match: str | None = Header(default=None)) -> Response:
+async def get_file(
+        file_id: UUID,
+        service: FileServiceDep,
+        if_none_match: str | None = Header(default=None),
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.STORAGE_MANAGE)
+) -> Response:
     stored_file, content = await service.download(file_id)
 
     etag = f'"{stored_file.checksum}"'

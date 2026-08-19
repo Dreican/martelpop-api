@@ -86,3 +86,18 @@ class LocalStorage(Storage):
                 raise StorageFileNotFoundError(f"Storage file not found: {key}") from exc
 
         return stream()
+
+    async def list(self, *, prefix: str | None = None) -> AsyncIterator[str]:
+        base = self._resolve_path(prefix or "")
+        root = self._base_path.resolve()
+
+        async def stream() -> AsyncIterator[str]:
+            for path in await asyncio.to_thread(
+                lambda: list(base.rglob("*"))
+            ):
+                if not path.is_file():
+                    continue
+
+                yield str(path.relative_to(root))
+
+        return stream()

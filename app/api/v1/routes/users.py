@@ -76,7 +76,7 @@ async def delete_avatar(
 ) -> None:
     return await user_service.delete_avatar(principal)
 
-@router.get("/{user_slug}/avatar", response_model=StoredFileResponse, status_code=status.HTTP_200_OK)
+@router.get("/{user_slug}/avatar")
 async def get_avatar(
         user_slug: str,
         user_service: UserServiceDep,
@@ -87,15 +87,13 @@ async def get_avatar(
     headers = {
         "Content-Disposition": content_disposition_inline(file_download.file.original_filename),
         "Content-Length": str(file_download.file.size),
-        "ETag": f'"{file_download.file.checksum}"'
-    }
-
-    if file_download.is_public:
-        headers["Cache-Control"] = (
+        "ETag": f'"{file_download.file.checksum}"',
+        "Cache-Control": (
             "public, max-age=31536000, immutable"
+            if file_download.is_public
+            else "private, no-cache"
         )
-    else:
-        headers["Cache-Control"] = "private, no-cache"
+    }
 
     return StreamingResponse(
         file_download.content,
