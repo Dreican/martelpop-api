@@ -136,6 +136,10 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         return self.audience == EventAudience.VIP
 
     @property
+    def is_public(self) -> bool:
+        return self.audience == EventAudience.PUBLIC
+
+    @property
     def is_registration_open(self) -> bool:
         return self.status.is_bookable
 

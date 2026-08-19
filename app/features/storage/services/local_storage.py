@@ -83,6 +83,6 @@ class LocalStorage(Storage):
 
                         yield chunk
             except FileNotFoundError as exc:
-                 raise StorageFileNotFoundError(f"Storage file not found: {key}") from exc
+                raise StorageFileNotFoundError(f"Storage file not found: {key}") from exc
 
         return stream()

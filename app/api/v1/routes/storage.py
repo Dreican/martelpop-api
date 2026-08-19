@@ -3,12 +3,12 @@ from uuid import UUID
 from fastapi import APIRouter, status, UploadFile, File, Header, Response
 from starlette.responses import StreamingResponse
 
-from app.features.storage.enums.storage_categories import StorageCategory
 from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.dependencies.services import FileServiceDep
 from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.enums.storage_categories import StorageCategory
 from app.features.storage.helpers.helpers import content_disposition_inline, content_disposition_attachment
 
 router = APIRouter(prefix="/files", tags=["Storage"])
@@ -25,7 +25,7 @@ async def upload_file(
 
 
 @router.get("/{file_id}/download")
-async def download_file(file_id: UUID, service: FileServiceDep) -> StreamingResponse:
+async def download_file(file_id: UUID, service: FileServiceDep, principal: AuthenticatedPrincipal = authenticated_permission()) -> StreamingResponse:
     stored_file, content = await service.download(file_id)
     return StreamingResponse(
         content,
@@ -54,7 +54,8 @@ async def get_file(file_id: UUID, service: FileServiceDep, if_none_match: str | 
         headers={
             "Content-Disposition": content_disposition_inline(stored_file.original_filename),
             "Content-Length": str(stored_file.size),
-            "ETag": etag
+            "ETag": etag,
+            "Cache-Control": "public, max-age=31536000, immutable"
         }
     )
 

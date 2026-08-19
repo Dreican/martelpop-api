@@ -18,7 +18,6 @@ from app.features.events.services.event_service import EventService
 from app.features.registrations.dependencies.repositories import RegistrationRepositoryDep
 from app.features.settings.dependencies.settings import ApplicationSettingsDep
 from app.features.storage.dependencies.services import FileServiceDep
-from app.features.storage.dto import stored_file_response
 
 
 def get_event_service(

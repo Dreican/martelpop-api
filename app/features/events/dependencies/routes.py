@@ -11,14 +11,14 @@ from app.features.events.enums.event_status_code import EventStatusCode
 
 
 async def get_event_search_request(
-    page: int = Query(1),
-    page_size: int = Query(20),
-    query: str | None = Query(None),
-    activity_type_id: UUID | None = Query(None),
-    starts_after: datetime | None = Query(None),
-    ends_before: datetime | None = Query(None),
-    statuses: set[EventStatusCode] | None = Query(None),
-    sort: EventSort = Query(EventSort.START_DATE_ASC),
+        page: int = Query(1),
+        page_size: int = Query(20),
+        query: str | None = Query(None),
+        activity_type_id: UUID | None = Query(None),
+        starts_after: datetime | None = Query(None),
+        ends_before: datetime | None = Query(None),
+        statuses: set[EventStatusCode] | None = Query(None),
+        sort: EventSort = Query(EventSort.START_DATE_ASC),
 ) -> EventSearchRequest:
     return EventSearchRequest(
         pagination=PageRequest(
@@ -32,5 +32,6 @@ async def get_event_search_request(
         statuses=statuses,
         sort=sort,
     )
+
 
 EventSearchRequestDep = Annotated[EventSearchRequest, Depends(get_event_search_request)]

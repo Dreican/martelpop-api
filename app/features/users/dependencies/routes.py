@@ -10,12 +10,12 @@ from app.features.users.enums.user_status import UserStatus
 
 
 async def get_user_search_request(
-    page: int = Query(1),
-    page_size: int = Query(20),
-    query: str | None = Query(None),
-    role: set[RoleCode] | None = Query(None),
-    statuses: set[UserStatus] | None = Query(None),
-    sort: UserSort = Query(UserSort.CREATED_AT_DESC),
+        page: int = Query(1),
+        page_size: int = Query(20),
+        query: str | None = Query(None),
+        role: set[RoleCode] | None = Query(None),
+        statuses: set[UserStatus] | None = Query(None),
+        sort: UserSort = Query(UserSort.CREATED_AT_DESC),
 ) -> UserSearchRequest:
     return UserSearchRequest(
         pagination=PageRequest(
@@ -27,5 +27,6 @@ async def get_user_search_request(
         statuses=statuses,
         sort=sort,
     )
+
 
 UserSearchRequestDep = Annotated[UserSearchRequest, Depends(get_user_search_request)]

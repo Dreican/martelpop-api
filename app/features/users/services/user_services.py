@@ -6,12 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.features.storage.enums.storage_categories import StorageCategory
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.repositories.role_repository import RoleRepository
-from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
+from app.features.storage.dto.file_download import FileDownload
 from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.enums.storage_categories import StorageCategory
+from app.features.storage.exceptions.storage_exceptions import StorageFileNotFoundError
 from app.features.storage.factories.stored_file_response_factory import StoredFileResponseFactory
 from app.features.storage.services.file_service import FileService
 from app.features.users.dto.user_admin_response import UserAdminResponse
@@ -147,6 +149,16 @@ class UserService(BaseService):
         user.avatar_file_id = None
         await self._flush()
         await self._file.delete(avatar_id)
+
+    async def get_avatar(self, user_slug: str, principal: Principal) -> FileDownload:
+        user = await self._users.required_by_slug(user_slug)
+
+        if user.avatar_file_id is None:
+            raise StorageFileNotFoundError(f"User {user_slug} does not have an avatar.")
+
+        file, content = await self._file.download(user.avatar_file_id)
+
+        return FileDownload(file=file, content=content, is_public=True)
 
     @staticmethod
     def _can_manage_user(principal: AuthenticatedPrincipal, user_id: UUID) -> bool:

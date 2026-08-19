@@ -1,10 +1,11 @@
 from fastapi import APIRouter, status, UploadFile, File
+from starlette.responses import StreamingResponse
 
-from app.features.auth.dependencies.current_principal import AuthenticatedPrincipalDep
-from app.features.auth.dependencies.require_permissions import authenticated_permission
+from app.features.auth.dependencies.require_permissions import authenticated_permission, permission
 from app.features.auth.enums.permission_code import PermissionCode
-from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.helpers.helpers import content_disposition_inline
 from app.features.users.dependencies.services import UserServiceDep
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
@@ -60,7 +61,7 @@ async def delete_user(
     return await user_service.delete_me(principal)
 
 @router.post("/me/avatar", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
-async def update_user_avatar(
+async def update_avatar(
         user_service: UserServiceDep,
         file: UploadFile = File(...),
         principal: AuthenticatedPrincipal = authenticated_permission()
@@ -69,8 +70,35 @@ async def update_user_avatar(
 
 
 @router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user_avatar(
+async def delete_avatar(
         user_service: UserServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission()
 ) -> None:
     return await user_service.delete_avatar(principal)
+
+@router.get("/{user_slug}/avatar", response_model=StoredFileResponse, status_code=status.HTTP_200_OK)
+async def get_avatar(
+        user_slug: str,
+        user_service: UserServiceDep,
+        principal: Principal = permission()
+) -> StreamingResponse:
+    file_download = await user_service.get_avatar(user_slug, principal)
+
+    headers = {
+        "Content-Disposition": content_disposition_inline(file_download.file.original_filename),
+        "Content-Length": str(file_download.file.size),
+        "ETag": f'"{file_download.file.checksum}"'
+    }
+
+    if file_download.is_public:
+        headers["Cache-Control"] = (
+            "public, max-age=31536000, immutable"
+        )
+    else:
+        headers["Cache-Control"] = "private, no-cache"
+
+    return StreamingResponse(
+        file_download.content,
+        media_type=file_download.file.mime_type,
+        headers=headers
+    )

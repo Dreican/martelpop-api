@@ -12,8 +12,10 @@ FILE_URL_PREFIX = f"{config.app.api_prefix}/files"
 def content_disposition_attachment(filename: str) -> str:
     return f'attachment; {_content_disposition(filename)}'
 
+
 def content_disposition_inline(filename: str) -> str:
     return f'inline; {_content_disposition(filename)}'
+
 
 def _content_disposition(filename: str) -> str:
     filename = normalize("NFC", filename)

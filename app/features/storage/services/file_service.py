@@ -5,9 +5,6 @@ from uuid import UUID, uuid4
 
 from fastapi import UploadFile
 
-from app.features.auth.enums.permission_code import PermissionCode
-from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
-from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.enums.storage_categories import StorageCategory
 from app.features.storage.exceptions.storage_exceptions import StorageFileNotFoundError
 from app.features.storage.interface.storage import Storage
@@ -118,17 +115,17 @@ class FileService:
             size += len(chunk)
 
         return (
-            size == stored_file.size
-            and hasher.hexdigest() == stored_file.checksum
+                size == stored_file.size
+                and hasher.hexdigest() == stored_file.checksum
         )
 
     async def replace(
-        self,
-        old_file_id: UUID | None,
-        new_file: UploadFile,
-        *,
-        uploaded_by_id: UUID,
-        category: str,
+            self,
+            old_file_id: UUID | None,
+            new_file: UploadFile,
+            *,
+            uploaded_by_id: UUID,
+            category: str,
     ) -> StoredFile:
         new_stored_file = await self.upload(
             new_file,

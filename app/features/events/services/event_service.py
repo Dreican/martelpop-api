@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.features.storage.enums.storage_categories import StorageCategory
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
@@ -28,7 +27,10 @@ from app.features.events.repositories.event_repository import EventRepository
 from app.features.events.repositories.event_status_repository import EventStatusRepository
 from app.features.registrations.repositories.registration_repository import RegistrationRepository
 from app.features.settings.services.application_settings import ApplicationSettings
+from app.features.storage.dto.file_download import FileDownload
 from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.enums.storage_categories import StorageCategory
+from app.features.storage.exceptions.storage_exceptions import StorageFileNotFoundError
 from app.features.storage.factories.stored_file_response_factory import StoredFileResponseFactory
 from app.features.storage.services.file_service import FileService
 
@@ -65,7 +67,6 @@ class EventService(BaseService):
         self._response = event_response
         self._participant_response = participant_response
         self._stored_file_response = stored_file_response
-
 
     async def create_event(self, request: EventCreateRequest, principal: AuthenticatedPrincipal) -> EventResponse:
         default_status = await self._event_status_repo.get_default()
@@ -179,7 +180,6 @@ class EventService(BaseService):
 
         return await self._persist(event)
 
-
     async def get_participants(
             self,
             request: EventParticipantRequest,
@@ -194,7 +194,8 @@ class EventService(BaseService):
 
         return self._participant_response.create_page(page)
 
-    async def upload_banner(self, event_id: UUID, principal: AuthenticatedPrincipal, file: UploadFile) -> StoredFileResponse:
+    async def upload_banner(self, event_id: UUID, principal: AuthenticatedPrincipal,
+                            file: UploadFile) -> StoredFileResponse:
         event = await self._event_repo.get_required(event_id)
 
         if not self._policy.can_edit(event, principal):
@@ -202,7 +203,8 @@ class EventService(BaseService):
 
         old_banner_file_id = event.banner_file_id
 
-        stored_file = await self._file.upload(file, uploaded_by_id=principal.user.id, category=StorageCategory.EVENTS_BANNER)
+        stored_file = await self._file.upload(file, uploaded_by_id=principal.user.id,
+                                              category=StorageCategory.EVENTS_BANNER)
 
         try:
             event.banner_file_id = stored_file.id
@@ -232,6 +234,19 @@ class EventService(BaseService):
         event.banner_file_id = None
         await self._session.flush()
         await self._file.delete(old_file_id)
+
+    async def get_banner(self, event_slug: str, principal: Principal) -> FileDownload:
+        event = await self._event_repo.required_by_slug(event_slug)
+
+        if not self._policy.can_view(event, principal):
+            raise PermissionDeniedError(permissions={PermissionCode.EVENT_READ}, user=principal.display_name)
+
+        if event.banner_file_id is None:
+            raise StorageFileNotFoundError(f"Event {event_slug} does not have a banner.")
+
+        file, content = await self._file.download(event.banner_file_id)
+
+        return FileDownload(file=file, content=content, is_public=event.is_public)
 
     async def _persist(self, event: Event) -> EventResponse:
         await self._commit()

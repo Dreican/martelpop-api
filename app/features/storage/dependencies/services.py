@@ -4,7 +4,6 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.config.configuration import get_config
-from app.core.dependencies.database import SessionDep
 from app.features.storage.dependencies.repositories import StorageRepositoryDep
 from app.features.storage.dependencies.validators import FileValidatorDep
 from app.features.storage.interface.storage import Storage
@@ -19,7 +18,9 @@ def get_storage() -> Storage:
         base_path=config.storage.base_path
     )
 
+
 StorageDep = Annotated[Storage, Depends(get_storage)]
+
 
 def get_file_service(
         storage: StorageDep,
@@ -31,5 +32,6 @@ def get_file_service(
         repository=storage_repository,
         validator=storage_validator,
     )
+
 
 FileServiceDep = Annotated[FileService, Depends(get_file_service)]
