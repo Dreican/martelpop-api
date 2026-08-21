@@ -5,7 +5,7 @@ from fastapi import Depends
 from app.core.dependencies.database import SessionDep
 from app.core.dependencies.response_factories import (
     EventResponseFactoryDep, ParticipantResponseFactoryDep,
-    StoredFileResponseFactoryDep
+    StoredFileResponseFactoryDep, ActivityTypeAdminResponseFactoryDep
 )
 from app.core.dependencies.slug import SlugServiceDep
 from app.features.events.dependencies.policies import EventPolicyDep, EventAccessFilterDep
@@ -14,6 +14,7 @@ from app.features.events.dependencies.repositories import (
     ActivityTypeRepositoryDep,
     EventStatusRepositoryDep
 )
+from app.features.events.services.activity_type_service import ActivityTypeService
 from app.features.events.services.event_service import EventService
 from app.features.registrations.dependencies.repositories import RegistrationRepositoryDep
 from app.features.settings.dependencies.settings import ApplicationSettingsDep
@@ -54,3 +55,25 @@ def get_event_service(
 
 
 EventServiceDep = Annotated[EventService, Depends(get_event_service)]
+
+
+def get_activity_type_service(
+        session: SessionDep,
+        activity_type_repository: ActivityTypeRepositoryDep,
+        slug_service: SlugServiceDep,
+        file_service: FileServiceDep,
+        application_settings: ApplicationSettingsDep,
+        stored_file_response: StoredFileResponseFactoryDep,
+        response_admin_factory: ActivityTypeAdminResponseFactoryDep,
+) -> ActivityTypeService:
+    return ActivityTypeService(
+        session=session,
+        activity_type_repository=activity_type_repository,
+        slug_service=slug_service,
+        file_service=file_service,
+        application_settings=application_settings,
+        stored_file_response=stored_file_response,
+        response_admin_factory=response_admin_factory,
+    )
+
+ActivityTypeServiceDep = Annotated[ActivityTypeService, Depends(get_activity_type_service)]

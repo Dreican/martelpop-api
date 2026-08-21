@@ -108,76 +108,58 @@ class ActivityTypeService(BaseService):
 
         return await self._persist(activity_type)
 
-    async def get_participants(
+
+    async def upload_icon(
             self,
-            request: EventParticipantRequest,
-            principal: AuthenticatedPrincipal
-    ) -> Page[ParticipantResponse]:
-        event = await self._event_repo.get_required(request.event_id)
+            activity_type_id: UUID,
+            principal: AuthenticatedPrincipal,
+            file: UploadFile
+    ) -> StoredFileResponse:
+        activity_type = await self._activity_type_repo.get_required(activity_type_id)
 
-        if not self._policy.can_view_participant(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_READ}, user=principal.display_name)
-
-        page = await self._registrations.search_participants(request)
-
-        return self._participant_response.create_page(page)
-
-    async def upload_banner(self, event_id: UUID, principal: AuthenticatedPrincipal,
-                            file: UploadFile) -> StoredFileResponse:
-        event = await self._event_repo.get_required(event_id)
-
-        if not self._policy.can_edit(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.display_name)
-
-        old_banner_file_id = event.banner_file_id
+        old_icon_file_id = activity_type.icon_file_id
 
         stored_file = await self._file.upload(
             file,
             uploaded_by_id=principal.user.id,
-            category=StorageCategory.EVENTS_BANNER
+            category=StorageCategory.ACTIVITY_TYPE_ICON
         )
 
         try:
-            event.banner_file_id = stored_file.id
+            activity_type.icon_file_id = stored_file.id
             await self._flush()
-            await self._refresh(event)
+            await self._refresh(activity_type)
         except Exception:
             await self._file.delete(stored_file.id)
             raise
 
-        if old_banner_file_id is not None:
-            await self._file.delete(old_banner_file_id)
+        if old_icon_file_id is not None:
+            await self._file.delete(old_icon_file_id)
             await self._flush()
 
         return self._stored_file_response.create(stored_file)
 
-    async def delete_banner(self, event_id: UUID, principal: AuthenticatedPrincipal) -> None:
-        event = await self._event_repo.get_required(event_id)
+    async def delete_icon(self, activity_type_id: UUID) -> None:
+        activity_type = await self._activity_type_repo.get_required(activity_type_id)
 
-        if not self._policy.can_edit(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.display_name)
+        old_icon_file_id = activity_type.icon_file_id
 
-        old_file_id = event.banner_file_id
-
-        if old_file_id is None:
+        if old_icon_file_id is None:
             return
 
-        event.banner_file_id = None
+        activity_type.icon_file_id = None
         await self._session.flush()
-        await self._file.delete(old_file_id)
+        await self._file.delete(old_icon_file_id)
 
-    async def get_banner(self, event_slug: str, principal: Principal) -> FileDownload:
-        event = await self._event_repo.required_by_slug(event_slug)
+    async def get_icon(self, activity_type_slug: str) -> FileDownload:
+        activity_type = await self._activity_type_repo.required_by_slug(activity_type_slug)
 
-        if not self._policy.can_view(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_READ}, user=principal.display_name)
+        if activity_type.icon_file_id is None:
+            raise StorageFileNotFoundError(f"Activity type {activity_type_slug} does not have an icon.")
 
-        if event.banner_file_id is None:
-            raise StorageFileNotFoundError(f"Event {event_slug} does not have a banner.")
+        file, content = await self._file.download(activity_type.icon_file_id)
 
-        file, content = await self._file.download(event.banner_file_id)
-
-        return FileDownload(file=file, content=content, is_public=event.is_public)
+        return FileDownload(file=file, content=content, is_public=True)
 
     async def _persist(self, activity_type: ActivityType) -> ActivityTypeAdminResponse:
         await self._commit()

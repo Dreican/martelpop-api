@@ -5,6 +5,7 @@ from fastapi import Depends
 from app.features.auth.factories.permission_summary_response_factory import PermissionSummaryResponseFactory
 from app.features.auth.factories.role_response_factory import RoleResponseFactory
 from app.features.auth.factories.role_summary_response_factory import RoleSummaryResponseFactory
+from app.features.events.factories.activity_type_admin_response_factory import ActivityTypeAdminResponseFactory
 from app.features.events.factories.activity_type_response_factory import ActivityTypeResponseFactory
 from app.features.events.factories.activity_type_summary_response_factory import ActivityTypeSummaryResponseFactory
 from app.features.events.factories.event_response_factory import EventResponseFactory
@@ -64,17 +65,26 @@ UserSummaryResponseFactoryDep = Annotated[UserSummaryResponseFactory, Depends(ge
 UserAdminResponseFactoryDep = Annotated[UserAdminResponseFactory, Depends(get_user_admin_response_factory)]
 
 
-def get_activity_type_response_factory() -> ActivityTypeResponseFactory:
-    return ActivityTypeResponseFactory()
-
-
 def get_activity_type_summary_response_factory() -> ActivityTypeSummaryResponseFactory:
     return ActivityTypeSummaryResponseFactory()
 
+def get_activity_type_response_factory() -> ActivityTypeResponseFactory:
+    return ActivityTypeResponseFactory()
+
+def get_activity_type_admin_response_factory() -> ActivityTypeAdminResponseFactory:
+    return ActivityTypeAdminResponseFactory()
+
+ActivityTypeSummaryResponseFactoryDep = Annotated[
+    ActivityTypeSummaryResponseFactory,
+    Depends(get_activity_type_summary_response_factory)
+]
 
 ActivityTypeResponseFactoryDep = Annotated[ActivityTypeResponseFactory, Depends(get_activity_type_response_factory)]
-ActivityTypeSummaryResponseFactoryDep = Annotated[
-    ActivityTypeSummaryResponseFactory, Depends(get_activity_type_summary_response_factory)]
+
+ActivityTypeAdminResponseFactoryDep = Annotated[
+    ActivityTypeAdminResponseFactory,
+    Depends(get_activity_type_admin_response_factory)
+]
 
 
 def get_event_response_factory(
