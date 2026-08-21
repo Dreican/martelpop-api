@@ -3,12 +3,15 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.core.config.configuration import get_config
 from app.core.pagination.page import Page
-from app.features.storage.helpers.helpers import public_file_url
+from app.features.storage.helpers import content_disposition
 
 EntityT = TypeVar("EntityT")
 ResponseT = TypeVar("ResponseT", bound=BaseModel)
 
+config = get_config()
+FILE_URL_PREFIX = f"{config.app.api_prefix}/files"
 
 class ResponseFactory(Generic[EntityT, ResponseT]):
 
@@ -23,4 +26,7 @@ class ResponseFactory(Generic[EntityT, ResponseT]):
 
     @staticmethod
     def file_url(file_id: UUID | None) -> str | None:
-        return public_file_url(file_id)
+        if file_id is None:
+            return None
+
+        return f"{FILE_URL_PREFIX}/{file_id}"

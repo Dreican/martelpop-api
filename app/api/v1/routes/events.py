@@ -12,7 +12,7 @@ from app.features.registrations.dependencies.services import RegistrationService
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
 from app.features.storage.dto.stored_file_response import StoredFileResponse
-from app.features.storage.helpers.helpers import content_disposition_inline
+from app.features.storage.helpers.content_disposition import content_disposition_inline
 
 router = APIRouter(
     prefix="/events",

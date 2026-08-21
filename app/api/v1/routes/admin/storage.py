@@ -9,7 +9,7 @@ from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.dependencies.services import FileServiceDep
 from app.features.storage.dto.stored_file_response import StoredFileResponse
 from app.features.storage.enums.storage_categories import StorageCategory
-from app.features.storage.helpers.helpers import content_disposition_inline, content_disposition_attachment
+from app.features.storage.helpers.content_disposition import content_disposition_inline, content_disposition_attachment
 
 router = APIRouter(prefix="/files", tags=["Storage"])
 
@@ -76,3 +76,20 @@ async def delete_file(
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.STORAGE_MANAGE)
 ) -> None:
     await service.delete(file_id)
+
+
+@router.post("cleanup-orphans", status_code=status.HTTP_200_OK)
+async def cleanup_orphans_files(
+        service: FileServiceDep,
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.STORAGE_MANAGE)
+) -> None:
+    await service.cleanup_orphaned_files()
+
+
+@router.post("cleanup-orphans-files", status_code=status.HTTP_200_OK)
+async def cleanup_orphaned_files(
+        service: FileServiceDep,
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.STORAGE_MANAGE)
+) -> dict[str, int]:
+    deleted = await service.cleanup_orphaned_files()
+    return {"deleted": deleted}

@@ -203,8 +203,11 @@ class EventService(BaseService):
 
         old_banner_file_id = event.banner_file_id
 
-        stored_file = await self._file.upload(file, uploaded_by_id=principal.user.id,
-                                              category=StorageCategory.EVENTS_BANNER)
+        stored_file = await self._file.upload(
+            file,
+            uploaded_by_id=principal.user.id,
+            category=StorageCategory.EVENTS_BANNER
+        )
 
         try:
             event.banner_file_id = stored_file.id

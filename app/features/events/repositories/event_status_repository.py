@@ -3,8 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database.repositories.codable_repository import CodableRepository
 from app.features.events.enums.event_status_code import EventStatusCode
-from app.features.events.exceptions.event_status_exceptions import DefaultEventStatusNotFoundError, \
+from app.features.events.exceptions.event_status_exceptions import (
+    DefaultEventStatusNotFoundError,
     EventStatusNotFoundError
+)
 from app.features.events.models.event_status import EventStatus
 
 

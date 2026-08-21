@@ -20,6 +20,7 @@ async def seed_role_permissions(session: AsyncSession) -> None:
             PermissionCode.REGISTRATION_MANAGE,
             PermissionCode.ROLE_UPDATE,
             PermissionCode.ACTIVITY_TYPE_MANAGE,
+            PermissionCode.STORAGE_MANAGE,
         },
         RoleCode.ORGANIZER: {
             PermissionCode.EVENT_READ,
