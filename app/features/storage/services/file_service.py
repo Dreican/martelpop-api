@@ -125,7 +125,7 @@ class FileService:
             new_file: UploadFile,
             *,
             uploaded_by_id: UUID,
-            category: str,
+            category: StorageCategory,
     ) -> StoredFile:
         new_stored_file = await self.upload(
             new_file,
@@ -137,3 +137,14 @@ class FileService:
             await self.delete(old_file_id)
 
         return new_stored_file
+
+    async def cleanup_orphaned_files(self) -> int:
+        stored_keys = await self._repository.get_storage_keys()
+        deleted = 0
+
+        async for key in await self._storage.list():
+            if key not in stored_keys:
+                await self._storage.delete(key)
+                deleted += 1
+
+        return deleted

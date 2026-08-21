@@ -10,7 +10,6 @@ class StorageRepository(BaseRepository[StoredFile]):
     def __init__(self, session: AsyncSession):
         super().__init__(session, model=StoredFile, not_found_exception=StorageFileNotFoundError)
 
-
     async def get_storage_keys(self) -> set[str]:
         stmt = select(StoredFile.storage_key)
 

@@ -93,7 +93,7 @@ class LocalStorage(Storage):
 
         async def stream() -> AsyncIterator[str]:
             for path in await asyncio.to_thread(
-                lambda: list(base.rglob("*"))
+                    lambda: list(base.rglob("*"))
             ):
                 if not path.is_file():
                     continue
