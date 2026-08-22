@@ -68,11 +68,14 @@ UserAdminResponseFactoryDep = Annotated[UserAdminResponseFactory, Depends(get_us
 def get_activity_type_summary_response_factory() -> ActivityTypeSummaryResponseFactory:
     return ActivityTypeSummaryResponseFactory()
 
+
 def get_activity_type_response_factory() -> ActivityTypeResponseFactory:
     return ActivityTypeResponseFactory()
 
+
 def get_activity_type_admin_response_factory() -> ActivityTypeAdminResponseFactory:
     return ActivityTypeAdminResponseFactory()
+
 
 ActivityTypeSummaryResponseFactoryDep = Annotated[
     ActivityTypeSummaryResponseFactory,

@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Protocol, TypeVar, Generic, cast
+from typing import Protocol, TypeVar, Generic
 
 from sqlalchemy import select
 

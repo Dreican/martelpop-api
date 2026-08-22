@@ -1,4 +1,5 @@
 from fastapi import status
+
 from app.core.exceptions.base import ApplicationError
 
 

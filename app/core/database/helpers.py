@@ -1,6 +1,6 @@
 from enum import StrEnum
-from sqlalchemy import Enum
 
+from sqlalchemy import Enum
 from sqlalchemy.exc import IntegrityError
 
 from app.core.database.constraints import USERS_EMAIL_UNIQUE

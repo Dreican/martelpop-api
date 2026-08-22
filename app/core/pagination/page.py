@@ -6,6 +6,7 @@ from pydantic import BaseModel, computed_field
 T = TypeVar("T")
 U = TypeVar("U")
 
+
 class Page(BaseModel, Generic[T]):
     items: list[T]
 
@@ -30,7 +31,6 @@ class Page(BaseModel, Generic[T]):
         return self.page < self.page_count
 
     def map(self, mapper: Callable[[T], U]) -> Page[U]:
-
         return Page(
             items=[mapper(item) for item in self.items],
             page=self.page,
