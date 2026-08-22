@@ -67,7 +67,6 @@ class RegistrationRepository(BaseRepository[Registration]):
 
         return await self.paginate(stmt, request.pagination)
 
-
     async def search_participants(self, request: EventParticipantRequest) -> Page[Registration]:
         stmt = (
             select(Registration)
@@ -81,7 +80,6 @@ class RegistrationRepository(BaseRepository[Registration]):
             )
 
         stmt = self._apply_sort(stmt, request.sort)
-
 
         return await self.paginate(stmt, request.pagination)
 

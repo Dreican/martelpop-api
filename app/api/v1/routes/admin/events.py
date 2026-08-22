@@ -109,6 +109,7 @@ async def upload_event_banner(
 ):
     return await event_service.upload_banner(event_id, principal, file)
 
+
 @router.delete("/{event_id}/banner", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_event_banner(
         event_id: UUID,

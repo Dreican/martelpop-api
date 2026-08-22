@@ -19,7 +19,9 @@ router = APIRouter(prefix="/users", tags=["Users"])
     status_code=status.HTTP_200_OK,
     response_model=UserAdminResponse
 )
-async def me(user_service: UserServiceDep, principal: AuthenticatedPrincipal = authenticated_permission()) -> UserAdminResponse:
+async def me(
+        user_service: UserServiceDep, principal: AuthenticatedPrincipal = authenticated_permission()
+        ) -> UserAdminResponse:
     return await user_service.me(principal)
 
 
@@ -60,6 +62,7 @@ async def delete_user(
 ) -> UserAdminResponse:
     return await user_service.delete_me(principal)
 
+
 @router.post("/me/avatar", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
 async def update_avatar(
         user_service: UserServiceDep,
@@ -75,6 +78,7 @@ async def delete_avatar(
         principal: AuthenticatedPrincipal = authenticated_permission()
 ) -> None:
     return await user_service.delete_avatar(principal)
+
 
 @router.get("/{user_slug}/avatar")
 async def get_avatar(

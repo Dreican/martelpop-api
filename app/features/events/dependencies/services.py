@@ -76,4 +76,5 @@ def get_activity_type_service(
         response_admin_factory=response_admin_factory,
     )
 
+
 ActivityTypeServiceDep = Annotated[ActivityTypeService, Depends(get_activity_type_service)]

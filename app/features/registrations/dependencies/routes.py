@@ -9,10 +9,10 @@ from app.features.registrations.enums.registration_status import RegistrationSta
 
 
 async def get_registration_search_request(
-    page: int = Query(1),
-    page_size: int = Query(20),
-    statuses: set[RegistrationStatus] | None = Query(None),
-    sort: RegistrationSort = Query(RegistrationSort.REGISTRATION_DATE_DESC),
+        page: int = Query(1),
+        page_size: int = Query(20),
+        statuses: set[RegistrationStatus] | None = Query(None),
+        sort: RegistrationSort = Query(RegistrationSort.REGISTRATION_DATE_DESC),
 ) -> RegistrationSearchRequest:
     return RegistrationSearchRequest(
         pagination=PageRequest(
@@ -22,5 +22,6 @@ async def get_registration_search_request(
         statuses=statuses,
         sort=sort,
     )
+
 
 RegistrationSearchRequestDep = Annotated[RegistrationSearchRequest, Depends(get_registration_search_request)]

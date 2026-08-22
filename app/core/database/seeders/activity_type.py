@@ -23,9 +23,17 @@ async def seed_activity_types(session: AsyncSession) -> None:
             "default_duration_minutes": 240
         },
         {
-            "slug": "barbecue",
-            "name": "Barbecue",
-            "description": "Barbecue",
+            "slug": "cine-club",
+            "name": "Ciné Club",
+            "description": "Soirée cinéma",
+            "is_default": False,
+            "default_location": "Maison de Village de Martelange",
+            "default_duration_minutes": 180
+        },
+        {
+            "slug": "evenements-speciaux",
+            "name": "Evenements Spéciaux",
+            "description": "Evenements Spéciaux",
             "is_default": False,
         }
     )

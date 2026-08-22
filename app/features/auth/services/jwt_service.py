@@ -33,7 +33,7 @@ class JwtService:
             expires_at: datetime,
             jti: UUID,
             role: Role | None = None
-            ) -> str:
+    ) -> str:
 
         payload = TokenPayload(
             sub=user_id,

@@ -40,6 +40,7 @@ async def download_file(
         }
     )
 
+
 @router.get("/{file_id}")
 async def get_file(
         file_id: UUID,

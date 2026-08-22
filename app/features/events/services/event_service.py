@@ -111,8 +111,10 @@ class EventService(BaseService):
 
         return page.map(self._response.create)
 
-    async def update_event(self, event_id: UUID, request: EventUpdateRequest,
-                           principal: AuthenticatedPrincipal) -> EventResponse:
+    async def update_event(
+            self, event_id: UUID, request: EventUpdateRequest,
+            principal: AuthenticatedPrincipal
+            ) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
 
         if not self._policy.can_edit(event, principal):
@@ -194,8 +196,10 @@ class EventService(BaseService):
 
         return self._participant_response.create_page(page)
 
-    async def upload_banner(self, event_id: UUID, principal: AuthenticatedPrincipal,
-                            file: UploadFile) -> StoredFileResponse:
+    async def upload_banner(
+            self, event_id: UUID, principal: AuthenticatedPrincipal,
+            file: UploadFile
+            ) -> StoredFileResponse:
         event = await self._event_repo.get_required(event_id)
 
         if not self._policy.can_edit(event, principal):

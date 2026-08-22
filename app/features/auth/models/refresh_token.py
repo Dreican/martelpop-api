@@ -19,7 +19,7 @@ class RefreshToken(Base):
             "ix_refresh_tokens_user_active",
             "user_id",
             "revoked_at",
-            ),
+        ),
 
     )
 

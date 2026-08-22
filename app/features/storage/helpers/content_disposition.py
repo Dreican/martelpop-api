@@ -1,11 +1,6 @@
 from urllib.parse import quote
-from uuid import UUID
 
 from unicodedata import normalize
-
-from app.core.config.configuration import get_config
-
-
 
 
 def content_disposition_attachment(filename: str) -> str:

@@ -11,7 +11,6 @@ from app.features.events.dto.responses.event_response import EventResponse
 from app.features.registrations.dependencies.services import RegistrationServiceDep
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
-from app.features.storage.dto.stored_file_response import StoredFileResponse
 from app.features.storage.helpers.content_disposition import content_disposition_inline
 
 router = APIRouter(
@@ -36,6 +35,7 @@ async def get_event(
 ):
     return await event_service.get_event_by_slug(event_slug, principal)
 
+
 @router.post("/{event_slug}/register", response_model=RegistrationResponse, status_code=status.HTTP_201_CREATED)
 async def register(
         event_slug: str,
@@ -44,6 +44,7 @@ async def register(
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.REGISTRATION_CREATE)
 ):
     return await registration_service.register(event_slug, request, principal)
+
 
 @router.get("/{event_slug}/banner")
 async def get_banner(

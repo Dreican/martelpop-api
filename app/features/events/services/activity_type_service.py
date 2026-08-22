@@ -4,23 +4,15 @@ from uuid import UUID
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.features.auth.enums.permission_code import PermissionCode
-from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 from app.features.events.dto.requests.activity_type_create_request import ActivityTypeCreateRequest
 from app.features.events.dto.requests.activity_type_update_request import ActivityTypeUpdateRequest
-from app.features.events.dto.requests.event_participant_request import EventParticipantRequest
-from app.features.events.dto.requests.event_update_request import EventUpdateRequest
 from app.features.events.dto.responses.activity_type_admin_response import ActivityTypeAdminResponse
 from app.features.events.dto.responses.activity_type_response import ActivityTypeResponse
-from app.features.events.dto.responses.event_response import EventResponse
-from app.features.events.dto.responses.participant_response import ParticipantResponse
 from app.features.events.factories.activity_type_admin_response_factory import ActivityTypeAdminResponseFactory
 from app.features.events.models.activity_type import ActivityType
-from app.features.events.models.event import Event
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository
 from app.features.settings.services.application_settings import ApplicationSettings
 from app.features.storage.dto.file_download import FileDownload
@@ -52,7 +44,9 @@ class ActivityTypeService(BaseService):
         self._stored_file_response = stored_file_response
         self._response_admin = response_admin_factory
 
-    async def create_activity_type(self, request: ActivityTypeCreateRequest, principal: AuthenticatedPrincipal) -> ActivityTypeAdminResponse:
+    async def create_activity_type(
+            self, request: ActivityTypeCreateRequest, principal: AuthenticatedPrincipal
+            ) -> ActivityTypeAdminResponse:
 
         slug = await self._slug.create_unique(request.name, slug_exists=self._activity_type_repo.exists_by_slug)
 
@@ -83,13 +77,17 @@ class ActivityTypeService(BaseService):
     async def list_activity_type(self) -> list[ActivityTypeAdminResponse]:
         activity_types = await self._activity_type_repo.get_all()
 
-        return self._response_admin .create_many(activity_types)
+        return self._response_admin.create_many(activity_types)
 
-    async def update_activity_type(self, activity_type_id: UUID, request: ActivityTypeUpdateRequest) -> ActivityTypeAdminResponse:
+    async def update_activity_type(
+            self, activity_type_id: UUID, request: ActivityTypeUpdateRequest
+            ) -> ActivityTypeAdminResponse:
         activity_type = await self._activity_type_repo.get_required(activity_type_id)
 
         if activity_type.name != request.name:
-            activity_type.slug = await self._slug.create_unique(request.name, slug_exists=self._activity_type_repo.exists_by_slug)
+            activity_type.slug = await self._slug.create_unique(
+                request.name, slug_exists=self._activity_type_repo.exists_by_slug
+                )
 
         activity_type.update(
             name=request.name,
@@ -107,7 +105,6 @@ class ActivityTypeService(BaseService):
         activity_type.delete()
 
         return await self._persist(activity_type)
-
 
     async def upload_icon(
             self,

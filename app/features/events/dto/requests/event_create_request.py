@@ -12,4 +12,3 @@ class EventCreateRequest(BaseModel):
     starts_at: datetime = Field(..., description="The start time of the event")
     ends_at: datetime = Field(..., description="The end time of the event")
     capacity: int | None = Field(..., description="The capacity of the event")
-

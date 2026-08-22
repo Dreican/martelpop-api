@@ -50,10 +50,14 @@ class RegistrationService(BaseService):
         self._summary_response = registration_summary_response
         self._settings = application_settings
 
-    async def register(self, event_slug: str, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
+    async def register(
+            self, event_slug: str, request: RegistrationRequest, principal: AuthenticatedPrincipal
+            ) -> RegistrationResponse:
         return await self.register_user(event_slug, principal.user.id, request, principal)
 
-    async def register_user(self, event_slug: str, user_id: UUID, request: RegistrationRequest, principal: AuthenticatedPrincipal) -> RegistrationResponse:
+    async def register_user(
+            self, event_slug: str, user_id: UUID, request: RegistrationRequest, principal: AuthenticatedPrincipal
+            ) -> RegistrationResponse:
         registration_settings = await self._settings.registrations()
         if not registration_settings.enabled:
             raise RegistrationsDisabledError(
@@ -83,7 +87,9 @@ class RegistrationService(BaseService):
             raise RegistrationClosedError(event_slug=event.slug)
 
         if await self._registrations.exists(event.id, principal.user.id):
-            raise AlreadyRegisteredError(event_slug=event.slug, admin=principal.user.display_name, user=user.display_name)
+            raise AlreadyRegisteredError(
+                event_slug=event.slug, admin=principal.user.display_name, user=user.display_name
+                )
 
         registration = Registration.create(event=event, user=user, note=request.note)
 
@@ -104,7 +110,6 @@ class RegistrationService(BaseService):
         registration.cancel(principal.user)
 
         return await self._persist(registration)
-
 
     async def uncancel(self, registration_id: UUID, principal: AuthenticatedPrincipal) -> RegistrationResponse:
         registration = await self._registrations.get_required(registration_id)
@@ -146,7 +151,6 @@ class RegistrationService(BaseService):
         page = await self._registrations.search_by_user(request, principal.user.id)
 
         return self._response.create_page(page)
-
 
     async def _persist(self, registration: Registration) -> RegistrationResponse:
         await self._commit()
