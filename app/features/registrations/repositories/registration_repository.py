@@ -23,6 +23,9 @@ class RegistrationRepository(BaseRepository[Registration]):
     async def get_required(self, entity_id: UUID) -> Registration:
         stmt = (
             select(Registration)
+            .options(selectinload(Registration.event))
+            .where(Registration.id == entity_id)
+
         )
         stmt = self._with_summary_graph(stmt)
         registration = await self._session.scalar(stmt)

@@ -71,20 +71,29 @@ class RegistrationService(BaseService):
                 value=registration_settings.enabled
             )
 
-        user : User = principal.user
-        if user_id != principal.id:
-            user = await self._users.get_required(user_id)
+        user : User = (
+            principal.user
+            if user_id == principal.id
+            else await self._users.get_required(user_id)
+        )
 
         if not user.is_active:
             raise UserInactiveError(user_display_name=user.display_name)
 
         event = await self._events.required_by_slug(event_slug)
 
-        if not self._policy.can_manage(event, principal):
-            raise PermissionDeniedError(
-                permissions={PermissionCode.REGISTRATION_CREATE},
-                user=user.display_name
-            )
+        if user.id == principal.user.id:
+            if not self._policy.can_register(event, principal):
+                raise PermissionDeniedError(
+                    permissions={PermissionCode.REGISTRATION_CREATE},
+                    user=principal.user.display_name,
+                )
+        else:
+            if not self._policy.can_manage(event, principal):
+                raise PermissionDeniedError(
+                    permissions={PermissionCode.REGISTRATION_MANAGE},
+                    user=principal.user.display_name,
+                )
 
         if not event.is_registration_open:
             raise RegistrationClosedError(event_slug=event.slug)
@@ -100,7 +109,11 @@ class RegistrationService(BaseService):
             event=event,
             user=user,
             note=request.note,
-            status=RegistrationStatus.REGISTERED if not event.is_full else RegistrationStatus.WAITLISTED
+            status=(
+                RegistrationStatus.REGISTERED
+                if not event.is_full
+                else RegistrationStatus.WAITLISTED
+            )
         )
 
         await self._registrations.add(registration)
@@ -131,7 +144,13 @@ class RegistrationService(BaseService):
                 user=principal.user.display_name
             )
 
-        registration.uncancel()
+        registration.uncancel(
+            (
+                RegistrationStatus.REGISTERED
+                if not event.is_full
+                else RegistrationStatus.WAITLISTED
+            )
+        )
 
         return await self._persist(registration)
 
