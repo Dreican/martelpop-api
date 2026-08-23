@@ -117,8 +117,7 @@ class EventService(BaseService):
             ) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
 
-        if not self._policy.can_edit(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.display_name)
+        self._require_editable(event, principal)
 
         if event.title != request.title:
             event.slug = await self._slug.create_unique(request.title, slug_exists=self._event_repo.exists_by_slug)
@@ -202,8 +201,7 @@ class EventService(BaseService):
             ) -> StoredFileResponse:
         event = await self._event_repo.get_required(event_id)
 
-        if not self._policy.can_edit(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.display_name)
+        self._require_editable(event, principal)
 
         old_banner_file_id = event.banner_file_id
 
@@ -215,23 +213,21 @@ class EventService(BaseService):
 
         try:
             event.banner_file_id = stored_file.id
-            await self._flush()
-            await self._refresh(event)
+            await self._commit()
+
         except Exception:
             await self._file.delete(stored_file.id)
             raise
 
         if old_banner_file_id is not None:
             await self._file.delete(old_banner_file_id)
-            await self._flush()
 
         return self._stored_file_response.create(stored_file)
 
     async def delete_banner(self, event_id: UUID, principal: AuthenticatedPrincipal) -> None:
         event = await self._event_repo.get_required(event_id)
 
-        if not self._policy.can_edit(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_UPDATE}, user=principal.display_name)
+        self._require_editable(event, principal)
 
         old_file_id = event.banner_file_id
 
@@ -239,14 +235,14 @@ class EventService(BaseService):
             return
 
         event.banner_file_id = None
-        await self._session.flush()
+        await self._commit()
         await self._file.delete(old_file_id)
 
     async def get_banner(self, event_slug: str, principal: Principal) -> FileDownload:
         event = await self._event_repo.required_by_slug(event_slug)
 
         if not self._policy.can_view(event, principal):
-            raise PermissionDeniedError(permissions={PermissionCode.EVENT_READ}, user=principal.display_name)
+            raise EventNotFoundError(event_slug=event_slug, user=principal.display_name)
 
         if event.banner_file_id is None:
             raise StorageFileNotFoundError(f"Event {event_slug} does not have a banner.")
@@ -268,3 +264,10 @@ class EventService(BaseService):
             raise PermissionDeniedError(permissions={PermissionCode.EVENT_PUBLISH}, user=principal.display_name)
 
         return event
+
+    def _require_editable(self, event: Event, principal: AuthenticatedPrincipal) -> None:
+        if not self._policy.can_edit(event, principal):
+            raise PermissionDeniedError(
+                permissions={PermissionCode.EVENT_UPDATE},
+                user=principal.display_name,
+            )
