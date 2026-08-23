@@ -69,7 +69,7 @@ class RegistrationService(BaseService):
             request: RegistrationRequest,
             principal: AuthenticatedPrincipal
         ) -> RegistrationResponse:
-        event = await self._events.get_required(event_id)
+        event = await self._events.get_for_update_by_id(event_id)
         user = await self._users.get_required(user_id)
         return await self._register(user, event, request, principal)
 

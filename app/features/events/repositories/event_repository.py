@@ -44,17 +44,31 @@ class EventRepository(SluggableRepository[Event]):
 
         return event
 
-    async def get_for_update_by_slug(self, slug: str) -> Event:
+    async def get_for_update_by_slug(self, event_slug: str) -> Event:
         stmt = (
             select(Event)
-            .where(Event.slug == slug)
+            .where(Event.slug == event_slug)
             .with_for_update()
         )
 
         event = await self._session.scalar(stmt)
 
         if event is None:
-            raise EventNotFoundError(event_slug=slug)
+            raise EventNotFoundError(event_slug=event_slug)
+
+        return event
+
+    async def get_for_update_by_id(self, event_id: UUID) -> Event:
+        stmt = (
+            select(Event)
+            .where(Event.id == event_id)
+            .with_for_update()
+        )
+
+        event = await self._session.scalar(stmt)
+
+        if event is None:
+            raise EventNotFoundError(event_id=event_id)
 
         return event
 
