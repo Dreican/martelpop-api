@@ -70,7 +70,7 @@ async def update_avatar(
         file: UploadFile = File(...),
         principal: AuthenticatedPrincipal = authenticated_permission()
 ) -> StoredFileResponse:
-    return await user_service.upload_avatar(principal, file)
+    return await user_service.upload_avatar_me(principal, file)
 
 
 @router.delete("/me/avatar", status_code=status.HTTP_204_NO_CONTENT)
@@ -78,7 +78,7 @@ async def delete_avatar(
         user_service: UserServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission()
 ) -> None:
-    return await user_service.delete_avatar(principal)
+    return await user_service.delete_avatar_me(principal)
 
 
 @router.get("/{user_slug}/avatar")
@@ -87,6 +87,6 @@ async def get_avatar(
         user_service: UserServiceDep,
         principal: Principal = permission()
 ) -> StreamingResponse:
-    download = await user_service.get_avatar(user_slug, principal)
+    download = await user_service.get_avatar(user_slug)
 
     return file_stream_response(download)

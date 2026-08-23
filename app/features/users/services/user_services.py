@@ -62,12 +62,8 @@ class UserService(BaseService):
     async def update(
             self,
             user_id: UUID,
-            request: UserUpdateRequest,
-            principal: AuthenticatedPrincipal
+            request: UserUpdateRequest
     ) -> UserAdminResponse:
-        if not self._can_manage_user(principal, user_id):
-            raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
-
         user = await self._users.get_required(user_id)
         old_display_name = user.display_name
         user.update(request)
@@ -77,9 +73,6 @@ class UserService(BaseService):
         return await self._persist(user)
 
     async def update_me(self, request: UserUpdateRequest, principal: AuthenticatedPrincipal) -> UserAdminResponse:
-        if not self._can_manage_user(principal, principal.user.id):
-            raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
-
         user = principal.user
         old_display_name = user.display_name
         user.update(request)
@@ -95,10 +88,7 @@ class UserService(BaseService):
                 slug_exists=self._users.exists_by_slug,
             )
 
-    async def delete(self, user_id: UUID, principal: AuthenticatedPrincipal) -> UserAdminResponse:
-        if not self._can_manage_user(principal, user_id):
-            raise PermissionDeniedError(permissions={PermissionCode.USER_DELETE}, user=principal.user.display_name)
-
+    async def delete(self, user_id: UUID) -> UserAdminResponse:
         user = await self._users.get_required(user_id)
 
         user.delete()
@@ -106,51 +96,29 @@ class UserService(BaseService):
         return await self._persist(user)
 
     async def delete_me(self, principal: AuthenticatedPrincipal) -> UserAdminResponse:
-        if not self._can_manage_user(principal, principal.user.id):
-            raise PermissionDeniedError(permissions={PermissionCode.USER_DELETE}, user=principal.user.display_name)
-
         user = await self._users.get_required(principal.user.id)
 
         user.delete()
 
         return await self._persist(user)
 
-    async def upload_avatar(self, principal: AuthenticatedPrincipal, file: UploadFile) -> StoredFileResponse:
-        if not self._can_manage_user(principal, principal.user.id):
-            raise PermissionDeniedError(permissions={PermissionCode.USER_UPDATE}, user=principal.user.display_name)
+    async def upload_avatar(self, user_id: UUID, principal: AuthenticatedPrincipal, file: UploadFile) -> StoredFileResponse:
+        user = await self._users.get_required(user_id)
+        return await self._upload_user_avatar(user, principal, file)
 
+    async def upload_avatar_me(self, principal: AuthenticatedPrincipal, file: UploadFile) -> StoredFileResponse:
         user = await self._users.get_required(principal.user.id)
-        old_file_id = user.avatar_file_id
+        return await self._upload_user_avatar(user, principal, file)
 
-        avatar = await self._file.upload(file, uploaded_by_id=principal.user.id, category=StorageCategory.USER_AVATARS)
+    async def delete_avatar(self, user_id: UUID) -> None:
+        user = await self._users.get_required(user_id)
+        await self._delete_user_avatar(user)
 
-        try:
-            user.avatar_file_id = avatar.id
-            await self._flush()
-            await self._refresh(user)
-        except Exception:
-            await self._file.delete(avatar.id)
-            raise
-
-        if old_file_id is not None:
-            await self._file.delete(old_file_id)
-            await self._flush()
-
-        return self._store_file_response.create(avatar)
-
-    async def delete_avatar(self, principal: AuthenticatedPrincipal) -> None:
+    async def delete_avatar_me(self, principal: AuthenticatedPrincipal) -> None:
         user = await self._users.get_required(principal.user.id)
+        await self._delete_user_avatar(user)
 
-        avatar_id = user.avatar_file_id
-
-        if avatar_id is None:
-            return
-
-        user.avatar_file_id = None
-        await self._flush()
-        await self._file.delete(avatar_id)
-
-    async def get_avatar(self, user_slug: str, principal: Principal) -> FileDownload:
+    async def get_avatar(self, user_slug: str) -> FileDownload:
         user = await self._users.required_by_slug(user_slug)
 
         if user.avatar_file_id is None:
@@ -160,12 +128,35 @@ class UserService(BaseService):
 
         return FileDownload(file=file, content=content, is_public=True)
 
-    @staticmethod
-    def _can_manage_user(principal: AuthenticatedPrincipal, user_id: UUID) -> bool:
-        return principal.is_admin or principal.user.id == user_id
-
     async def _persist(self, user: User) -> UserAdminResponse:
         await self._commit()
         await self._refresh(user)
 
         return self._user_admin_response.create(user)
+
+    async def _upload_user_avatar(self, user: User, principal: AuthenticatedPrincipal, file: UploadFile) -> StoredFileResponse:
+        old_file_id = user.avatar_file_id
+
+        avatar = await self._file.upload(file, uploaded_by_id=principal.user.id, category=StorageCategory.USER_AVATARS)
+
+        try:
+            user.avatar_file_id = avatar.id
+            await self._commit()
+        except Exception:
+            await self._file.delete(avatar.id)
+            raise
+
+        if old_file_id is not None:
+            await self._file.delete(old_file_id)
+
+        return self._store_file_response.create(avatar)
+
+    async def _delete_user_avatar(self, user: User) -> None:
+        avatar_id = user.avatar_file_id
+
+        if avatar_id is None:
+            return
+
+        user.avatar_file_id = None
+        await self._commit()
+        await self._file.delete(avatar_id)
