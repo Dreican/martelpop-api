@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, Select
+from sqlalchemy import select, Select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -23,9 +23,7 @@ class RegistrationRepository(BaseRepository[Registration]):
     async def get_required(self, entity_id: UUID) -> Registration:
         stmt = (
             select(Registration)
-            .options(selectinload(Registration.event))
             .where(Registration.id == entity_id)
-
         )
         stmt = self._with_summary_graph(stmt)
         registration = await self._session.scalar(stmt)

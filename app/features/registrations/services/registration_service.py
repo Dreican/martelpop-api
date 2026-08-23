@@ -105,13 +105,18 @@ class RegistrationService(BaseService):
                 user=user.display_name
             )
 
+        has_capacity = await self._events.has_capacity(
+            event.id,
+            event.capacity,
+        )
+
         registration = Registration.create(
             event=event,
             user=user,
             note=request.note,
             status=(
                 RegistrationStatus.REGISTERED
-                if not event.is_full
+                if has_capacity
                 else RegistrationStatus.WAITLISTED
             )
         )

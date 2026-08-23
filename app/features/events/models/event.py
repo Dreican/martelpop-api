@@ -102,7 +102,11 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     @property
     def is_full(self) -> bool:
-        return self.capacity is not None and (self.remaining_capacity <= 0)
+        return (
+            self.capacity is not None
+            and self.remaining_capacity is not None
+            and self.remaining_capacity <= 0
+        )
 
     @property
     def remaining_capacity(self) -> int | None:

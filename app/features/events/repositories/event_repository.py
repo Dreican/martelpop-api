@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, or_, Select
+from sqlalchemy import select, or_, Select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -18,6 +18,8 @@ from app.features.events.filters.event_access import EventAccess
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.models.event import Event
 from app.features.events.models.event_status import EventStatus
+from app.features.registrations.enums.registration_status import RegistrationStatus
+from app.features.registrations.models.registration import Registration
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +111,24 @@ class EventRepository(SluggableRepository[Event]):
         )
 
         return await self._session.scalar(stmt)
+
+
+    async def has_capacity(self, event_id: UUID, capacity: int | None) -> bool:
+        if capacity is None:
+            return True
+
+        stmt = (
+            select(func.count(Registration.id))
+            .where(
+                Registration.event_id == event_id,
+                Registration.status == RegistrationStatus.REGISTERED,
+            )
+        )
+
+        registered_count = await self._session.scalar(stmt) or 0
+
+        return registered_count < capacity
+
 
     @staticmethod
     def _apply_filters(stmt: Select[tuple[Any]], request: EventSearchRequest) -> Select[tuple[Any]]:
