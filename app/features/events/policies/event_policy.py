@@ -68,8 +68,6 @@ class EventPolicy:
             case _:
                 return principal.user is not None
 
-
-
     @staticmethod
     def visible_statuses(principal: Principal) -> set[EventStatusCode]:
         if principal.user is None:

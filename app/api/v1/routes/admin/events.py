@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, UploadFile, File
 
 from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
@@ -11,6 +11,7 @@ from app.features.events.dto.requests.event_update_request import EventUpdateReq
 from app.features.events.dto.responses.event_response import EventResponse
 from app.features.registrations.dependencies.services import RegistrationServiceDep
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
+from app.features.storage.dto.stored_file_response import StoredFileResponse
 
 router = APIRouter(prefix="/events", tags=["Admin Events"])
 
@@ -97,3 +98,22 @@ async def register_user(
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.EVENT_PUBLISH)
 ):
     return await registration_service.register_user(event_slug, user_id, request, principal)
+
+
+@router.post("/{event_id}/banner", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
+async def upload_event_banner(
+        event_id: UUID,
+        event_service: EventServiceDep,
+        file: UploadFile = File(...),
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.EVENT_UPDATE)
+):
+    return await event_service.upload_banner(event_id, principal, file)
+
+
+@router.delete("/{event_id}/banner", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_event_banner(
+        event_id: UUID,
+        event_service: EventServiceDep,
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.EVENT_UPDATE)
+):
+    return await event_service.delete_banner(event_id, principal)

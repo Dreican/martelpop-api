@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -53,3 +54,23 @@ class ActivityType(Base, SoftDeleteMixin, SlugMixin):
     events: Mapped[list["Event"]] = relationship(
         back_populates="activity_type",
     )
+
+    def update(
+            self,
+            name: str,
+            description: str | None,
+            color: str | None,
+            default_location: str | None,
+            default_capacity: int | None,
+            default_duration_minutes: int | None
+    ):
+        self.name = name
+        self.description = description
+        self.color = color
+        self.default_location = default_location
+        self.default_capacity = default_capacity
+        self.default_duration_minutes = default_duration_minutes
+
+    def delete(self):
+        self.is_default = False
+        self.deleted_at = datetime.now(UTC)

@@ -41,7 +41,6 @@ class UserRepository(SluggableRepository[User]):
 
         return await self.paginate(stmt, request.pagination)
 
-
     async def get_by_email(self, email: str) -> User | None:
         stmt = (
             select(User).where(User.email == email)
@@ -84,9 +83,7 @@ class UserRepository(SluggableRepository[User]):
         if request.statuses:
             stmt = stmt.where(User.status.in_(request.statuses))
 
-
         return stmt
-
 
     @staticmethod
     def _apply_sort(stmt: Select[tuple[Any]], sort: UserSort) -> Select[tuple[Any]]:

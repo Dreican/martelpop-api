@@ -3,16 +3,17 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.core.config.configuration import get_config
 from app.core.pagination.page import Page
-from app.features.storage.services.sotrage_service import StorageService
 
 EntityT = TypeVar("EntityT")
 ResponseT = TypeVar("ResponseT", bound=BaseModel)
 
+config = get_config()
+FILE_URL_PREFIX = f"{config.app.api_prefix}/files"
+
 
 class ResponseFactory(Generic[EntityT, ResponseT]):
-    def __init__(self, storage: StorageService):
-        self._storage = storage
 
     def create(self, entity: EntityT) -> ResponseT:
         raise NotImplementedError
@@ -23,5 +24,9 @@ class ResponseFactory(Generic[EntityT, ResponseT]):
     def create_page(self, page: Page[EntityT]) -> Page[ResponseT]:
         return page.map(self.create)
 
-    def file_url(self, file_id: UUID | None) -> str | None:
-        return self._storage.public_url(file_id)
+    @staticmethod
+    def file_url(file_id: UUID | None) -> str | None:
+        if file_id is None:
+            return None
+
+        return f"{FILE_URL_PREFIX}/{file_id}"

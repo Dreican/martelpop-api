@@ -99,7 +99,6 @@ class AuthService(BaseService):
                 logger.warning("Invalid credentials", extra={"email": request.email})
                 raise InvalidCredentialsError(email=request.email)
 
-
             identity.last_login_at = datetime.now(UTC)
             tokens = await self._issue_tokens(identity.user, session)
             await self._refresh_tokens.add(tokens.refresh_token)
@@ -114,17 +113,23 @@ class AuthService(BaseService):
             stored = await self._refresh_tokens.get_by_jti(payload.jti)
 
             if stored is None:
-                logger.warning("Refresh token not found", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
+                logger.warning(
+                    "Refresh token not found", extra={"payload_sub": payload.sub, "payload_jti": payload.jti}
+                    )
                 raise InvalidCredentialsError(user_id=payload.sub)
 
             if stored.is_revoked:
-                logger.warning("Refresh token is revoked", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
+                logger.warning(
+                    "Refresh token is revoked", extra={"payload_sub": payload.sub, "payload_jti": payload.jti}
+                    )
                 await self._refresh_tokens.revoke_all_for_user(stored.user_id)
 
                 raise RefreshTokenReuseDetected(user_id=payload.sub)
 
             if stored.is_expired:
-                logger.warning("Refresh token is expired", extra={"payload_sub": payload.sub, "payload_jti": payload.jti})
+                logger.warning(
+                    "Refresh token is expired", extra={"payload_sub": payload.sub, "payload_jti": payload.jti}
+                    )
                 raise InvalidCredentialsError(user_id=stored.user.email)
 
             if not self._password.verify_password(refresh_token, stored.token_hash):
@@ -136,7 +141,6 @@ class AuthService(BaseService):
             if not user.is_active:
                 logger.warning("User is inactive", extra={"user_id": user.id, "email": stored.user.email})
                 raise InvalidCredentialsError(user_id=user.id)
-
 
             stored.mark_used()
             tokens = await self._issue_tokens(user, session)

@@ -5,6 +5,7 @@ from fastapi import Depends
 from app.features.auth.factories.permission_summary_response_factory import PermissionSummaryResponseFactory
 from app.features.auth.factories.role_response_factory import RoleResponseFactory
 from app.features.auth.factories.role_summary_response_factory import RoleSummaryResponseFactory
+from app.features.events.factories.activity_type_admin_response_factory import ActivityTypeAdminResponseFactory
 from app.features.events.factories.activity_type_response_factory import ActivityTypeResponseFactory
 from app.features.events.factories.activity_type_summary_response_factory import ActivityTypeSummaryResponseFactory
 from app.features.events.factories.event_response_factory import EventResponseFactory
@@ -13,34 +14,50 @@ from app.features.events.factories.participant_response_factory import Participa
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
 from app.features.registrations.factories.registration_summary_response_factory import \
     RegistrationSummaryResponseFactory
-from app.features.storage.dependencies.services import StorageServiceDep
+from app.features.storage.factories.stored_file_response_factory import StoredFileResponseFactory
 from app.features.users.factories.user_admin_response_factory import UserAdminResponseFactory
 from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.factories.user_summary_response_factory import UserSummaryResponseFactory
 
-def get_permission_summary_response_factory(storage: StorageServiceDep) -> PermissionSummaryResponseFactory:
-    return PermissionSummaryResponseFactory(storage=storage)
 
-PermissionSummaryResponseFactoryDep = Annotated[PermissionSummaryResponseFactory, Depends(get_permission_summary_response_factory)]
+def get_stored_file_response_factory() -> StoredFileResponseFactory:
+    return StoredFileResponseFactory()
 
 
-def get_role_response_factory(storage: StorageServiceDep, permission: PermissionSummaryResponseFactoryDep) -> RoleResponseFactory:
-    return RoleResponseFactory(storage=storage, permission=permission)
+StoredFileResponseFactoryDep = Annotated[
+    StoredFileResponseFactory, Depends(get_stored_file_response_factory)]
 
-def get_role_summary_response_factory(storage: StorageServiceDep) -> RoleSummaryResponseFactory:
-    return RoleSummaryResponseFactory(storage=storage)
+
+def get_permission_summary_response_factory() -> PermissionSummaryResponseFactory:
+    return PermissionSummaryResponseFactory()
+
+
+PermissionSummaryResponseFactoryDep = Annotated[
+    PermissionSummaryResponseFactory, Depends(get_permission_summary_response_factory)]
+
+
+def get_role_response_factory(permission: PermissionSummaryResponseFactoryDep) -> RoleResponseFactory:
+    return RoleResponseFactory(permission=permission)
+
+
+def get_role_summary_response_factory() -> RoleSummaryResponseFactory:
+    return RoleSummaryResponseFactory()
+
 
 RoleResponseFactoryDep = Annotated[RoleResponseFactory, Depends(get_role_response_factory)]
 RoleSummaryResponseFactoryDep = Annotated[RoleSummaryResponseFactory, Depends(get_role_summary_response_factory)]
 
-def get_user_response_factory(storage: StorageServiceDep, role: RoleSummaryResponseFactoryDep) -> UserResponseFactory:
-    return UserResponseFactory(storage=storage, role=role)
 
-def get_user_summary_response_factory(storage: StorageServiceDep) -> UserSummaryResponseFactory:
-    return UserSummaryResponseFactory(storage=storage)
+def get_user_response_factory(role: RoleSummaryResponseFactoryDep) -> UserResponseFactory:
+    return UserResponseFactory(role=role)
 
-def get_user_admin_response_factory(storage: StorageServiceDep, role: RoleSummaryResponseFactoryDep) -> UserAdminResponseFactory:
-    return UserAdminResponseFactory(storage=storage, role=role)
+
+def get_user_summary_response_factory() -> UserSummaryResponseFactory:
+    return UserSummaryResponseFactory()
+
+
+def get_user_admin_response_factory(role: RoleSummaryResponseFactoryDep) -> UserAdminResponseFactory:
+    return UserAdminResponseFactory(role=role)
 
 
 UserResponseFactoryDep = Annotated[UserResponseFactory, Depends(get_user_response_factory)]
@@ -48,37 +65,45 @@ UserSummaryResponseFactoryDep = Annotated[UserSummaryResponseFactory, Depends(ge
 UserAdminResponseFactoryDep = Annotated[UserAdminResponseFactory, Depends(get_user_admin_response_factory)]
 
 
-def get_activity_type_response_factory(storage: StorageServiceDep) -> ActivityTypeResponseFactory:
-    return ActivityTypeResponseFactory(storage=storage)
+def get_activity_type_summary_response_factory() -> ActivityTypeSummaryResponseFactory:
+    return ActivityTypeSummaryResponseFactory()
 
 
-def get_activity_type_summary_response_factory(storage: StorageServiceDep) -> ActivityTypeSummaryResponseFactory:
-    return ActivityTypeSummaryResponseFactory(storage=storage)
+def get_activity_type_response_factory() -> ActivityTypeResponseFactory:
+    return ActivityTypeResponseFactory()
 
+
+def get_activity_type_admin_response_factory() -> ActivityTypeAdminResponseFactory:
+    return ActivityTypeAdminResponseFactory()
+
+
+ActivityTypeSummaryResponseFactoryDep = Annotated[
+    ActivityTypeSummaryResponseFactory,
+    Depends(get_activity_type_summary_response_factory)
+]
 
 ActivityTypeResponseFactoryDep = Annotated[ActivityTypeResponseFactory, Depends(get_activity_type_response_factory)]
-ActivityTypeSummaryResponseFactoryDep = Annotated[
-    ActivityTypeSummaryResponseFactory, Depends(get_activity_type_summary_response_factory)]
+
+ActivityTypeAdminResponseFactoryDep = Annotated[
+    ActivityTypeAdminResponseFactory,
+    Depends(get_activity_type_admin_response_factory)
+]
 
 
 def get_event_response_factory(
-        storage: StorageServiceDep,
         activity_type_factory: ActivityTypeResponseFactoryDep,
         user_factory: UserResponseFactoryDep
 ) -> EventResponseFactory:
     return EventResponseFactory(
-        storage=storage,
         activity_type_factory=activity_type_factory,
         user_factory=user_factory
     )
 
 
 def get_event_summary_response_factory(
-        storage: StorageServiceDep,
         activity_type_summary_factory: ActivityTypeSummaryResponseFactoryDep,
 ) -> EventSummaryResponseFactory:
     return EventSummaryResponseFactory(
-        storage=storage,
         activity_type_summary_factory=activity_type_summary_factory,
     )
 
@@ -88,24 +113,18 @@ EventSummaryResponseFactoryDep = Annotated[EventSummaryResponseFactory, Depends(
 
 
 def get_registration_response_factory(
-        storage: StorageServiceDep,
         event_factory: EventSummaryResponseFactoryDep,
         user_factory: UserSummaryResponseFactoryDep
 ) -> RegistrationResponseFactory:
-    return RegistrationResponseFactory(storage=storage, event_factory=event_factory, user_factory=user_factory)
+    return RegistrationResponseFactory(event_factory=event_factory, user_factory=user_factory)
 
 
-def get_registration_summary_response_factory(
-        storage: StorageServiceDep,
-) -> RegistrationSummaryResponseFactory:
-    return RegistrationSummaryResponseFactory(storage=storage)
+def get_registration_summary_response_factory() -> RegistrationSummaryResponseFactory:
+    return RegistrationSummaryResponseFactory()
 
 
-def get_participant_response_factory(
-        storage: StorageServiceDep,
-        user_factory: UserSummaryResponseFactoryDep
-) -> ParticipantResponseFactory:
-    return ParticipantResponseFactory(storage=storage, user_factory=user_factory)
+def get_participant_response_factory(user_factory: UserSummaryResponseFactoryDep) -> ParticipantResponseFactory:
+    return ParticipantResponseFactory(user_factory=user_factory)
 
 
 RegistrationResponseFactoryDep = Annotated[RegistrationResponseFactory, Depends(get_registration_response_factory)]

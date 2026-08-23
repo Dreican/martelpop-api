@@ -3,4 +3,4 @@ from app.features.events.dto.responses.activity_type_summary_response import Act
 
 class ActivityTypeResponse(ActivityTypeSummaryResponse):
     description: str | None
-    color: str | None
+    banner_url: str | None

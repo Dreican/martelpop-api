@@ -5,6 +5,8 @@ from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
+from app.core.database.helpers import Helper
+from app.features.storage.enums.storage_categories import StorageCategory
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User
@@ -18,16 +20,19 @@ class StoredFile(Base):
         unique=True
     )
     original_filename: Mapped[str] = mapped_column(String(255))
+    storage_key: Mapped[str] = mapped_column(String(500), unique=True)
     mime_type: Mapped[str] = mapped_column(String(100))
-    storage_path: Mapped[str] = mapped_column(
-        String(500),
-        unique=True,
-    )
 
     size: Mapped[int]
     checksum: Mapped[str] = mapped_column(
         String(64),
         unique=True,
+    )
+
+    category: Mapped[StorageCategory] = mapped_column(
+        Helper.enum_column(StorageCategory),
+        name="storage_category",
+        nullable=False,
     )
 
     uploaded_by_id: Mapped[UUID] = mapped_column(

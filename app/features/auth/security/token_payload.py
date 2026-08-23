@@ -20,8 +20,6 @@ class TokenPayload(BaseModel):
     jti: UUID
     nbf: datetime
 
-
-
     def to_jwt_payload(self) -> dict:
         payload = self.model_dump(mode="json")
 

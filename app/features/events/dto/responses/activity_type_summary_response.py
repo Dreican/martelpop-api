@@ -9,3 +9,4 @@ class ActivityTypeSummaryResponse(BaseModel):
     name: str
     slug: str
     icon_url: str | None
+    color: str | None

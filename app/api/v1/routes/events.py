@@ -1,5 +1,7 @@
 from fastapi import APIRouter, status
+from starlette.responses import StreamingResponse
 
+from app.api.v1.utils.file_response import file_stream_response
 from app.core.pagination.page import Page
 from app.features.auth.dependencies.require_permissions import permission, authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
@@ -10,6 +12,7 @@ from app.features.events.dto.responses.event_response import EventResponse
 from app.features.registrations.dependencies.services import RegistrationServiceDep
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
+from app.core.http.content_disposition import content_disposition_inline
 
 router = APIRouter(
     prefix="/events",
@@ -42,3 +45,14 @@ async def register(
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.REGISTRATION_CREATE)
 ):
     return await registration_service.register(event_slug, request, principal)
+
+
+@router.get("/{event_slug}/banner")
+async def get_banner(
+        event_slug: str,
+        event_service: EventServiceDep,
+        principal: Principal = permission(PermissionCode.EVENT_READ)
+) -> StreamingResponse:
+    download = await event_service.get_banner(event_slug, principal)
+
+    return file_stream_response(download)

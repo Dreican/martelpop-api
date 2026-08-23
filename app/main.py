@@ -3,9 +3,9 @@ import logging
 from fastapi import FastAPI
 
 from app.core.application import configure_application
+from app.core.database import models  # noqa: F401
 from app.core.logger.config import setup_logging
 from app.core.startup import lifespan
-from app.core.database import models  # noqa: F401
 
 setup_logging()
 logger = logging.getLogger(__name__)
