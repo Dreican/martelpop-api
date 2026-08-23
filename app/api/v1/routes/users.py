@@ -1,11 +1,12 @@
 from fastapi import APIRouter, status, UploadFile, File
 from starlette.responses import StreamingResponse
 
+from app.api.v1.utils.file_response import file_stream_response
 from app.features.auth.dependencies.require_permissions import authenticated_permission, permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 from app.features.storage.dto.stored_file_response import StoredFileResponse
-from app.features.storage.helpers.content_disposition import content_disposition_inline
+from app.core.http.content_disposition import content_disposition_inline
 from app.features.users.dependencies.services import UserServiceDep
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
@@ -86,21 +87,6 @@ async def get_avatar(
         user_service: UserServiceDep,
         principal: Principal = permission()
 ) -> StreamingResponse:
-    file_download = await user_service.get_avatar(user_slug, principal)
+    download = await user_service.get_avatar(user_slug, principal)
 
-    headers = {
-        "Content-Disposition": content_disposition_inline(file_download.file.original_filename),
-        "Content-Length": str(file_download.file.size),
-        "ETag": f'"{file_download.file.checksum}"',
-        "Cache-Control": (
-            "public, max-age=31536000, immutable"
-            if file_download.is_public
-            else "private, no-cache"
-        )
-    }
-
-    return StreamingResponse(
-        file_download.content,
-        media_type=file_download.file.mime_type,
-        headers=headers
-    )
+    return file_stream_response(download)

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 from starlette.responses import StreamingResponse
 
+from app.api.v1.utils.file_response import file_stream_response
 from app.core.pagination.page import Page
 from app.features.auth.dependencies.require_permissions import permission, authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
@@ -11,7 +12,7 @@ from app.features.events.dto.responses.event_response import EventResponse
 from app.features.registrations.dependencies.services import RegistrationServiceDep
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
-from app.features.storage.helpers.content_disposition import content_disposition_inline
+from app.core.http.content_disposition import content_disposition_inline
 
 router = APIRouter(
     prefix="/events",
@@ -52,21 +53,6 @@ async def get_banner(
         event_service: EventServiceDep,
         principal: Principal = permission(PermissionCode.EVENT_READ)
 ) -> StreamingResponse:
-    file_download = await event_service.get_banner(event_slug, principal)
+    download = await event_service.get_banner(event_slug, principal)
 
-    headers = {
-        "Content-Disposition": content_disposition_inline(file_download.file.original_filename),
-        "Content-Length": str(file_download.file.size),
-        "ETag": f'"{file_download.file.checksum}"',
-        "Cache-Control": (
-            "public, max-age=31536000, immutable"
-            if file_download.is_public
-            else "private, no-cache"
-        )
-    }
-
-    return StreamingResponse(
-        file_download.content,
-        media_type=file_download.file.mime_type,
-        headers=headers
-    )
+    return file_stream_response(download)
