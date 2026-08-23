@@ -1,4 +1,5 @@
 from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.events.enums.event_status_code import EventStatusCode
 from app.features.events.models.event import Event
 from app.features.registrations.models.registration import Registration
 
@@ -35,8 +36,11 @@ class RegistrationPolicy:
     @staticmethod
     def can_register(event: Event, principal: AuthenticatedPrincipal) -> bool:
         return (
-                not event.is_vip_event
-                or principal.is_vip
+                event.status.code == EventStatusCode.PUBLISHED
+                and (
+                    not event.is_vip_event
+                    or principal.is_vip
+                )
         )
 
     @staticmethod
