@@ -145,6 +145,10 @@ class RegistrationService(BaseService):
                 user=principal.user.display_name
             )
 
+        event = await self._events.get_for_update_by_id(
+            registration.event_id
+        )
+
         previous_status = registration.status
         registration.cancel(principal.user)
 
@@ -160,7 +164,9 @@ class RegistrationService(BaseService):
 
     async def uncancel(self, registration_id: UUID, principal: AuthenticatedPrincipal) -> RegistrationResponse:
         registration = await self._registrations.get_required(registration_id)
-        event = registration.event
+        event = await self._events.get_for_update_by_id(
+            registration.event_id
+        )
 
         if not event.is_registration_open:
             raise RegistrationClosedError(event_slug=event.slug)

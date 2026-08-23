@@ -2,7 +2,7 @@ from datetime import datetime, UTC
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, Select, func, update
+from sqlalchemy import select, Select, func, update, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -46,6 +46,12 @@ class RegistrationRepository(BaseRepository[Registration]):
             select(1)
             .where(Registration.event_id == event_id)
             .where(Registration.user_id == user_id)
+            .where(
+                or_(
+                    Registration.status == RegistrationStatus.REGISTERED,
+                    Registration.status == RegistrationStatus.WAITLISTED
+                )
+            )
             .exists()
         )
 
@@ -78,7 +84,10 @@ class RegistrationRepository(BaseRepository[Registration]):
 
         if not request.include_cancelled:
             stmt = stmt.where(
-                Registration.status != RegistrationStatus.CANCELLED
+                or_(
+                    Registration.status == RegistrationStatus.REGISTERED,
+                    Registration.status == RegistrationStatus.WAITLISTED
+                )
             )
 
         stmt = self._apply_sort(stmt, request.sort)
