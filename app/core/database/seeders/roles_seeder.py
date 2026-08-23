@@ -36,7 +36,13 @@ async def seed_roles(session: AsyncSession) -> None:
             "name": "Anonymous",
             "description": "Anonymous access",
             "is_default": False
-        }
+        },
+        {
+            "code": RoleCode.SYSTEM,
+            "name": "System",
+            "description": "System access",
+            "is_default": False
+        },
     )
 
     for data in roles_seed:

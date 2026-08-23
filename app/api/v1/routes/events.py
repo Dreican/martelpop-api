@@ -44,7 +44,7 @@ async def register(
         registration_service: RegistrationServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.REGISTRATION_CREATE)
 ):
-    return await registration_service.register(event_slug, request, principal)
+    return await registration_service.register_me(event_slug, request, principal)
 
 
 @router.get("/{event_slug}/banner")

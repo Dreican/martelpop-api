@@ -7,3 +7,4 @@ class RoleCode(StrEnum):
     VIP = "vip"
     USER = "user"
     ANONYMOUS = "anonymous"
+    SYSTEM = "system"

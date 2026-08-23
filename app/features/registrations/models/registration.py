@@ -5,6 +5,7 @@ from uuid import UUID
 from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.constants import SYSTEM_USER_ID
 from app.core.database.base import Base
 from app.core.database.helpers import Helper
 from app.features.auth.security.principal import AuthenticatedPrincipal
@@ -106,12 +107,12 @@ class Registration(Base):
         back_populates="registrations"
     )
 
-    def promote(self, user: User):
+    def promote(self):
         if self.status is not RegistrationStatus.WAITLISTED:
             raise RegistrationPromoteError("Only a waitlisted registration can be promoted")
 
         self.registered_at = datetime.now(UTC)
-        self.registered_by = user
+        self.registered_by_id = SYSTEM_USER_ID
         self.status = RegistrationStatus.REGISTERED
 
     def cancel(self, user: User):

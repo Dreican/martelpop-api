@@ -41,6 +41,10 @@ class User(Base, SoftDeleteMixin, SlugMixin):
     firstname: Mapped[str] = mapped_column(String(100))
     lastname: Mapped[str] = mapped_column(String(100))
 
+    is_system: Mapped[bool] = mapped_column(
+        default=False,
+    )
+
     avatar_file_id: Mapped[UUID | None] = mapped_column(
         ForeignKey(
             "stored_files.id",

@@ -7,6 +7,7 @@ from app.core.services.base_service import BaseService
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.security.principal import AuthenticatedPrincipal
+from app.features.events.models.event import Event
 from app.features.events.repositories.event_repository import EventRepository
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
 from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
@@ -52,21 +53,34 @@ class RegistrationService(BaseService):
         self._summary_response = registration_summary_response
         self._settings = application_settings
 
-    async def register(
+    async def register_me(
             self,
             event_slug: str,
             request: RegistrationRequest,
             principal: AuthenticatedPrincipal
         ) -> RegistrationResponse:
-        return await self.register_user(event_slug, principal.user.id, request, principal)
+        event = await self._events.get_for_update_by_slug(event_slug)
+        return await self._register(principal.user, event, request, principal)
 
     async def register_user(
             self,
-            event_slug: str,
+            event_id: UUID,
             user_id: UUID,
             request: RegistrationRequest,
             principal: AuthenticatedPrincipal
         ) -> RegistrationResponse:
+        event = await self._events.get_required(event_id)
+        user = await self._users.get_required(user_id)
+        return await self._register(user, event, request, principal)
+
+
+    async def _register(
+            self,
+            user: User,
+            event: Event,
+            request: RegistrationRequest,
+            principal: AuthenticatedPrincipal
+    ):
         registration_settings = await self._settings.registrations()
         if not registration_settings.enabled:
             raise RegistrationsDisabledError(
@@ -74,16 +88,8 @@ class RegistrationService(BaseService):
                 value=registration_settings.enabled
             )
 
-        user : User = (
-            principal.user
-            if user_id == principal.id
-            else await self._users.get_required(user_id)
-        )
-
         if not user.is_active:
             raise UserInactiveError(user_display_name=user.display_name)
-
-        event = await self._events.get_for_update_by_slug(event_slug)
 
         if user.id == principal.user.id:
             if not self._policy.can_register(event, principal):
@@ -148,7 +154,7 @@ class RegistrationService(BaseService):
                 next_registration = await self._registrations.get_next_waitlisted(registration.event_id)
 
             if next_registration is not None:
-                next_registration.promote(principal.user)
+                next_registration.promote()
 
         return await self._persist(registration)
 

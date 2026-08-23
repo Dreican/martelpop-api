@@ -95,7 +95,7 @@ async def register_user(
         request: RegistrationRequest,
         registration_service:
         RegistrationServiceDep,
-        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.EVENT_PUBLISH)
+        principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.REGISTRATION_CREATE)
 ):
     return await registration_service.register_user(event_slug, user_id, request, principal)
 
