@@ -80,7 +80,7 @@ class RegistrationService(BaseService):
         if not user.is_active:
             raise UserInactiveError(user_display_name=user.display_name)
 
-        event = await self._events.required_by_slug(event_slug)
+        event = await self._events.get_for_update_by_slug(event_slug)
 
         if user.id == principal.user.id:
             if not self._policy.can_register(event, principal):
