@@ -88,16 +88,16 @@ async def complete_event(
     return await event_service.complete_event(event_id, principal)
 
 
-@router.post("/{event_slug}/register/{user_id}", response_model=EventResponse, status_code=status.HTTP_200_OK)
+@router.post("/{event_id}/register/{user_id}", response_model=EventResponse, status_code=status.HTTP_200_OK)
 async def register_user(
-        event_slug: str,
+        event_id: UUID,
         user_id: UUID,
         request: RegistrationRequest,
         registration_service:
         RegistrationServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.REGISTRATION_CREATE)
 ):
-    return await registration_service.register_user(event_slug, user_id, request, principal)
+    return await registration_service.register_user(event_id, user_id, request, principal)
 
 
 @router.post("/{event_id}/banner", response_model=StoredFileResponse, status_code=status.HTTP_201_CREATED)
