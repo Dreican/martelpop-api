@@ -106,7 +106,7 @@ class RegistrationRepository(BaseRepository[Registration]):
                 Registration.status == RegistrationStatus.REGISTERED
             )
             .values(
-                status=RegistrationStatus.CANCELLED,
+                status=RegistrationStatus.EVENT_CANCELLED,
                 cancelled_at=func.now(),
                 cancelled_by_id=cancelled_by_id
             )

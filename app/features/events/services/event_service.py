@@ -143,6 +143,8 @@ class EventService(BaseService):
         status = await self._event_status_repo.get_cancelled()
         event.delete(status)
 
+        await self._registrations.cancel_for_event(event_id=event.id, cancelled_by_id=SYSTEM_USER_ID)
+
         return await self._persist(event)
 
     async def publish_event(self, event_id: UUID, principal: AuthenticatedPrincipal) -> EventResponse:

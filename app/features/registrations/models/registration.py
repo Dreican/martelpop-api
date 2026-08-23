@@ -147,8 +147,6 @@ class Registration(Base):
     def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
         return self.user_id == principal.user.id
 
-
-
     @staticmethod
     def create(event: Event, user: User, note: str | None, status: RegistrationStatus, registered_by_id: UUID):
         registration = Registration(

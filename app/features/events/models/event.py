@@ -196,6 +196,8 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     def unpublish(self, event_status: EventStatus) -> None:
         self.status = event_status
+        self.published_at = None
+        self.published_by = None
 
     def delete(self, event_status: EventStatus, deleted_by: User) -> None:
         self.cancel(event_status, deleted_by)
