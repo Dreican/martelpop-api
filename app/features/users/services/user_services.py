@@ -148,6 +148,7 @@ class UserService(BaseService):
 
         if old_file_id is not None:
             await self._file.delete(old_file_id)
+            await self._commit()
 
         return self._store_file_response.create(avatar)
 
@@ -160,3 +161,4 @@ class UserService(BaseService):
         user.avatar_file_id = None
         await self._commit()
         await self._file.delete(avatar_id)
+        await self._commit()

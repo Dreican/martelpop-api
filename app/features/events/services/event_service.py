@@ -221,6 +221,7 @@ class EventService(BaseService):
 
         if old_banner_file_id is not None:
             await self._file.delete(old_banner_file_id)
+            await self._commit()
 
         return self._stored_file_response.create(stored_file)
 
@@ -237,6 +238,7 @@ class EventService(BaseService):
         event.banner_file_id = None
         await self._commit()
         await self._file.delete(old_file_id)
+        await self._commit()
 
     async def get_banner(self, event_slug: str, principal: Principal) -> FileDownload:
         event = await self._event_repo.required_by_slug(event_slug)

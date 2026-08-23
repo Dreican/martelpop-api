@@ -69,8 +69,8 @@ class ActivityTypeService(BaseService):
 
         return self._response_admin.create(activity_type)
 
-    async def get_activity_type_by_slug(self, event_slug: str, principal: Principal) -> ActivityTypeAdminResponse:
-        activity_type = await self._activity_type_repo.required_by_slug(event_slug)
+    async def get_activity_type_by_slug(self, activity_type_slug: str) -> ActivityTypeAdminResponse:
+        activity_type = await self._activity_type_repo.required_by_slug(activity_type_slug)
 
         return self._response_admin.create(activity_type)
 
@@ -124,15 +124,14 @@ class ActivityTypeService(BaseService):
 
         try:
             activity_type.icon_file_id = stored_file.id
-            await self._flush()
-            await self._refresh(activity_type)
+            await self._commit()
         except Exception:
             await self._file.delete(stored_file.id)
             raise
 
         if old_icon_file_id is not None:
             await self._file.delete(old_icon_file_id)
-            await self._flush()
+            await self._commit()
 
         return self._stored_file_response.create(stored_file)
 
@@ -145,8 +144,9 @@ class ActivityTypeService(BaseService):
             return
 
         activity_type.icon_file_id = None
-        await self._session.flush()
+        await self._commit()
         await self._file.delete(old_icon_file_id)
+        await self._commit()
 
     async def get_icon(self, activity_type_slug: str) -> FileDownload:
         activity_type = await self._activity_type_repo.required_by_slug(activity_type_slug)
