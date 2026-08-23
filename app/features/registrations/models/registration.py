@@ -95,11 +95,11 @@ class Registration(Base):
         self.status = RegistrationStatus.REGISTERED
 
     @staticmethod
-    def create(event: Event, user: User, note: str | None):
+    def create(event: Event, user: User, note: str | None, status: RegistrationStatus):
         registration = Registration(
             event=event,
             user=user,
             note=note,
-            status=RegistrationStatus.REGISTERED
+            status=status
         )
         return registration

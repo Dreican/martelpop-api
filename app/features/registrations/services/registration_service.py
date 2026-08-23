@@ -12,6 +12,7 @@ from app.features.registrations.dto.requests.registration_create_request import 
 from app.features.registrations.dto.requests.registration_search_request import RegistrationSearchRequest
 from app.features.registrations.dto.requests.registration_update_request import RegistrationUpdateRequest
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
+from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import (
     RegistrationClosedError,
     EventFullError,
@@ -26,6 +27,7 @@ from app.features.registrations.repositories.registration_repository import Regi
 from app.features.settings.enums.settings_key import SettingsCode
 from app.features.settings.services.application_settings import ApplicationSettings
 from app.features.users.exceptions.user_exceptions import UserInactiveError
+from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
 
 
@@ -56,8 +58,12 @@ class RegistrationService(BaseService):
         return await self.register_user(event_slug, principal.user.id, request, principal)
 
     async def register_user(
-            self, event_slug: str, user_id: UUID, request: RegistrationRequest, principal: AuthenticatedPrincipal
-            ) -> RegistrationResponse:
+            self,
+            event_slug: str,
+            user_id: UUID,
+            request: RegistrationRequest,
+            principal: AuthenticatedPrincipal
+        ) -> RegistrationResponse:
         registration_settings = await self._settings.registrations()
         if not registration_settings.enabled:
             raise RegistrationsDisabledError(
@@ -65,7 +71,7 @@ class RegistrationService(BaseService):
                 value=registration_settings.enabled
             )
 
-        user = principal.user
+        user : User = principal.user
         if user_id != principal.id:
             user = await self._users.get_required(user_id)
 
@@ -77,21 +83,25 @@ class RegistrationService(BaseService):
         if not self._policy.can_manage(event, principal):
             raise PermissionDeniedError(
                 permissions={PermissionCode.REGISTRATION_CREATE},
-                user=principal.user.display_name
+                user=user.display_name
             )
-
-        if event.is_full:
-            raise EventFullError(event_slug=event.slug)
 
         if not event.is_registration_open:
             raise RegistrationClosedError(event_slug=event.slug)
 
-        if await self._registrations.exists(event.id, principal.user.id):
+        if await self._registrations.exists(event.id, user.id):
             raise AlreadyRegisteredError(
-                event_slug=event.slug, admin=principal.user.display_name, user=user.display_name
-                )
+                event_slug=event.slug,
+                principal=principal.user.display_name,
+                user=user.display_name
+            )
 
-        registration = Registration.create(event=event, user=user, note=request.note)
+        registration = Registration.create(
+            event=event,
+            user=user,
+            note=request.note,
+            status=RegistrationStatus.REGISTERED if not event.is_full else RegistrationStatus.WAITLISTED
+        )
 
         await self._registrations.add(registration)
         await self._save(registration)
