@@ -53,8 +53,11 @@ class RegistrationService(BaseService):
         self._settings = application_settings
 
     async def register(
-            self, event_slug: str, request: RegistrationRequest, principal: AuthenticatedPrincipal
-            ) -> RegistrationResponse:
+            self,
+            event_slug: str,
+            request: RegistrationRequest,
+            principal: AuthenticatedPrincipal
+        ) -> RegistrationResponse:
         return await self.register_user(event_slug, principal.user.id, request, principal)
 
     async def register_user(
@@ -118,7 +121,8 @@ class RegistrationService(BaseService):
                 RegistrationStatus.REGISTERED
                 if has_capacity
                 else RegistrationStatus.WAITLISTED
-            )
+            ),
+            registered_by_id=principal.user.id
         )
 
         await self._registrations.add(registration)
@@ -135,7 +139,16 @@ class RegistrationService(BaseService):
                 user=principal.user.display_name
             )
 
+        previous_status = registration.status
         registration.cancel(principal.user)
+
+        next_registration = None
+        if registration.event.capacity is not None:
+            if previous_status is RegistrationStatus.REGISTERED:
+                next_registration = await self._registrations.get_next_waitlisted(registration.event_id)
+
+            if next_registration is not None:
+                next_registration.promote(principal.user)
 
         return await self._persist(registration)
 
@@ -143,19 +156,24 @@ class RegistrationService(BaseService):
         registration = await self._registrations.get_required(registration_id)
         event = registration.event
 
+        if not event.is_registration_open:
+            raise RegistrationClosedError(event_slug=event.slug)
+
         if not self._policy.can_register(event, principal):
             raise PermissionDeniedError(
                 permissions={PermissionCode.REGISTRATION_CANCEL},
                 user=principal.user.display_name
             )
 
-        registration.uncancel(
-            (
-                RegistrationStatus.REGISTERED
-                if not event.is_full
-                else RegistrationStatus.WAITLISTED
-            )
+        has_capacity = await self._events.has_capacity(
+            event.id,
+            event.capacity,
         )
+
+        if has_capacity:
+            registration.uncancel(principal.user)
+        else:
+            registration.waitlist(principal.user)
 
         return await self._persist(registration)
 

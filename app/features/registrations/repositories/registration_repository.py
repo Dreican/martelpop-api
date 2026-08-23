@@ -84,6 +84,20 @@ class RegistrationRepository(BaseRepository[Registration]):
 
         return await self.paginate(stmt, request.pagination)
 
+    async def get_next_waitlisted(self, event_id: UUID) -> Registration | None:
+        stmt = (
+            select(Registration)
+            .where(
+                Registration.event_id == event_id,
+                Registration.status == RegistrationStatus.WAITLISTED
+            )
+            .order_by(Registration.created_at)
+            .limit(1)
+        )
+
+        return await self._session.scalar(stmt)
+
+
     @staticmethod
     def _with_summary_graph(stmt: Select[tuple[Any]]) -> Select[tuple[Registration]]:
         return stmt.options(

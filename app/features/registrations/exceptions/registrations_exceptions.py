@@ -25,3 +25,23 @@ class EventFullError(ApplicationError):
 class RegistrationsDisabledError(ApplicationError):
     code = "registrations_disabled"
     detail = "Registrations are disabled."
+
+
+class RegistrationAlreadyCancelledError(ApplicationError):
+    code = "registration_cancelled"
+    detail = "Registration is already cancelled."
+
+
+class RegistrationUncancelledError(ApplicationError):
+    code = "registration_uncancelled"
+    detail = "Registration is already uncancelled."
+
+
+class RegistrationAlreadyWaitlistedError(ApplicationError):
+    code = "registration_waitlisted"
+    detail = "Registration is already waitlisted."
+
+
+class RegistrationPromoteError(ApplicationError):
+    code = "registration_promote"
+    detail = "Registration promotion failed."
