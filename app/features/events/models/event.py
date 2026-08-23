@@ -55,8 +55,28 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     capacity: Mapped[int | None]
 
     published_at: Mapped[datetime | None]
+    published_by_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id"),
+    )
+    published_by: Mapped[User | None] = relationship(
+        foreign_keys=[published_by_id],
+    )
+
     cancelled_at: Mapped[datetime | None]
+    cancelled_by_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id"),
+    )
+    cancelled_by: Mapped[User | None] = relationship(
+        foreign_keys=[cancelled_by_id],
+    )
+
     completed_at: Mapped[datetime | None]
+    completed_by_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id"),
+    )
+    completed_by: Mapped[User | None] = relationship(
+        foreign_keys=[completed_by_id],
+    )
 
     audience: Mapped[EventAudience] = mapped_column(
         Helper.enum_column(EventAudience),
@@ -159,27 +179,28 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
         self.end_at = end_at
         self.capacity = capacity
 
-    def publish(self, event_status: EventStatus) -> None:
+    def publish(self, event_status: EventStatus, published_by: User) -> None:
         self.status = event_status
         self.published_at = datetime.now(UTC)
+        self.published_by = published_by
 
-    def cancel(self, event_status: EventStatus) -> None:
+    def cancel(self, event_status: EventStatus, cancelled_by: User) -> None:
         self.status = event_status
         self.cancelled_at = datetime.now(UTC)
+        self.cancelled_by = cancelled_by
 
-    def complete(self, event_status: EventStatus) -> None:
+    def complete(self, event_status: EventStatus, completed_by: User) -> None:
         self.status = event_status
         self.completed_at = datetime.now(UTC)
+        self.completed_by = completed_by
 
     def unpublish(self, event_status: EventStatus) -> None:
         self.status = event_status
-        self.published_at = None
-        self.cancelled_at = None
-        self.completed_at = None
 
-    def delete(self, event_status: EventStatus) -> None:
-        self.cancel(event_status)
+    def delete(self, event_status: EventStatus, deleted_by: User) -> None:
+        self.cancel(event_status, deleted_by)
         self.deleted_at = datetime.now(UTC)
+        self.deleted_by = deleted_by
 
     def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
         return self.created_by == principal.user.id

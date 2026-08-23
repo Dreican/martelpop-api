@@ -1,7 +1,8 @@
+from datetime import datetime, UTC
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, Select, func
+from sqlalchemy import select, Select, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -97,6 +98,21 @@ class RegistrationRepository(BaseRepository[Registration]):
 
         return await self._session.scalar(stmt)
 
+    async def cancel_for_event(self, event_id, cancelled_by_id) -> None:
+        stmt = (
+            update(Registration)
+            .where(
+                Registration.event_id == event_id,
+                Registration.status == RegistrationStatus.REGISTERED
+            )
+            .values(
+                status=RegistrationStatus.CANCELLED,
+                cancelled_at=func.now(),
+                cancelled_by_id=cancelled_by_id
+            )
+        )
+
+        await self._session.execute(stmt)
 
     @staticmethod
     def _with_summary_graph(stmt: Select[tuple[Any]]) -> Select[tuple[Registration]]:
@@ -145,3 +161,4 @@ class RegistrationRepository(BaseRepository[Registration]):
         )
 
         return stmt
+

@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.constants import SYSTEM_USER_ID
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
@@ -148,7 +149,7 @@ class EventService(BaseService):
         event = await self._get_publishable_event(event_id, principal)
 
         status = await self._event_status_repo.get_published()
-        event.publish(status)
+        event.publish(status, principal.user)
 
         return await self._persist(event)
 
@@ -167,7 +168,9 @@ class EventService(BaseService):
             raise PermissionDeniedError(permissions={PermissionCode.EVENT_CANCEL}, user=principal.display_name)
 
         status = await self._event_status_repo.get_cancelled()
-        event.cancel(status)
+        event.cancel(status, principal.user)
+
+        await self._registrations.cancel_for_event(event_id=event.id, cancelled_by_id=SYSTEM_USER_ID)
 
         return await self._persist(event)
 
@@ -177,7 +180,7 @@ class EventService(BaseService):
             raise PermissionDeniedError(permissions={PermissionCode.EVENT_PUBLISH}, user=principal.display_name)
 
         status = await self._event_status_repo.get_complete()
-        event.complete(status)
+        event.complete(status, principal.user)
 
         return await self._persist(event)
 
