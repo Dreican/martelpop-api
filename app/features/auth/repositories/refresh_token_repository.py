@@ -22,7 +22,7 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
             .options(
                 selectinload(RefreshToken.user)
                 .selectinload(User.role)
-                )
+            )
         )
 
         return await self._session.scalar(stmt)

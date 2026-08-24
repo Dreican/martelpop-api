@@ -12,7 +12,6 @@ from app.features.events.dto.responses.event_response import EventResponse
 from app.features.registrations.dependencies.services import RegistrationServiceDep
 from app.features.registrations.dto.requests.registration_create_request import RegistrationRequest
 from app.features.registrations.dto.responses.registration_response import RegistrationResponse
-from app.core.http.content_disposition import content_disposition_inline
 
 router = APIRouter(
     prefix="/events",

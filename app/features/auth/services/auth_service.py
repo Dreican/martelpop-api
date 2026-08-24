@@ -9,7 +9,6 @@ from app.core.services.slug_service import SlugService
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.requests.login_request import LoginRequest
 from app.features.auth.dto.requests.register_request import RegisterRequest
-from app.features.auth.dto.responses.token_response import TokenResponse
 from app.features.auth.dto.session_info import SessionInfo
 from app.features.auth.enums.auth_provider import AuthProvider
 from app.features.auth.exceptions.authentication_exceptions import (
@@ -56,7 +55,7 @@ class AuthService(BaseService):
         self._slug = slug_service
         self._user_response = user_response_factory
 
-    async def register(self, request: RegisterRequest, session: SessionInfo) -> TokenResponse:
+    async def register(self, request: RegisterRequest, session: SessionInfo) -> AuthenticationTokens:
         try:
             await self._is_email_available(request.email)
 
@@ -77,9 +76,9 @@ class AuthService(BaseService):
 
         logger.info("User registered", extra={"user_id": user.id, "email": request.email})
 
-        return tokens.response
+        return tokens
 
-    async def login(self, request: LoginRequest, session: SessionInfo) -> TokenResponse:
+    async def login(self, request: LoginRequest, session: SessionInfo) -> AuthenticationTokens:
         async with self._session.begin():
             identity = await self._identities.get_by_user_email(request.email)
 
@@ -105,9 +104,9 @@ class AuthService(BaseService):
 
         logger.info("User logged in", extra={"user_id": identity.user.id, "email": identity.user.email})
 
-        return tokens.response
+        return tokens
 
-    async def refresh(self, refresh_token: str, session: SessionInfo) -> TokenResponse:
+    async def refresh(self, refresh_token: str, session: SessionInfo) -> AuthenticationTokens:
         async with self._session.begin():
             payload = self._jwt.decode_refresh_token(refresh_token)
             stored = await self._refresh_tokens.get_by_jti(payload.jti)
@@ -115,13 +114,13 @@ class AuthService(BaseService):
             if stored is None:
                 logger.warning(
                     "Refresh token not found", extra={"payload_sub": payload.sub, "payload_jti": payload.jti}
-                    )
+                )
                 raise InvalidCredentialsError(user_id=payload.sub)
 
             if stored.is_revoked:
                 logger.warning(
                     "Refresh token is revoked", extra={"payload_sub": payload.sub, "payload_jti": payload.jti}
-                    )
+                )
                 await self._refresh_tokens.revoke_all_for_user(stored.user_id)
 
                 raise RefreshTokenReuseDetected(user_id=payload.sub)
@@ -129,7 +128,7 @@ class AuthService(BaseService):
             if stored.is_expired:
                 logger.warning(
                     "Refresh token is expired", extra={"payload_sub": payload.sub, "payload_jti": payload.jti}
-                    )
+                )
                 raise InvalidCredentialsError(user_id=stored.user.email)
 
             if not self._password.verify_password(refresh_token, stored.token_hash):
@@ -148,7 +147,7 @@ class AuthService(BaseService):
 
         logger.info("Token refreshed", extra={"user_id": user.id, "email": stored.user.email})
 
-        return tokens.response
+        return tokens
 
     async def logout(self, refresh_token: str) -> None:
         payload = self._jwt.decode_refresh_token(refresh_token)

@@ -6,7 +6,6 @@ from app.features.auth.dependencies.require_permissions import authenticated_per
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 from app.features.storage.dto.stored_file_response import StoredFileResponse
-from app.core.http.content_disposition import content_disposition_inline
 from app.features.users.dependencies.services import UserServiceDep
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
@@ -22,7 +21,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 )
 async def me(
         user_service: UserServiceDep, principal: AuthenticatedPrincipal = authenticated_permission()
-        ) -> UserAdminResponse:
+) -> UserAdminResponse:
     return await user_service.me(principal)
 
 

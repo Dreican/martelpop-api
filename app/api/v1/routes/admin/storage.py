@@ -3,13 +3,13 @@ from uuid import UUID
 from fastapi import APIRouter, status, UploadFile, File, Header, Response
 from starlette.responses import StreamingResponse
 
+from app.core.http.content_disposition import content_disposition_inline, content_disposition_attachment
 from app.features.auth.dependencies.require_permissions import authenticated_permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.dependencies.services import FileServiceDep
 from app.features.storage.dto.stored_file_response import StoredFileResponse
 from app.features.storage.enums.storage_categories import StorageCategory
-from app.core.http.content_disposition import content_disposition_inline, content_disposition_attachment
 
 router = APIRouter(prefix="/files", tags=["Storage"])
 

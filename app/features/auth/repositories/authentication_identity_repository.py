@@ -49,7 +49,7 @@ class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
             .options(
                 selectinload(AuthenticationIdentity.user)
                 .selectinload(User.role)
-                )
+            )
             .where(
                 AuthenticationIdentity.provider == AuthProvider.LOCAL,
                 User.email == email

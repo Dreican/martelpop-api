@@ -4,6 +4,7 @@ from pydantic import Field
 from pydantic_settings import SettingsConfigDict, BaseSettings
 
 from .app import AppConfig
+from .cookie import CookieConfig
 from .cors import CORSConfig
 from .database import DatabaseConfig
 from .jwt import JWTConfig
@@ -25,6 +26,7 @@ class Configuration(BaseSettings):
     app: AppConfig = Field(default_factory=AppConfig)
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
     jwt: JWTConfig = Field(default_factory=JWTConfig)
+    cookie: CookieConfig = Field(default_factory=CookieConfig)
     smtp: SMTPConfig = Field(default_factory=SMTPConfig)
     cors: CORSConfig = Field(default_factory=CORSConfig)
     log: LogConfig = Field(default_factory=LogConfig)

@@ -6,7 +6,6 @@ from app.features.auth.dependencies.require_permissions import permission
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import Principal
 from app.features.events.dependencies.services import ActivityTypeServiceDep
-from app.core.http.content_disposition import content_disposition_inline
 
 router = APIRouter(
     prefix="/activity_type",

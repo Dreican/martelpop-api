@@ -16,6 +16,5 @@ class IssuedTokens:
     def to_response(self) -> TokenResponse:
         return TokenResponse(
             access_token=self.access_token,
-            refresh_token=self.refresh_token,
             token_type="bearer",
         )

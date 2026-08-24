@@ -1,14 +1,14 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Cookie
 from fastapi import Response
 
 from app.features.auth.dependencies.current_principal import AuthenticatedPrincipalDep
 from app.features.auth.dependencies.services import AuthServiceDep
 from app.features.auth.dependencies.session import SessionInfoDep
 from app.features.auth.dto.requests.login_request import LoginRequest
-from app.features.auth.dto.requests.logout_request import LogoutRequest
-from app.features.auth.dto.requests.refresh_request import RefreshRequest
 from app.features.auth.dto.requests.register_request import RegisterRequest
 from app.features.auth.dto.responses.token_response import TokenResponse
+from app.features.auth.exceptions.helper import unauthorized
+from app.features.auth.security.refresh_cookie import set_refresh_token, clear_refresh_token_cookie
 
 router = APIRouter(
     prefix="/auth",
@@ -24,8 +24,17 @@ router = APIRouter(
         409: {"description": "Email already exists"},
     }
 )
-async def register(request: RegisterRequest, auth: AuthServiceDep, session: SessionInfoDep) -> TokenResponse:
-    return await auth.register(request, session)
+async def register(
+        request: RegisterRequest,
+        response: Response,
+        auth: AuthServiceDep,
+        session: SessionInfoDep
+) -> TokenResponse:
+    tokens = await auth.register(request, session)
+
+    set_refresh_token(response, tokens.refresh_token)
+
+    return tokens.response
 
 
 @router.post(
@@ -38,8 +47,15 @@ async def register(request: RegisterRequest, auth: AuthServiceDep, session: Sess
         401: {"description": "Invalid credentials"},
     }
 )
-async def login(request: LoginRequest, auth: AuthServiceDep, session: SessionInfoDep) -> TokenResponse:
-    return await auth.login(request, session)
+async def login(
+        request: LoginRequest,
+        response: Response,
+        auth: AuthServiceDep,
+        session: SessionInfoDep
+) -> TokenResponse:
+    tokens = await auth.login(request, session)
+    set_refresh_token(response, tokens.refresh_token)
+    return tokens.response
 
 
 @router.post(
@@ -47,23 +63,55 @@ async def login(request: LoginRequest, auth: AuthServiceDep, session: SessionInf
     response_model=TokenResponse,
     status_code=status.HTTP_200_OK
 )
-async def refresh(request: RefreshRequest, auth: AuthServiceDep, session: SessionInfoDep) -> TokenResponse:
-    return await auth.refresh(request.refresh_token, session)
+async def refresh(
+        response: Response,
+        auth: AuthServiceDep,
+        session: SessionInfoDep,
+        refresh_token: str | None = Cookie(
+            default=None,
+            alias="refresh_token"
+        )
+) -> TokenResponse:
+    if refresh_token is None:
+        unauthorized("Missing refresh token")
+
+    token = await auth.refresh(refresh_token, session)
+
+    set_refresh_token(response, token.refresh_token)
+
+    return token.response
 
 
 @router.post(
     "/logout",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def logout(request: LogoutRequest, auth: AuthServiceDep) -> Response:
-    await auth.logout(request.refresh_token)
-    return Response()
+async def logout(
+        response: Response,
+        auth: AuthServiceDep,
+        refresh_token: str | None = Cookie(
+            default=None,
+            alias="refresh_token",
+        )
+) -> Response:
+    if refresh_token is not None:
+        await auth.logout(refresh_token)
+
+    clear_refresh_token_cookie(response)
+
+    return response
 
 
 @router.post(
     "/logout-all",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def logout_all(principal: AuthenticatedPrincipalDep, auth: AuthServiceDep) -> Response:
+async def logout_all(
+        principal: AuthenticatedPrincipalDep,
+        response: Response,
+        auth: AuthServiceDep
+) -> Response:
     await auth.logout_all(principal.user.id)
-    return Response()
+
+    clear_refresh_token_cookie(response)
+    return response
