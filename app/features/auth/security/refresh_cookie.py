@@ -9,10 +9,10 @@ REFRESH_COOKIE_NAME: Final = "refresh_token"
 config = get_config()
 
 
-def set_refresh_token(response: Response, refresh_token: RefreshToken) -> None:
+def set_refresh_token(response: Response, refresh_token: str) -> None:
     response.set_cookie(
         key=REFRESH_COOKIE_NAME,
-        value=refresh_token.token_hash,
+        value=refresh_token,
         httponly=True,
         secure=config.cookie.secure,
         samesite=config.cookie.samesite,

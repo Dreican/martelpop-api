@@ -66,7 +66,7 @@ class AuthService(BaseService):
             await self._users.add(user)
             await self._identities.add(identity)
             tokens = await self._issue_tokens(user, session)
-            await self._refresh_tokens.add(tokens.refresh_token)
+            await self._refresh_tokens.add(tokens.refresh_token_entity)
 
             await self._commit()
 
@@ -100,7 +100,7 @@ class AuthService(BaseService):
 
             identity.last_login_at = datetime.now(UTC)
             tokens = await self._issue_tokens(identity.user, session)
-            await self._refresh_tokens.add(tokens.refresh_token)
+            await self._refresh_tokens.add(tokens.refresh_token_entity)
 
         logger.info("User logged in", extra={"user_id": identity.user.id, "email": identity.user.email})
 
@@ -143,7 +143,7 @@ class AuthService(BaseService):
 
             stored.mark_used()
             tokens = await self._issue_tokens(user, session)
-            await self._refresh_tokens.replace(current=stored, replacement=tokens.refresh_token)
+            await self._refresh_tokens.replace(current=stored, replacement=tokens.refresh_token_entity)
 
         logger.info("Token refreshed", extra={"user_id": user.id, "email": stored.user.email})
 
@@ -214,7 +214,8 @@ class AuthService(BaseService):
 
         return AuthenticationTokens(
             response=tokens.to_response(),
-            refresh_token=refresh
+            refresh_token_entity=refresh,
+            raw_refresh_token=tokens.refresh_token
         )
 
     @staticmethod

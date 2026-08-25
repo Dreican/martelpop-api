@@ -7,4 +7,5 @@ from app.features.auth.models.refresh_token import RefreshToken
 @dataclass(slots=True)
 class AuthenticationTokens:
     response: TokenResponse
-    refresh_token: RefreshToken
+    refresh_token_entity: RefreshToken
+    raw_refresh_token: str

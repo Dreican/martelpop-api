@@ -31,8 +31,7 @@ async def register(
         session: SessionInfoDep
 ) -> TokenResponse:
     tokens = await auth.register(request, session)
-
-    set_refresh_token(response, tokens.refresh_token)
+    set_refresh_token(response, tokens.raw_refresh_token)
 
     return tokens.response
 
@@ -42,7 +41,7 @@ async def register(
     response_model=TokenResponse,
     status_code=status.HTTP_200_OK,
     summary="Authenticate a user",
-    description="Authenticates a user and returns an access token and refresh token.",
+    description="Authenticates a user and returns an access token.",
     responses={
         401: {"description": "Invalid credentials"},
     }
@@ -54,7 +53,8 @@ async def login(
         session: SessionInfoDep
 ) -> TokenResponse:
     tokens = await auth.login(request, session)
-    set_refresh_token(response, tokens.refresh_token)
+    set_refresh_token(response, tokens.raw_refresh_token)
+
     return tokens.response
 
 
@@ -76,8 +76,7 @@ async def refresh(
         unauthorized("Missing refresh token")
 
     token = await auth.refresh(refresh_token, session)
-
-    set_refresh_token(response, token.refresh_token)
+    set_refresh_token(response, token.raw_refresh_token)
 
     return token.response
 
