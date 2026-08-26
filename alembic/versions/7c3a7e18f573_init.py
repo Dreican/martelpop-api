@@ -1,8 +1,8 @@
 """Init
 
-Revision ID: aa00cdef2c7f
+Revision ID: 7c3a7e18f573
 Revises: 
-Create Date: 2026-08-07 00:05:58.739532
+Create Date: 2026-08-26 21:41:22.663902
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'aa00cdef2c7f'
+revision: str = '7c3a7e18f573'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -37,7 +37,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_event_statuses_code'), 'event_statuses', ['code'], unique=True)
     op.create_table('permissions',
-    sa.Column('code', sa.Enum('user.read', 'user.update', 'user.delete', 'user.impersonate', 'role.read', 'role.update', 'permission.read', 'role.permissions.manage', 'event.create', 'event.read', 'event.update', 'event.delete', 'event.cancel', 'event.publish', 'activity_type.read', 'activity_type.manage', 'registration.create', 'registration.cancel', 'registration.manage', 'waitlist.manage', name='permissioncode', native_enum=False), nullable=False),
+    sa.Column('code', sa.Enum('user.read', 'user.update', 'user.delete', 'user.impersonate', 'role.read', 'role.update', 'permission.read', 'role.permissions.manage', 'event.create', 'event.read', 'event.update', 'event.delete', 'event.cancel', 'event.publish', 'activity_type.read', 'activity_type.manage', 'registration.create', 'registration.cancel', 'registration.manage', 'waitlist.manage', 'storage.manage', name='permissioncode', native_enum=False), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('id', sa.Uuid(), nullable=False),
@@ -48,7 +48,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_permissions_code'), 'permissions', ['code'], unique=True)
     op.create_index(op.f('ix_permissions_name'), 'permissions', ['name'], unique=True)
     op.create_table('roles',
-    sa.Column('code', sa.Enum('admin', 'organizer', 'vip', 'user', 'anonymous', name='rolecode', native_enum=False), nullable=False),
+    sa.Column('code', sa.Enum('admin', 'organizer', 'vip', 'user', 'anonymous', 'system', name='rolecode', native_enum=False), nullable=False),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('is_default', sa.Boolean(), nullable=False),
@@ -61,7 +61,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_roles_name'), 'roles', ['name'], unique=True)
     op.create_table('settings',
-    sa.Column('code', sa.Enum('maintenance_mode', 'application_url', 'email_reply_to', 'support_email', 'contact_email', 'application_name', 'application_logo', 'application_favicon', 'footer_text', 'default_page_size', 'max_page_size', 'default_event_location', 'default_event_capacity', 'default_event_duration', 'registrations_enabled', 'waitlist_enabled', 'open_days_before', 'close_hours_before', 'email_enable', 'email_send_registration_confirmation', 'email_send_cancellation_confirmation', 'email_send_event_reminders', 'email_reminder_days_before', name='settingscode', native_enum=False), nullable=False),
+    sa.Column('code', sa.Enum('maintenance_mode', 'maintenance_message', 'application_url', 'email_reply_to', 'support_email', 'contact_email', 'application_name', 'application_logo', 'application_favicon', 'footer_text', 'default_page_size', 'max_page_size', 'default_event_location', 'default_event_capacity', 'default_event_duration', 'registrations_enabled', 'waitlist_enabled', 'open_days_before', 'close_minutes_before', 'email_enable', 'email_send_registration_confirmation', 'email_send_cancellation_confirmation', 'email_send_event_reminders', 'email_reminder_days_before', name='settingscode', native_enum=False), nullable=False),
     sa.Column('string_value', sa.String(), nullable=True),
     sa.Column('int_value', sa.Integer(), nullable=True),
     sa.Column('bool_value', sa.Boolean(), nullable=True),
@@ -89,6 +89,7 @@ def upgrade() -> None:
     sa.Column('display_name', sa.String(length=100), nullable=False),
     sa.Column('firstname', sa.String(length=100), nullable=False),
     sa.Column('lastname', sa.String(length=100), nullable=False),
+    sa.Column('is_system', sa.Boolean(), nullable=False),
     sa.Column('avatar_file_id', sa.Uuid(), nullable=True),
     sa.Column('status', sa.Enum('ACTIVE', 'INACTIVE', 'PENDING_EMAIL_VERIFICATION', name='user_status'), server_default='ACTIVE', nullable=False),
     sa.Column('role_id', sa.Uuid(), nullable=False),
@@ -96,8 +97,10 @@ def upgrade() -> None:
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('deleted_by_id', sa.Uuid(), nullable=True),
     sa.Column('slug', sa.String(length=255), nullable=False),
     sa.ForeignKeyConstraint(['avatar_file_id'], ['stored_files.id'], name='fk_users_avatar_file', use_alter=True),
+    sa.ForeignKeyConstraint(['deleted_by_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email', name='uq_users_email'),
@@ -146,10 +149,11 @@ def upgrade() -> None:
     op.create_table('stored_files',
     sa.Column('filename', sa.String(length=255), nullable=False),
     sa.Column('original_filename', sa.String(length=255), nullable=False),
+    sa.Column('storage_key', sa.String(length=500), nullable=False),
     sa.Column('mime_type', sa.String(length=100), nullable=False),
-    sa.Column('storage_path', sa.String(length=500), nullable=False),
     sa.Column('size', sa.Integer(), nullable=False),
     sa.Column('checksum', sa.String(length=64), nullable=False),
+    sa.Column('storage_category', sa.Enum('uploads', 'events_banner', 'activity_type_icon', 'avatars', name='storagecategory', native_enum=False), nullable=False),
     sa.Column('uploaded_by_id', sa.Uuid(), nullable=False),
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -158,7 +162,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('checksum'),
     sa.UniqueConstraint('filename'),
-    sa.UniqueConstraint('storage_path')
+    sa.UniqueConstraint('storage_key')
     )
     op.create_table('activity_types',
     sa.Column('name', sa.String(length=255), nullable=False),
@@ -174,8 +178,10 @@ def upgrade() -> None:
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('deleted_by_id', sa.Uuid(), nullable=True),
     sa.Column('slug', sa.String(length=255), nullable=False),
     sa.ForeignKeyConstraint(['banner_file_id'], ['stored_files.id'], ),
+    sa.ForeignKeyConstraint(['deleted_by_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['icon_file_id'], ['stored_files.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name'),
@@ -193,8 +199,11 @@ def upgrade() -> None:
     sa.Column('end_at', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('capacity', sa.Integer(), nullable=True),
     sa.Column('published_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('published_by_id', sa.Uuid(), nullable=True),
     sa.Column('cancelled_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('cancelled_by_id', sa.Uuid(), nullable=True),
     sa.Column('completed_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('completed_by_id', sa.Uuid(), nullable=True),
     sa.Column('audience', sa.Enum('PUBLIC', 'MEMBERS', 'VIP', name='eventaudience', native_enum=False), nullable=False),
     sa.Column('banner_file_id', sa.Uuid(), nullable=True),
     sa.Column('created_by', sa.Uuid(), nullable=False),
@@ -203,9 +212,14 @@ def upgrade() -> None:
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('deleted_by_id', sa.Uuid(), nullable=True),
     sa.ForeignKeyConstraint(['activity_type_id'], ['activity_types.id'], ),
     sa.ForeignKeyConstraint(['banner_file_id'], ['stored_files.id'], ),
+    sa.ForeignKeyConstraint(['cancelled_by_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['completed_by_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], name='fk_events_created_by'),
+    sa.ForeignKeyConstraint(['deleted_by_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['published_by_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['status_id'], ['event_statuses.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('slug'),
@@ -215,16 +229,24 @@ def upgrade() -> None:
     sa.Column('user_id', sa.Uuid(), nullable=False),
     sa.Column('event_id', sa.Uuid(), nullable=False),
     sa.Column('note', sa.String(), nullable=True),
-    sa.Column('status', sa.Enum('pending', 'registered', 'cancelled', 'waitlisted', name='registrationstatus', native_enum=False), nullable=False),
+    sa.Column('status', sa.Enum('pending', 'registered', 'cancelled', 'waitlisted', 'event_cancelled', name='registrationstatus', native_enum=False), nullable=False),
+    sa.Column('registered_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('registered_by_id', sa.Uuid(), nullable=True),
     sa.Column('cancelled_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('cancelled_by_id', sa.Uuid(), nullable=True),
+    sa.Column('waitlisted_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('waitlisted_by_id', sa.Uuid(), nullable=True),
     sa.Column('checked_in', sa.Boolean(), nullable=False),
     sa.Column('checked_in_by', sa.Uuid(), nullable=True),
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['cancelled_by_id'], ['users.id'], name='fk_registrations_cancelled_by'),
     sa.ForeignKeyConstraint(['checked_in_by'], ['users.id'], ),
     sa.ForeignKeyConstraint(['event_id'], ['events.id'], ),
+    sa.ForeignKeyConstraint(['registered_by_id'], ['users.id'], name='fk_registrations_registered_by'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['waitlisted_by_id'], ['users.id'], name='fk_registrations_waitlisted_by'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id', 'event_id', name='uq_registration_user_event')
     )

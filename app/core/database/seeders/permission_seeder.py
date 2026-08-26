@@ -102,6 +102,11 @@ async def seed_permissions(session: AsyncSession) -> None:
             "name": "Manage waitlist",
             "description": "Can manage waitlist",
         },
+        {
+            "code": PermissionCode.STORAGE_MANAGE,
+            "name": "Manage storage",
+            "description": "Can manage storage",
+        }
     )
 
     for data in permissions_seed:
