@@ -48,6 +48,7 @@ class ActivityType(Base, SoftDeleteMixin, SlugMixin):
     default_location: Mapped[str | None] = mapped_column(String(255))
     default_capacity: Mapped[int | None]
     default_duration_minutes: Mapped[int | None]
+    default_price: Mapped[int | None]
 
     is_default: Mapped[bool] = mapped_column(default=False)
 
@@ -62,7 +63,8 @@ class ActivityType(Base, SoftDeleteMixin, SlugMixin):
             color: str | None,
             default_location: str | None,
             default_capacity: int | None,
-            default_duration_minutes: int | None
+            default_duration_minutes: int | None,
+            default_price: int | None
     ):
         self.name = name
         self.description = description
@@ -70,6 +72,7 @@ class ActivityType(Base, SoftDeleteMixin, SlugMixin):
         self.default_location = default_location
         self.default_capacity = default_capacity
         self.default_duration_minutes = default_duration_minutes
+        self.default_price = default_price
 
     def delete(self):
         self.is_default = False

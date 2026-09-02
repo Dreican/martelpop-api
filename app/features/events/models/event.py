@@ -54,6 +54,10 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     capacity: Mapped[int | None]
 
+    price: Mapped[int | None]
+
+    registration_end_at: Mapped[datetime | None]
+
     published_at: Mapped[datetime | None]
     published_by_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("users.id"),
@@ -165,7 +169,10 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     @property
     def is_registration_open(self) -> bool:
-        return self.status.is_bookable
+        return (
+            self.status.is_bookable
+            or (self.registration_end_at < datetime.now(UTC) if self.registration_end_at is not None else True)
+        )
 
     @property
     def is_deleted(self) -> bool:
@@ -202,7 +209,7 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     def delete(self, event_status: EventStatus, deleted_by: User) -> None:
         self.cancel(event_status, deleted_by)
         self.deleted_at = datetime.now(UTC)
-        self.deleted_by = deleted_by
+        self.deleted_by_id = deleted_by.id
 
     def is_owner(self, principal: AuthenticatedPrincipal) -> bool:
         return self.created_by == principal.user.id

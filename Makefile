@@ -15,7 +15,8 @@ COMPOSE_PROD=podman-compose -f compose.yml -f compose.prod.yml
 # =========================
 
 up:
-	$(COMPOSE_DEV) up --build
+	$(COMPOSE_DEV) up -d
+	$(MAKE) logs
 
 down:
 	$(COMPOSE_DEV) down
@@ -26,7 +27,7 @@ clean:
 restart: down up
 
 logs:
-	$(COMPOSE_DEV) logs -f
+	$(COMPOSE_DEV) logs -f api db
 
 ps:
 	$(COMPOSE_DEV) ps
@@ -48,7 +49,8 @@ freeze:
 
 reset-db:
 	$(COMPOSE_DEV) down -v
-	$(COMPOSE_DEV) up --build
+	$(MAKE) build
+	$(MAKE) up
 
 # =========================
 # Database
