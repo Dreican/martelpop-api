@@ -1,4 +1,4 @@
-from datetime import datetime, UTC
+from datetime import datetime, UTC, date
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -40,6 +40,8 @@ class User(Base, SoftDeleteMixin, SlugMixin):
     display_name: Mapped[str] = mapped_column(String(100))
     firstname: Mapped[str] = mapped_column(String(100))
     lastname: Mapped[str] = mapped_column(String(100))
+    municipality: Mapped[str | None] = mapped_column(String(100))
+    date_of_birth: Mapped[date | None]
 
     is_system: Mapped[bool] = mapped_column(
         default=False,

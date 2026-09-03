@@ -23,6 +23,7 @@ from app.features.auth.repositories.refresh_token_repository import RefreshToken
 from app.features.auth.repositories.role_repository import RoleRepository
 from app.features.auth.services.jwt_service import JwtService
 from app.features.auth.services.password_service import PasswordService
+from app.features.auth.validators.password_validator import PasswordValidator
 from app.features.users.enums.user_status import UserStatus
 from app.features.users.factories.user_response_factory import UserResponseFactory
 from app.features.users.models.user import User
@@ -43,6 +44,7 @@ class AuthService(BaseService):
             jwt_service: JwtService,
             refresh_token_repository: RefreshTokenRepository,
             slug_service: SlugService,
+            password_validator: PasswordValidator,
             user_response_factory: UserResponseFactory
     ) -> None:
         super().__init__(session)
@@ -53,11 +55,13 @@ class AuthService(BaseService):
         self._jwt = jwt_service
         self._refresh_tokens = refresh_token_repository
         self._slug = slug_service
+        self._password_validator = password_validator
         self._user_response = user_response_factory
 
     async def register(self, request: RegisterRequest, session: SessionInfo) -> AuthenticationTokens:
         try:
             await self._is_email_available(request.email)
+            self._password_validator.validate(request.password)
 
             password_hash = await self._password.hash_password(request.password)
             user = await self._create_user(request)
