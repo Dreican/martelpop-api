@@ -42,6 +42,22 @@ class AuthenticationIdentityRepository(BaseRepository[AuthenticationIdentity]):
         )
         return list(await self._session.scalars(stmt))
 
+    async def get_local_by_user_id(self, user_id: UUID) -> AuthenticationIdentity:
+        stmt = (
+            select(AuthenticationIdentity)
+            .where(
+                AuthenticationIdentity.provider == AuthProvider.LOCAL,
+                AuthenticationIdentity.user_id == user_id
+            )
+        )
+
+        identity = await self._session.scalar(stmt)
+
+        if identity is None:
+            raise self._not_found_exception(user_id=user_id)
+
+        return identity
+
     async def get_by_user_email(self, email: str) -> AuthenticationIdentity | None:
         stmt = (
             select(AuthenticationIdentity)

@@ -8,13 +8,14 @@ from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
 from app.features.auth.dto.authentication_tokens import AuthenticationTokens
 from app.features.auth.dto.requests.login_request import LoginRequest
+from app.features.auth.dto.requests.password_update_request import PasswordUpdateRequest
 from app.features.auth.dto.requests.register_request import RegisterRequest
 from app.features.auth.dto.session_info import SessionInfo
 from app.features.auth.enums.auth_provider import AuthProvider
 from app.features.auth.exceptions.authentication_exceptions import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
-    RefreshTokenReuseDetected
+    RefreshTokenReuseDetected, InvalidPasswordError
 )
 from app.features.auth.models.authentication_identity import AuthenticationIdentity
 from app.features.auth.models.refresh_token import RefreshToken
@@ -174,6 +175,26 @@ class AuthService(BaseService):
             count,
             extra={"user_id": user_id},
         )
+
+    async def update_password(self, user_id: UUID, request: PasswordUpdateRequest) -> None:
+        self._password_validator.validate(request.new_password)
+
+        async with self._session.begin():
+            identity = await self._identities.get_local_by_user_id(user_id=user_id)
+
+            if identity.password_hash is None:
+                raise InvalidPasswordError("User has no password set")
+
+            if not self._password.verify_password(
+                    request.current_password,
+                    identity.password_hash,
+            ):
+                raise InvalidPasswordError("Current password is incorrect")
+
+            password_hash = await self._password.hash_password(request.new_password)
+
+            identity.password_hash = password_hash
+            await self._refresh_tokens.revoke_all_for_user(user_id)
 
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)

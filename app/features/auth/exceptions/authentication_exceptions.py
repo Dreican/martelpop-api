@@ -45,6 +45,12 @@ class RefreshTokenNotFoundError(NotFoundError):
     detail = "Refresh token not found"
 
 
+class InvalidPasswordError(ApplicationError):
+    status_code = status.HTTP_400_BAD_REQUEST
+    code = "invalid_password"
+    detail = "Invalid password"
+
+
 class PasswordPolicyError(ApplicationError):
     status_code = status.HTTP_400_BAD_REQUEST
     code = "password_policy_violation"

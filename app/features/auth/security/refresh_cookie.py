@@ -3,7 +3,6 @@ from typing import Final
 from fastapi import Response
 
 from app.core.config.configuration import get_config
-from app.features.auth.models.refresh_token import RefreshToken
 
 REFRESH_COOKIE_NAME: Final = "refresh_token"
 config = get_config()

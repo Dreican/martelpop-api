@@ -53,10 +53,13 @@ def get_principal_service(
 
 PrincipalServiceDep = Annotated[PrincipalService, Depends(get_principal_service)]
 
+
 def get_password_validator() -> PasswordValidator:
     return PasswordValidator(PasswordPolicy())
 
+
 PasswordValidatorDep = Annotated[PasswordValidator, Depends(get_password_validator)]
+
 
 def get_auth_service(
         session: SessionDep,

@@ -5,6 +5,7 @@ from app.features.auth.dependencies.current_principal import AuthenticatedPrinci
 from app.features.auth.dependencies.services import AuthServiceDep
 from app.features.auth.dependencies.session import SessionInfoDep
 from app.features.auth.dto.requests.login_request import LoginRequest
+from app.features.auth.dto.requests.password_update_request import PasswordUpdateRequest
 from app.features.auth.dto.requests.register_request import RegisterRequest
 from app.features.auth.dto.responses.token_response import TokenResponse
 from app.features.auth.exceptions.helper import unauthorized
@@ -114,3 +115,12 @@ async def logout_all(
 
     clear_refresh_token_cookie(response)
     return response
+
+
+@router.post("/update-password", status_code=status.HTTP_200_OK)
+async def update_password(
+        principal: AuthenticatedPrincipalDep,
+        auth: AuthServiceDep,
+        password: PasswordUpdateRequest
+) -> None:
+    await auth.update_password(principal.user.id, password)
