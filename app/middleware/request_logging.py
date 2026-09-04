@@ -42,11 +42,51 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             f"duration={duration:.2f}ms"
         )
 
+        logger.info(
+            "HTTP request completed",
+            extra={
+                "RequestId": request.state.request_id,
+                "RequestMethod": request.method,
+                "RequestPath": request.url.path,
+                "StatusCode": status,
+                "UserId": str(user_id),
+                "ClientIp": request.state.client_ip,
+                "ElapsedMs": round(duration, 2),
+            },
+        )
+
         if status is not None and status >= 500:
-            logger.error(log)
+            logger.error(log,
+            extra={
+                "RequestId": request.state.request_id,
+                "RequestMethod": request.method,
+                "RequestPath": request.url.path,
+                "StatusCode": status,
+                "UserId": str(user_id),
+                "ClientIp": request.state.client_ip,
+                "ElapsedMs": round(duration, 2),
+            })
         elif status >= 400:
-            logger.warning(log)
+            logger.warning(log,
+            extra={
+                "RequestId": request.state.request_id,
+                "RequestMethod": request.method,
+                "RequestPath": request.url.path,
+                "StatusCode": status,
+                "UserId": str(user_id),
+                "ClientIp": request.state.client_ip,
+                "ElapsedMs": round(duration, 2),
+            })
         else:
-            logger.info(log)
+            logger.info(log,
+            extra={
+                "RequestId": request.state.request_id,
+                "RequestMethod": request.method,
+                "RequestPath": request.url.path,
+                "StatusCode": status,
+                "UserId": str(user_id),
+                "ClientIp": request.state.client_ip,
+                "ElapsedMs": round(duration, 2),
+            })
 
         return response

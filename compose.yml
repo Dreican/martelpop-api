@@ -32,7 +32,7 @@ services:
       retries: 5
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     restart: unless-stopped
     depends_on:
       db:
@@ -47,6 +47,19 @@ services:
       - pgadmin_data:/var/lib/pgadmin
       - ./docker/pgadmin/servers.json:/pgadmin4/servers.json
 
+  seq:
+    image: datalust/seq:latest
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+      - "5341:5341"
+    volumes:
+      - seq_data:/data
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=True
+
 volumes:
   postgres_data:
   pgadmin_data:
+  seq_data:

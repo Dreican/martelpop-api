@@ -8,6 +8,7 @@ argon2-cffi-bindings==26.1.0
 Authlib==1.8.0
 certifi==2026.7.22
 cffi==2.1.1
+charset-normalizer==3.5.1
 click==8.5.0
 colorama==0.4.6
 cryptography==50.0.1
@@ -47,15 +48,18 @@ pydantic_core==2.46.5
 Pygments==2.21.0
 PyJWT==2.13.0
 pyrefly==1.2.0
+python-dateutil==2.9.0.post0
 python-dotenv==1.2.3
 python-multipart==0.0.32
 python-slugify==8.0.4
 PyYAML==6.0.3
+requests==2.34.2
 rich==15.0.0
 rich-toolkit==0.20.3
 rignore==0.8.1
 rsa==4.9.1
 sentry-sdk==2.68.1
+seqlog==0.4.3
 shellingham==1.5.4
 six==1.17.0
 SQLAlchemy==2.0.52

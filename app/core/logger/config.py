@@ -1,6 +1,8 @@
 import logging.config
 from pathlib import Path
 
+import seqlog
+
 from app.core.config.configuration import get_config
 
 
@@ -45,6 +47,12 @@ def setup_logging():
                     "encoding": "utf-8",
                     "level": "ERROR"
                 },
+
+                "seq": {
+                    "class": "seqlog.SeqLogHandler",
+                    "server_url": config.log.seq_url,
+                    "level": config.log.level
+                }
             },
 
             "loggers": {

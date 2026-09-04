@@ -1,7 +1,9 @@
+import logging
 from typing import Any
 
 from fastapi import status
 
+logger = logging.getLogger("ApplicationError")
 
 class ApplicationError(Exception):
     status_code: int = status.HTTP_400_BAD_REQUEST
@@ -15,3 +17,5 @@ class ApplicationError(Exception):
         self.context: dict[str, Any] = context
 
         super().__init__(self.detail)
+
+        logger.error(self.detail, context)
