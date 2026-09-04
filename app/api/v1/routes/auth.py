@@ -93,13 +93,11 @@ async def logout(
             default=None,
             alias="refresh_token",
         )
-) -> Response:
+) -> None:
     if refresh_token is not None:
         await auth.logout(refresh_token)
 
     clear_refresh_token_cookie(response)
-
-    return response
 
 
 @router.post(

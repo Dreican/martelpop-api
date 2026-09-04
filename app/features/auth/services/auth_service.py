@@ -107,7 +107,7 @@ class AuthService(BaseService):
             tokens = await self._issue_tokens(identity.user, session)
             await self._refresh_tokens.add(tokens.refresh_token_entity)
 
-        logger.info("User logged in", extra={"user_id": identity.user.id, "email": identity.user.email})
+        logger.info(f"User {identity.user.display_name} logged in", extra={"user_id": identity.user.id, "email": identity.user.email})
 
         return tokens
 

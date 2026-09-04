@@ -9,42 +9,44 @@ logger = logging.getLogger("middleware")
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        response = None
+        start = time.perf_counter()
 
         try:
             response = await call_next(request)
-            return response
-        finally:
-            duration = (time.perf_counter() - request.state.started_at) * 1000
+        except Exception:
+            duration = (time.perf_counter() - start) * 1000
 
-            user = getattr(request.state, "user", None)
-            user_id = getattr(user, "id", "anonymous") if user is not None else "anonymous"
-
-            user_id = (
-                user_id
-                if user is not None
-                else "anonymous"
+            logger.exception(
+                "[%s] %s %s status=500 duration=%.2fms",
+                request.state.request_id,
+                request.method,
+                request.url.path,
+                duration,
             )
 
-            status = (
-                response.status_code
-                if response
-                else 500
-            )
+            raise
 
-            log = (
-                f"[{request.state.request_id}] "
-                f"{request.method} "
-                f"{request.url.path} "
-                f"status={status} "
-                f"user={user_id} "
-                f"ip={request.state.client_ip} "
-                f"duration={duration:.2f}ms"
-            )
+        duration = (time.perf_counter() - start) * 1000
+        status = getattr(response, "status_code", None)
 
-            if status >= 500:
-                logger.error(log)
-            elif status >= 400:
-                logger.warning(log)
-            else:
-                logger.info(log)
+        user = getattr(request.state, "user", None)
+        user_id = getattr(user, "id", "anonymous")
+
+        log = (
+            f"[{request.state.request_id}] "
+            f"{request.method} "
+            f"{request.url.path} "
+            f"status={status} "
+            f"user={user_id} "
+            f"ip={request.state.client_ip} "
+            f"duration={duration:.2f}ms"
+        )
+
+        if status is not None and status >= 500:
+            logger.error(log)
+        elif status >= 400:
+            logger.warning(log)
+        else:
+            logger.info(log)
+
+        return response
