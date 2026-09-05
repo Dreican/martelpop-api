@@ -33,6 +33,20 @@ class UserRepository(SluggableRepository[User]):
                 raise EmailAlreadyExistsError(email=entity.email) from ex
             raise
 
+    async def required_by_slug(self, slug: str) -> User:
+        stmt = (
+            select(User)
+            .where(User.slug == slug)
+            .options(selectinload(User.role))
+        )
+
+        user =  await self._session.scalar(stmt)
+
+        if user is None:
+            raise UserNotFoundError(slug=slug)
+
+        return user
+
     async def search(self, request: UserSearchRequest) -> Page[User]:
         stmt = select(User)
 

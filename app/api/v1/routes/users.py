@@ -6,10 +6,13 @@ from app.features.auth.dependencies.require_permissions import authenticated_per
 from app.features.auth.enums.permission_code import PermissionCode
 from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
 from app.features.storage.dto.stored_file_response import StoredFileResponse
+from app.features.storage.exceptions.storage_exceptions import StorageFileNotFoundError
 from app.features.users.dependencies.services import UserServiceDep
 from app.features.users.dto.user_admin_response import UserAdminResponse
 from app.features.users.dto.user_response import UserResponse
+from app.features.users.dto.user_summary_response import UserSummaryResponse
 from app.features.users.dto.user_update_request import UserUpdateRequest
+from app.features.users.helper import generate_avatar
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -17,37 +20,37 @@ router = APIRouter(prefix="/users", tags=["Users"])
 @router.get(
     "/me",
     status_code=status.HTTP_200_OK,
-    response_model=UserAdminResponse
+    response_model=UserResponse
 )
 async def me(
         user_service: UserServiceDep, principal: AuthenticatedPrincipal = authenticated_permission()
-) -> UserAdminResponse:
+) -> UserResponse:
     return await user_service.me(principal)
 
 
 @router.get(
     "/{slug}",
     status_code=status.HTTP_200_OK,
-    response_model=UserResponse
+    response_model=UserSummaryResponse
 )
 async def get_user(
         slug: str,
         user_service: UserServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission(PermissionCode.USER_READ)
-) -> UserResponse:
+) -> UserSummaryResponse:
     return await user_service.get_user_slug(slug)
 
 
 @router.patch(
     "/me",
-    response_model=UserAdminResponse,
+    response_model=UserResponse,
     status_code=status.HTTP_200_OK
 )
 async def update_user(
         request: UserUpdateRequest,
         user_service: UserServiceDep,
         principal: AuthenticatedPrincipal = authenticated_permission()
-) -> UserAdminResponse:
+) -> UserResponse:
     return await user_service.update_me(request, principal)
 
 
@@ -86,6 +89,14 @@ async def get_avatar(
         user_service: UserServiceDep,
         principal: Principal = permission()
 ) -> StreamingResponse:
-    download = await user_service.get_avatar(user_slug)
+    user = await user_service.get_user_slug(user_slug)
 
-    return file_stream_response(download)
+    if user.avatar_url is not None:
+        download = await user_service.get_avatar(user_slug)
+        return file_stream_response(download)
+
+    return StreamingResponse(
+        content=generate_avatar(user.display_name),
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )

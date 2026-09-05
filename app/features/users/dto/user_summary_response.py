@@ -8,4 +8,4 @@ class UserSummaryResponse(BaseModel):
     id: UUID
     slug: str
     display_name: str
-    avatar_url: str | None
+    avatar_url: str | None = None

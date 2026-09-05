@@ -5,7 +5,7 @@ from fastapi import Depends
 from app.core.dependencies.database import SessionDep
 from app.core.dependencies.response_factories import (
     UserResponseFactoryDep, UserAdminResponseFactoryDep,
-    StoredFileResponseFactoryDep
+    StoredFileResponseFactoryDep, UserSummaryResponseFactoryDep
 )
 from app.core.dependencies.slug import SlugServiceDep
 from app.features.auth.dependencies.repositories import RoleRepositoryDep
@@ -20,6 +20,7 @@ def get_user_service(
         role_repository: RoleRepositoryDep,
         slug_service: SlugServiceDep,
         file_service: FileServiceDep,
+        user_summary_response: UserSummaryResponseFactoryDep,
         user_response: UserResponseFactoryDep,
         user_admin_response: UserAdminResponseFactoryDep,
         store_file_response: StoredFileResponseFactoryDep
@@ -30,6 +31,7 @@ def get_user_service(
         role_repository=role_repository,
         slug_service=slug_service,
         file_service=file_service,
+        user_summary_response=user_summary_response,
         user_response=user_response,
         user_admin_response=user_admin_response,
         store_file_response=store_file_response,
