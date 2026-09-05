@@ -10,9 +10,14 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      # Containers reach Seq by its Compose service name, not localhost.
+      LOG__SEQ_URL: http://seq:5341
     depends_on:
       db:
         condition: service_healthy
+      seq:
+        condition: service_started
 
   db:
     image: postgres:18

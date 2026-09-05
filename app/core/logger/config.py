@@ -6,6 +6,28 @@ import seqlog
 from app.core.config.configuration import get_config
 
 
+_STANDARD_LOG_RECORD_ATTRIBUTES = frozenset(
+    logging.makeLogRecord({}).__dict__
+) | {"message", "asctime"}
+
+
+class SeqExtraPropertiesFilter(logging.Filter):
+    """Expose standard logging ``extra`` values as Seq properties."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        properties = dict(getattr(record, "log_props", {}))
+
+        properties.update(
+            (name, value)
+            for name, value in vars(record).items()
+            if name not in _STANDARD_LOG_RECORD_ATTRIBUTES
+            and name != "log_props"
+        )
+
+        record.log_props = properties
+        return True
+
+
 def setup_logging():
     config = get_config()
     log_dir = Path(config.log.dir)
@@ -19,6 +41,11 @@ def setup_logging():
             "formatters": {
                 "default": {
                     "format": config.log.format
+                }
+            },
+            "filters": {
+                "seq_extra_properties": {
+                    "()": SeqExtraPropertiesFilter,
                 }
             },
             "handlers": {
@@ -51,38 +78,40 @@ def setup_logging():
                 "seq": {
                     "class": "seqlog.SeqLogHandler",
                     "server_url": config.log.seq_url,
+                    "auto_flush_timeout": 1,
+                    "filters": ["seq_extra_properties"],
                     "level": config.log.level
                 }
             },
 
             "loggers": {
                 "uvicorn": {
-                    "handlers": ["console", "file"],
+                    "handlers": ["console", "file", "seq"],
                     "level": "INFO",
                     "propagate": False,
                 },
 
                 "uvicorn.error": {
-                    "handlers": ["console", "file"],
+                    "handlers": ["console", "file", "seq"],
                     "level": "INFO",
                     "propagate": False,
                 },
 
                 "uvicorn.access": {
-                    "handlers": ["console", "file"],
+                    "handlers": ["console", "file", "seq"],
                     "level": "INFO",
                     "propagate": False,
                 },
 
                 "http": {
-                    "handlers": ["console", "file"],
+                    "handlers": ["console", "file", "seq"],
                     "level": "INFO",
                     "propagate": False,
                 },
             },
 
             "root": {
-                "handlers": ["console", "file", "error_file"],
+                "handlers": ["console", "file", "error_file", "seq"],
                 "level": config.log.level
             }
         }

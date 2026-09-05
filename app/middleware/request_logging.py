@@ -42,9 +42,8 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             f"duration={duration:.2f}ms"
         )
 
-        logger.info(
-            "HTTP request completed",
-            extra={
+        properties = {
+            "log_props": {
                 "RequestId": request.state.request_id,
                 "RequestMethod": request.method,
                 "RequestPath": request.url.path,
@@ -52,41 +51,14 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 "UserId": str(user_id),
                 "ClientIp": request.state.client_ip,
                 "ElapsedMs": round(duration, 2),
-            },
-        )
+            }
+        }
 
         if status is not None and status >= 500:
-            logger.error(log,
-            extra={
-                "RequestId": request.state.request_id,
-                "RequestMethod": request.method,
-                "RequestPath": request.url.path,
-                "StatusCode": status,
-                "UserId": str(user_id),
-                "ClientIp": request.state.client_ip,
-                "ElapsedMs": round(duration, 2),
-            })
-        elif status >= 400:
-            logger.warning(log,
-            extra={
-                "RequestId": request.state.request_id,
-                "RequestMethod": request.method,
-                "RequestPath": request.url.path,
-                "StatusCode": status,
-                "UserId": str(user_id),
-                "ClientIp": request.state.client_ip,
-                "ElapsedMs": round(duration, 2),
-            })
+            logger.error(log, extra=properties)
+        elif status is not None and status >= 400:
+            logger.warning(log, extra=properties)
         else:
-            logger.info(log,
-            extra={
-                "RequestId": request.state.request_id,
-                "RequestMethod": request.method,
-                "RequestPath": request.url.path,
-                "StatusCode": status,
-                "UserId": str(user_id),
-                "ClientIp": request.state.client_ip,
-                "ElapsedMs": round(duration, 2),
-            })
+            logger.info(log, extra=properties)
 
         return response

@@ -37,7 +37,7 @@ async def seed_admin_users(session: AsyncSession, password_service: PasswordServ
         slug="administrator",
         status=UserStatus.ACTIVE,
         role=role,
-        is_system=True
+        is_system=False
     )
 
     identity = AuthenticationIdentity(

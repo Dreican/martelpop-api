@@ -30,7 +30,7 @@ from app.features.users.factories.user_response_factory import UserResponseFacto
 from app.features.users.models.user import User
 from app.features.users.repositories.user_repository import UserRepository
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("AuthService")
 
 
 class AuthService(BaseService):
@@ -196,6 +196,8 @@ class AuthService(BaseService):
             identity.password_hash = password_hash
             await self._refresh_tokens.revoke_all_for_user(user_id)
 
+            logger.info("Password updated", extra={"user_id": user_id, "user_display_name": identity.user.display_name})
+
     async def _is_email_available(self, email: str) -> None:
         existing = await self._users.get_by_email(email)
         if existing is not None:
@@ -216,6 +218,8 @@ class AuthService(BaseService):
             firstname=request.firstname,
             lastname=request.lastname,
             display_name=request.display_name,
+            municipality=request.municipality,
+            date_of_birth=request.date_of_birth,
             slug=slug,
             status=UserStatus.ACTIVE,
             role=default_role
