@@ -1,5 +1,6 @@
 import logging
 from typing import Any
+from uuid import UUID
 
 from sqlalchemy import select, Select, or_
 from sqlalchemy.exc import IntegrityError
@@ -44,6 +45,22 @@ class UserRepository(SluggableRepository[User]):
 
         if user is None:
             raise UserNotFoundError(slug=slug)
+
+        return user
+
+    async def required_for_authentication(self, user_id: UUID) -> User:
+        stmt = (
+            select(User)
+            .where(User.id == user_id)
+            .options(
+                selectinload(User.role)
+            )
+        )
+
+        user = await self._session.scalar(stmt)
+
+        if user is None:
+            raise UserNotFoundError(user_id=user_id)
 
         return user
 

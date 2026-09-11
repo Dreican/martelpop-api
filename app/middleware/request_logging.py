@@ -30,14 +30,14 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         status = getattr(response, "status_code", None)
 
         user = getattr(request.state, "user", None)
-        user_id = getattr(user, "id", "anonymous")
+        user_display_name = getattr(user, "display_name", "anonymous")
 
         log = (
             f"[{request.state.request_id}] "
             f"{request.method} "
             f"{request.url.path} "
             f"status={status} "
-            f"user={user_id} "
+            f"user={user_display_name} "
             f"ip={request.state.client_ip} "
             f"duration={duration:.2f}ms"
         )
@@ -48,7 +48,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 "RequestMethod": request.method,
                 "RequestPath": request.url.path,
                 "StatusCode": status,
-                "UserId": str(user_id),
+                "UserDisplayName": str(user_display_name),
                 "ClientIp": request.state.client_ip,
                 "ElapsedMs": round(duration, 2),
             }

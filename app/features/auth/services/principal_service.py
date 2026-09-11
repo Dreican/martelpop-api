@@ -52,12 +52,11 @@ class PrincipalService:
         except (ExpiredTokenError, InvalidTokenError):
             return None
 
-        user = await self._users.get_by_id(payload.sub)
+        user = await self._users.required_for_authentication(payload.sub)
 
         if (
-                user is None
-                or not user.is_active
-                or user.is_deleted
+            not user.is_active
+            or user.is_deleted
         ):
             return None
 

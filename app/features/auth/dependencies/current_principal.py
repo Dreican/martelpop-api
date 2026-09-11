@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials
 
 from app.features.auth.dependencies.services import PrincipalServiceDep
@@ -14,6 +14,7 @@ CredentialsDep = Annotated[
 
 
 async def get_current_principal(
+        request: Request,
         credentials: CredentialsDep,
         service: PrincipalServiceDep,
 ) -> Principal:
@@ -23,7 +24,10 @@ async def get_current_principal(
         else None
     )
 
-    return await service.authenticate(token)
+    principal = await service.authenticate(token)
+    request.state.user = principal.user
+
+    return principal
 
 
 CurrentPrincipalDep = Annotated[
