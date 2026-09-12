@@ -4,7 +4,6 @@ from uuid import UUID
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship, declared_attr
-from sqlalchemy.sql.coercions import cls
 
 if TYPE_CHECKING:
     from app.features.users.models.user import User
@@ -17,9 +16,12 @@ class SoftDeleteMixin:
         ForeignKey("users.id"),
     )
 
-    @declared_attr
-    def deleted_by(cls) -> Mapped["User | None"]:
-        return relationship(
-            "User",
-            foreign_keys=[cls.deleted_by_id],
-        )
+    if TYPE_CHECKING:
+        deleted_by: Mapped["User | None"]
+    else:
+        @declared_attr
+        def deleted_by(cls) -> Mapped["User | None"]:
+            return relationship(
+                "User",
+                foreign_keys=[cls.deleted_by_id],
+            )

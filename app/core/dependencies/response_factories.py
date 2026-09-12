@@ -73,8 +73,8 @@ def get_activity_type_response_factory() -> ActivityTypeResponseFactory:
     return ActivityTypeResponseFactory()
 
 
-def get_activity_type_admin_response_factory() -> ActivityTypeAdminResponseFactory:
-    return ActivityTypeAdminResponseFactory()
+def get_activity_type_admin_response_factory(user: UserSummaryResponseFactoryDep) -> ActivityTypeAdminResponseFactory:
+    return ActivityTypeAdminResponseFactory(user=user)
 
 
 ActivityTypeSummaryResponseFactoryDep = Annotated[

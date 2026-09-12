@@ -22,3 +22,13 @@ async def get_icon(
     download = await activity_type_service.get_icon(activity_type_slug)
 
     return file_stream_response(download)
+
+@router.get("/{activity_type_slug}")
+async def get_activity_type(
+        activity_type_slug: str,
+        activity_type_service: ActivityTypeServiceDep,
+        principal: Principal = permission(PermissionCode.ACTIVITY_TYPE_READ)
+) -> dict:
+    activity_type = await activity_type_service.get_activity_type(activity_type_slug)
+
+    return activity_type

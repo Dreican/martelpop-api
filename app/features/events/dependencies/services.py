@@ -5,7 +5,8 @@ from fastapi import Depends
 from app.core.dependencies.database import SessionDep
 from app.core.dependencies.response_factories import (
     EventResponseFactoryDep, ParticipantResponseFactoryDep,
-    StoredFileResponseFactoryDep, ActivityTypeAdminResponseFactoryDep
+    StoredFileResponseFactoryDep, ActivityTypeAdminResponseFactoryDep, ActivityTypeSummaryResponseFactoryDep,
+    ActivityTypeResponseFactoryDep
 )
 from app.core.dependencies.slug import SlugServiceDep
 from app.features.events.dependencies.policies import EventPolicyDep, EventAccessFilterDep
@@ -64,6 +65,8 @@ def get_activity_type_service(
         file_service: FileServiceDep,
         application_settings: ApplicationSettingsDep,
         stored_file_response: StoredFileResponseFactoryDep,
+        response_summary_factory: ActivityTypeSummaryResponseFactoryDep,
+        response_factory: ActivityTypeResponseFactoryDep,
         response_admin_factory: ActivityTypeAdminResponseFactoryDep,
 ) -> ActivityTypeService:
     return ActivityTypeService(
@@ -73,6 +76,8 @@ def get_activity_type_service(
         file_service=file_service,
         application_settings=application_settings,
         stored_file_response=stored_file_response,
+        response_factory=response_factory,
+        response_summary_factory=response_summary_factory,
         response_admin_factory=response_admin_factory,
     )
 

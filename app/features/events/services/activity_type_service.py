@@ -12,6 +12,8 @@ from app.features.events.dto.requests.activity_type_update_request import Activi
 from app.features.events.dto.responses.activity_type_admin_response import ActivityTypeAdminResponse
 from app.features.events.dto.responses.activity_type_response import ActivityTypeResponse
 from app.features.events.factories.activity_type_admin_response_factory import ActivityTypeAdminResponseFactory
+from app.features.events.factories.activity_type_response_factory import ActivityTypeResponseFactory
+from app.features.events.factories.activity_type_summary_response_factory import ActivityTypeSummaryResponseFactory
 from app.features.events.models.activity_type import ActivityType
 from app.features.events.repositories.activity_type_repository import ActivityTypeRepository
 from app.features.settings.services.application_settings import ApplicationSettings
@@ -34,6 +36,8 @@ class ActivityTypeService(BaseService):
             file_service: FileService,
             application_settings: ApplicationSettings,
             stored_file_response: StoredFileResponseFactory,
+            response_summary_factory: ActivityTypeSummaryResponseFactory,
+            response_factory: ActivityTypeResponseFactory,
             response_admin_factory: ActivityTypeAdminResponseFactory,
     ):
         super().__init__(session)
@@ -42,6 +46,8 @@ class ActivityTypeService(BaseService):
         self._file = file_service
         self._settings = application_settings
         self._stored_file_response = stored_file_response
+        self._response_summary = response_summary_factory
+        self._response = response_factory
         self._response_admin = response_admin_factory
 
     async def create_activity_type(
@@ -69,10 +75,10 @@ class ActivityTypeService(BaseService):
 
         return self._response_admin.create(activity_type)
 
-    async def get_activity_type_by_slug(self, activity_type_slug: str) -> ActivityTypeAdminResponse:
+    async def get_activity_type_by_slug(self, activity_type_slug: str) -> ActivityTypeResponse:
         activity_type = await self._activity_type_repo.required_by_slug(activity_type_slug)
 
-        return self._response_admin.create(activity_type)
+        return self._response.create(activity_type)
 
     async def list_activity_type(self) -> list[ActivityTypeAdminResponse]:
         activity_types = await self._activity_type_repo.get_all()
