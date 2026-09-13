@@ -8,5 +8,5 @@ class ActivityTypeAdminResponse(ActivityTypeResponse):
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None
-    deleted_by: UserSummaryResponse
+    deleted_by: UserSummaryResponse | None
     is_default: bool

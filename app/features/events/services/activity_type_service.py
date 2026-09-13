@@ -51,8 +51,9 @@ class ActivityTypeService(BaseService):
         self._response_admin = response_admin_factory
 
     async def create_activity_type(
-            self, request: ActivityTypeCreateRequest, principal: AuthenticatedPrincipal
-            ) -> ActivityTypeAdminResponse:
+            self, request: ActivityTypeCreateRequest,
+            principal: AuthenticatedPrincipal
+    ) -> ActivityTypeAdminResponse:
 
         slug = await self._slug.create_unique(request.name, slug_exists=self._activity_type_repo.exists_by_slug)
 

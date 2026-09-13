@@ -7,6 +7,5 @@ class ActivityTypeUpdateRequest(BaseModel):
     color: str | None = Field(..., description="The color of the activity type")
     default_location: str | None = Field(..., description="The default location of the activity type")
     default_capacity: int | None = Field(..., description="The default capacity of the activity type")
-    default_duration_minutes: int | None = Field(
-        ..., description="The default duration of the activity type in minutes"
-        )
+    default_duration_minutes: int | None = Field(..., description="The default duration of the activity type in minutes")
+    default_price: int | None = Field(..., description="The default price of the activity type")
