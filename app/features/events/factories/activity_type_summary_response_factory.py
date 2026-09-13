@@ -10,6 +10,6 @@ class ActivityTypeSummaryResponseFactory(ResponseFactory[ActivityType, ActivityT
     def create(self, entity: ActivityType) -> ActivityTypeSummaryResponse:
         response = ActivityTypeSummaryResponse.model_validate(entity)
 
-        response.icon_url = self.file_url(entity.banner_file_id)
+        response.icon_url = self.file_url(entity.icon_file_id)
 
         return response
