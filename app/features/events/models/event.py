@@ -54,7 +54,7 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
 
     capacity: Mapped[int | None]
 
-    price: Mapped[int | None]
+    price: Mapped[float | None]
 
     registration_end_at: Mapped[datetime | None]
 

@@ -7,10 +7,12 @@ from app.features.users.dto.user_summary_response import UserSummaryResponse
 class EventResponse(EventSummaryResponse):
     description: str | None
 
-    capacity: int | None
+    location: str | None
     banner_url: str | None
-    activity_type: ActivityTypeSummaryResponse
+    capacity: int | None
+    price: float | None
+
     creator: UserSummaryResponse
-    status: EventStatusSummaryResponse
+
 
     is_full: bool

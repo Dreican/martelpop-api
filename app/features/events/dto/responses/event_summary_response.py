@@ -17,8 +17,5 @@ class EventSummaryResponse(BaseModel):
     start_date: datetime | None
     end_date: datetime | None
 
-    location: str | None
-    banner_url: str | None
-
     activity_type: ActivityTypeSummaryResponse
     status: EventStatusSummaryResponse
