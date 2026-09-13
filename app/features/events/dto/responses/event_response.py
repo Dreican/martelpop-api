@@ -1,5 +1,3 @@
-from app.features.events.dto.responses.activity_type_summary_response import ActivityTypeSummaryResponse
-from app.features.events.dto.responses.event_status_summary_response import EventStatusSummaryResponse
 from app.features.events.dto.responses.event_summary_response import EventSummaryResponse
 from app.features.users.dto.user_summary_response import UserSummaryResponse
 
@@ -13,6 +11,5 @@ class EventResponse(EventSummaryResponse):
     price: float | None
 
     creator: UserSummaryResponse
-
 
     is_full: bool

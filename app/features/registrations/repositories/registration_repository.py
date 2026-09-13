@@ -1,4 +1,3 @@
-from datetime import datetime, UTC
 from typing import Any
 from uuid import UUID
 
@@ -170,4 +169,3 @@ class RegistrationRepository(BaseRepository[Registration]):
         )
 
         return stmt
-

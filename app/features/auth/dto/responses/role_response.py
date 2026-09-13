@@ -10,4 +10,3 @@ class RoleResponse(RoleSummaryResponse):
     is_default: bool
     created_at: datetime
     updated_at: datetime
-

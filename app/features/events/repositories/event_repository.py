@@ -126,7 +126,6 @@ class EventRepository(SluggableRepository[Event]):
 
         return await self._session.scalar(stmt)
 
-
     async def has_capacity(self, event_id: UUID, capacity: int | None) -> bool:
         if capacity is None:
             return True
@@ -142,7 +141,6 @@ class EventRepository(SluggableRepository[Event]):
         registered_count = await self._session.scalar(stmt) or 0
 
         return registered_count < capacity
-
 
     @staticmethod
     def _apply_filters(stmt: Select[tuple[Any]], request: EventSearchRequest) -> Select[tuple[Any]]:

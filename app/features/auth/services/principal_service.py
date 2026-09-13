@@ -55,8 +55,8 @@ class PrincipalService:
         user = await self._users.required_for_authentication(payload.sub)
 
         if (
-            not user.is_active
-            or user.is_deleted
+                not user.is_active
+                or user.is_deleted
         ):
             return None
 

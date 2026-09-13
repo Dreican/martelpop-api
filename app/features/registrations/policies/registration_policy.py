@@ -38,8 +38,8 @@ class RegistrationPolicy:
         return (
                 event.status.code == EventStatusCode.PUBLISHED
                 and (
-                    not event.is_vip_event
-                    or principal.is_vip
+                        not event.is_vip_event
+                        or principal.is_vip
                 )
         )
 

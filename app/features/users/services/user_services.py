@@ -6,10 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.pagination.page import Page
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.features.auth.enums.permission_code import PermissionCode
-from app.features.auth.exceptions.authorization_exceptions import PermissionDeniedError
 from app.features.auth.repositories.role_repository import RoleRepository
-from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.storage.dto.file_download import FileDownload
 from app.features.storage.dto.stored_file_response import StoredFileResponse
 from app.features.storage.enums.storage_categories import StorageCategory
@@ -109,7 +107,9 @@ class UserService(BaseService):
 
         return await self._persist(user)
 
-    async def upload_avatar(self, user_id: UUID, principal: AuthenticatedPrincipal, file: UploadFile) -> StoredFileResponse:
+    async def upload_avatar(
+            self, user_id: UUID, principal: AuthenticatedPrincipal, file: UploadFile
+            ) -> StoredFileResponse:
         user = await self._users.get_required(user_id)
         return await self._upload_user_avatar(user, principal, file)
 
@@ -141,7 +141,12 @@ class UserService(BaseService):
 
         return self._user_admin_response.create(user)
 
-    async def _upload_user_avatar(self, user: User, principal: AuthenticatedPrincipal, file: UploadFile) -> StoredFileResponse:
+    async def _upload_user_avatar(
+        self,
+        user: User,
+        principal: AuthenticatedPrincipal,
+        file: UploadFile
+    ) -> StoredFileResponse:
         old_file_id = user.avatar_file_id
 
         avatar = await self._file.upload(file, uploaded_by_id=principal.user.id, category=StorageCategory.USER_AVATARS)

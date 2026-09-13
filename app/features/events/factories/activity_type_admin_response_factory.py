@@ -1,7 +1,6 @@
 from app.core.factories.response_factory import ResponseFactory
 from app.features.events.dto.responses.activity_type_admin_response import ActivityTypeAdminResponse
 from app.features.events.models.activity_type import ActivityType
-from app.features.users.dto.user_summary_response import UserSummaryResponse
 from app.features.users.factories.user_summary_response_factory import UserSummaryResponseFactory
 
 

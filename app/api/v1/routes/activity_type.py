@@ -23,6 +23,7 @@ async def get_icon(
 
     return file_stream_response(download)
 
+
 @router.get("/{activity_type_slug}")
 async def get_activity_type(
         activity_type_slug: str,

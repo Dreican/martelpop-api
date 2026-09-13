@@ -115,7 +115,7 @@ class EventService(BaseService):
     async def update_event(
             self, event_id: UUID, request: EventUpdateRequest,
             principal: AuthenticatedPrincipal
-            ) -> EventResponse:
+    ) -> EventResponse:
         event = await self._event_repo.get_required(event_id)
 
         self._require_editable(event, principal)
@@ -203,7 +203,7 @@ class EventService(BaseService):
     async def upload_banner(
             self, event_id: UUID, principal: AuthenticatedPrincipal,
             file: UploadFile
-            ) -> StoredFileResponse:
+    ) -> StoredFileResponse:
         event = await self._event_repo.get_required(event_id)
 
         self._require_editable(event, principal)

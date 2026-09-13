@@ -41,7 +41,7 @@ class UserRepository(SluggableRepository[User]):
             .options(selectinload(User.role))
         )
 
-        user =  await self._session.scalar(stmt)
+        user = await self._session.scalar(stmt)
 
         if user is None:
             raise UserNotFoundError(slug=slug)

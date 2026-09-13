@@ -16,7 +16,6 @@ from app.features.registrations.dto.responses.registration_response import Regis
 from app.features.registrations.enums.registration_status import RegistrationStatus
 from app.features.registrations.exceptions.registrations_exceptions import (
     RegistrationClosedError,
-    EventFullError,
     AlreadyRegisteredError, RegistrationsDisabledError
 )
 from app.features.registrations.factories.registration_response_factory import RegistrationResponseFactory
@@ -58,7 +57,7 @@ class RegistrationService(BaseService):
             event_slug: str,
             request: RegistrationRequest,
             principal: AuthenticatedPrincipal
-        ) -> RegistrationResponse:
+    ) -> RegistrationResponse:
         event = await self._events.get_for_update_by_slug(event_slug)
         return await self._register(principal.user, event, request, principal)
 
@@ -68,11 +67,10 @@ class RegistrationService(BaseService):
             user_id: UUID,
             request: RegistrationRequest,
             principal: AuthenticatedPrincipal
-        ) -> RegistrationResponse:
+    ) -> RegistrationResponse:
         event = await self._events.get_for_update_by_id(event_id)
         user = await self._users.get_required(user_id)
         return await self._register(user, event, request, principal)
-
 
     async def _register(
             self,

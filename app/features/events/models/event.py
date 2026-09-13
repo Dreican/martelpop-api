@@ -127,9 +127,9 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     @property
     def is_full(self) -> bool:
         return (
-            self.capacity is not None
-            and self.remaining_capacity is not None
-            and self.remaining_capacity <= 0
+                self.capacity is not None
+                and self.remaining_capacity is not None
+                and self.remaining_capacity <= 0
         )
 
     @property
@@ -170,8 +170,8 @@ class Event(Base, SoftDeleteMixin, SlugMixin):
     @property
     def is_registration_open(self) -> bool:
         return (
-            self.status.is_bookable
-            or (self.registration_end_at < datetime.now(UTC) if self.registration_end_at is not None else True)
+                self.status.is_bookable
+                or (self.registration_end_at < datetime.now(UTC) if self.registration_end_at is not None else True)
         )
 
     @property

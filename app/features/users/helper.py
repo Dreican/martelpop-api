@@ -1,6 +1,7 @@
 import hashlib
 from html import escape
 
+
 def generate_avatar(display_name: str) -> str:
     words = display_name.strip().split()
 

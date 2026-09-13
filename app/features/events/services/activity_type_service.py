@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.services.base_service import BaseService
 from app.core.services.slug_service import SlugService
-from app.features.auth.security.principal import AuthenticatedPrincipal, Principal
+from app.features.auth.security.principal import AuthenticatedPrincipal
 from app.features.events.dto.requests.activity_type_create_request import ActivityTypeCreateRequest
 from app.features.events.dto.requests.activity_type_update_request import ActivityTypeUpdateRequest
 from app.features.events.dto.responses.activity_type_admin_response import ActivityTypeAdminResponse
@@ -88,13 +88,13 @@ class ActivityTypeService(BaseService):
 
     async def update_activity_type(
             self, activity_type_id: UUID, request: ActivityTypeUpdateRequest
-            ) -> ActivityTypeAdminResponse:
+    ) -> ActivityTypeAdminResponse:
         activity_type = await self._activity_type_repo.get_required(activity_type_id)
 
         if activity_type.name != request.name:
             activity_type.slug = await self._slug.create_unique(
                 request.name, slug_exists=self._activity_type_repo.exists_by_slug
-                )
+            )
 
         activity_type.update(
             name=request.name,

@@ -2,7 +2,7 @@ from datetime import datetime, UTC, date
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import String, ForeignKey, Enum, UniqueConstraint, Index
+from sqlalchemy import String, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -144,7 +144,8 @@ class User(Base, SoftDeleteMixin, SlugMixin):
         self.lastname = request.lastname
         self.email = request.email
         self.display_name = request.display_name
-        self.status = request.status
+        self.municipality = request.municipality
+        self.date_of_birth = request.date_of_birth
 
     def delete(self):
         self.deleted_at = datetime.now(UTC)
