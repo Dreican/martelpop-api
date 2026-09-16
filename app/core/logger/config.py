@@ -108,6 +108,17 @@ def setup_logging():
                     "level": "INFO",
                     "propagate": False,
                 },
+                "sqlalchemy.engine": {
+                    "handlers": ["console", "file", "seq"],
+                    "level": "INFO",
+                    "propagate": False,
+                },
+
+                "sqlalchemy.pool": {
+                    "handlers": ["console", "file", "seq"],
+                    "level": "WARNING",
+                    "propagate": False,
+                },
             },
 
             "root": {
