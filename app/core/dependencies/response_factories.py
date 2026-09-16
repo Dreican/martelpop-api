@@ -48,20 +48,17 @@ RoleResponseFactoryDep = Annotated[RoleResponseFactory, Depends(get_role_respons
 RoleSummaryResponseFactoryDep = Annotated[RoleSummaryResponseFactory, Depends(get_role_summary_response_factory)]
 
 
-def get_user_response_factory(role: RoleSummaryResponseFactoryDep) -> UserResponseFactory:
-    return UserResponseFactory(role=role)
-
-
 def get_user_summary_response_factory() -> UserSummaryResponseFactory:
     return UserSummaryResponseFactory()
 
+def get_user_response_factory(role: RoleSummaryResponseFactoryDep) -> UserResponseFactory:
+    return UserResponseFactory(role=role)
 
-def get_user_admin_response_factory(role: RoleSummaryResponseFactoryDep) -> UserAdminResponseFactory:
-    return UserAdminResponseFactory(role=role)
+def get_user_admin_response_factory(role: RoleSummaryResponseFactoryDep, user_summary: UserSummaryResponseFactory) -> UserAdminResponseFactory:
+    return UserAdminResponseFactory(role=role, user_summary=user_summary)
 
-
-UserResponseFactoryDep = Annotated[UserResponseFactory, Depends(get_user_response_factory)]
 UserSummaryResponseFactoryDep = Annotated[UserSummaryResponseFactory, Depends(get_user_summary_response_factory)]
+UserResponseFactoryDep = Annotated[UserResponseFactory, Depends(get_user_response_factory)]
 UserAdminResponseFactoryDep = Annotated[UserAdminResponseFactory, Depends(get_user_admin_response_factory)]
 
 

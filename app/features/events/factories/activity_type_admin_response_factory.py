@@ -14,7 +14,6 @@ class ActivityTypeAdminResponseFactory(ResponseFactory[ActivityType, ActivityTyp
 
         response.icon_url = self.file_url(entity.icon_file_id)
         response.banner_url = self.file_url(entity.banner_file_id)
-        if entity.deleted_by is not None:
-            response.deleted_by = self.user_response.create(entity.deleted_by)
+        response.deleted_by = self.user_response.create(entity.deleted_by) if entity.deleted_by else None
 
         return response
